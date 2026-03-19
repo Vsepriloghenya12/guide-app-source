@@ -1,18 +1,12 @@
 import { Link } from 'react-router-dom';
+import { AppLogo } from '../common/AppLogo';
 
 export function HomeHero() {
   return (
     <section className="hero card">
       <div className="hero__brand">
         <div className="hero__logo-wrap">
-          <img
-            className="hero__logo"
-            src="/logo.svg"
-            alt="Логотип Guide"
-            onError={(event) => {
-              event.currentTarget.src = '/logo-placeholder.svg';
-            }}
-          />
+          <AppLogo className="hero__logo" alt="Логотип Guide" />
         </div>
         <div className="hero__copy">
           <span className="eyebrow">Guide app</span>
