@@ -3,22 +3,29 @@ import { AppLogo } from '../common/AppLogo';
 
 export function HomeHero() {
   return (
-    <section className="hero card">
-      <div className="hero__brand">
-        <AppLogo className="hero__logo" alt="Логотип Guide" />
-        <div className="hero__copy">
-          <span className="eyebrow">Danang city guide</span>
-          <h1>Дананг. Места, вкус, маршруты и впечатления.</h1>
-        </div>
-      </div>
+    <section className="hero hero--poster">
+      <div className="hero__brand hero__brand--center">
+        <AppLogo className="hero__logo hero__logo--giant" alt="Логотип Guide" />
 
-      <div className="hero__actions">
-        <Link className="button button--primary" to="/restaurants">
-          Открыть подборки
-        </Link>
-        <Link className="button button--ghost" to="/owner">
-          Страница владельца
-        </Link>
+        <div className="hero__copy hero__copy--center">
+          <span className="eyebrow">Da Nang · Vietnam</span>
+          <p>Пляжи, город, вкусные места, маршруты и полезные точки в одном приложении.</p>
+        </div>
+
+        <div className="hero__quicklinks" aria-label="Быстрые переходы">
+          <Link className="hero__quicklink" to="/restaurants">
+            Еда
+          </Link>
+          <Link className="hero__quicklink" to="/wellness">
+            СПА
+          </Link>
+          <Link className="hero__quicklink" to="/section/culture">
+            Места
+          </Link>
+          <Link className="hero__quicklink" to="/owner">
+            Владелец
+          </Link>
+        </div>
       </div>
     </section>
   );
