@@ -7,8 +7,9 @@
   min-height: 100vh;
   overflow-x: hidden;
   background:
-    linear-gradient(180deg, rgba(8, 10, 15, 0.54), rgba(4, 6, 8, 0.9)),
-    url('/danang-gta-backdrop.svg') center top / cover no-repeat fixed;
+    linear-gradient(180deg, rgba(6, 10, 16, 0.42), rgba(4, 7, 11, 0.88)),
+    linear-gradient(120deg, rgba(9, 14, 22, 0.18), rgba(9, 14, 22, 0.42)),
+    url('/danang-gta-beach-city.jpg') center top / cover no-repeat fixed;
 }
 
 .app-shell::before {
@@ -17,9 +18,9 @@
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 14% 14%, rgba(255, 177, 84, 0.18), transparent 22%),
-    radial-gradient(circle at 82% 20%, rgba(255, 122, 80, 0.16), transparent 24%),
-    linear-gradient(180deg, rgba(5, 8, 12, 0.12), rgba(5, 8, 12, 0.46));
+    radial-gradient(circle at 12% 12%, rgba(255, 194, 116, 0.24), transparent 24%),
+    radial-gradient(circle at 84% 18%, rgba(255, 145, 96, 0.22), transparent 28%),
+    linear-gradient(180deg, rgba(3, 7, 12, 0.06), rgba(3, 7, 12, 0.42));
   z-index: 0;
 }
 
@@ -96,26 +97,16 @@
 
 .hero__brand {
   display: grid;
-  grid-template-columns: 108px minmax(0, 1fr);
-  gap: 22px;
-  align-items: start;
-}
-
-.hero__logo-wrap {
-  display: grid;
-  place-items: center;
-  width: 108px;
-  height: 108px;
-  border-radius: 28px;
-  background: linear-gradient(180deg, rgba(255, 218, 149, 0.18), rgba(255, 128, 89, 0.14));
-  border: 1px solid rgba(255, 235, 194, 0.12);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+  grid-template-columns: minmax(150px, clamp(180px, 24vw, 230px)) minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
 }
 
 .hero__logo {
-  width: 72px;
-  height: 72px;
+  width: clamp(180px, 24vw, 230px);
+  height: clamp(180px, 24vw, 230px);
   object-fit: contain;
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.45));
 }
 
 .hero__copy h1,
@@ -138,7 +129,11 @@
   margin-top: 10px;
   max-width: 980px;
   font-size: clamp(2.8rem, 7vw, 6.2rem);
-  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 8px 28px rgba(0, 0, 0, 0.42);
+}
+
+.hero .eyebrow {
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 .hero__copy p,
@@ -153,12 +148,6 @@
   color: var(--text-soft);
 }
 
-.hero__copy p {
-  max-width: 720px;
-  margin: 14px 0 0;
-  font-size: 1rem;
-  line-height: 1.75;
-}
 
 .hero__actions,
 .placeholder-state__actions {
@@ -716,21 +705,22 @@
     padding-bottom: 22px;
   }
 
+  .app-shell {
+    background:
+      linear-gradient(180deg, rgba(6, 10, 16, 0.44), rgba(4, 7, 11, 0.9)),
+      linear-gradient(120deg, rgba(9, 14, 22, 0.12), rgba(9, 14, 22, 0.36)),
+      url('/danang-gta-beach-city.jpg') center top / cover no-repeat;
+  }
+
   .hero__brand {
     grid-template-columns: 1fr;
     gap: 18px;
     justify-items: start;
   }
 
-  .hero__logo-wrap {
-    width: 88px;
-    height: 88px;
-    border-radius: 24px;
-  }
-
   .hero__logo {
-    width: 56px;
-    height: 56px;
+    width: clamp(170px, 52vw, 220px);
+    height: clamp(170px, 52vw, 220px);
   }
 
   .feature-grid,
