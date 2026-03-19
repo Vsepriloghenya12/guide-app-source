@@ -3,7 +3,7 @@ import { homeCategories } from '../../data/categories';
 
 export function CategoryList() {
   return (
-    <section className="card">
+    <section>
       <div className="section-heading">
         <div>
           <span className="eyebrow">Категории</span>
@@ -16,7 +16,7 @@ export function CategoryList() {
           <Link key={category.id} to={category.path} className="category-list__item">
             <div className="category-list__text">
               <strong>{category.title}</strong>
-              <span>Карточки и наполнение можно расширять отдельно в этом разделе.</span>
+              <span>Карточки и наполнение будут расширяться отдельно внутри каждого раздела.</span>
             </div>
             <div className="category-list__meta">
               {category.badge ? <span className="category-list__badge">{category.badge}</span> : null}

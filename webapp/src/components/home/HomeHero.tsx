@@ -9,11 +9,11 @@ export function HomeHero() {
           <AppLogo className="hero__logo" alt="Логотип Guide" />
         </div>
         <div className="hero__copy">
-          <span className="eyebrow">Guide app</span>
-          <h1>Ваш красивый гид по местам, отдыху и маршрутам</h1>
+          <span className="eyebrow">Danang city guide</span>
+          <h1>Дананг. Места, вкус, маршруты и впечатления.</h1>
           <p>
-            Стартовый экран уже готов под развитие: категории, подборки, карточки мест и отдельная
-            зона владельца.
+            Фон и атмосфера экрана уже собраны в стиле яркого постера: море, мосты, город и
+            ключевые точки для красивого и удобного guide-приложения.
           </p>
         </div>
       </div>
