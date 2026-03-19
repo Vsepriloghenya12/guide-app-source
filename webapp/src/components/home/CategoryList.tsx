@@ -3,11 +3,11 @@ import { homeCategories } from '../../data/categories';
 
 export function CategoryList() {
   return (
-    <section className="category-section">
-      <div className="section-heading">
+    <section className="category-section category-section--all">
+      <div className="section-heading section-heading--poster">
         <div>
           <span className="eyebrow">Навигация</span>
-          <h2>Все категории</h2>
+          <h2>Все рубрики</h2>
         </div>
       </div>
 
