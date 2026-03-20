@@ -6,7 +6,7 @@ const categoryTiles = [
   { id: 'fun', title: 'Развлечения', icon: '🍸', path: '/section/events', tone: 'blue' },
   { id: 'culture', title: 'Культура', icon: '⌂', path: '/section/culture', tone: 'pink' },
   { id: 'spa', title: 'СПА', icon: '✦', path: '/wellness', tone: 'green' },
-  { id: 'favorites', title: 'Избранное', icon: '♡', path: '/favorites', tone: 'red' },
+  { id: 'shopping', title: 'Шопинг', icon: '🛍', path: '/section/shops', tone: 'red' },
   { id: 'nature', title: 'Природа', icon: '▲', path: '/section/routes', tone: 'teal' }
 ];
 
@@ -17,7 +17,6 @@ const tips = [
 ];
 
 const popularCards = homeFeatures.slice(0, 2);
-
 const posterTones = ['coast', 'bridge'] as const;
 
 export function FeatureGrid() {

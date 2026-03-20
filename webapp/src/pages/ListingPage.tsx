@@ -109,7 +109,7 @@ export function ListingPage({ category }: ListingPageProps) {
           subtitle="Каркас раздела уже готов: фильтры, карточки, адаптивная сетка и место под реальное наполнение."
           showBack
           actionLabel="Владелец"
-          actionPath="/owner"
+          actionPath="/owner-login"
         />
 
         <FilterPanel title="Фильтр ресторанов">
@@ -159,7 +159,7 @@ export function ListingPage({ category }: ListingPageProps) {
         subtitle="Раздел подготовлен под будущие карточки, фильтры и полноценное наполнение владельцем."
         showBack
         actionLabel="Владелец"
-        actionPath="/owner"
+        actionPath="/owner-login"
       />
 
       <FilterPanel title="Фильтр СПА и оздоровления">

@@ -17,10 +17,11 @@ export function CategoryList() {
             <div className="category-list__text">
               <strong>{category.title}</strong>
             </div>
-            <div className="category-list__meta">
-              {category.badge ? <span className="category-list__badge">{category.badge}</span> : null}
-              <span className="category-list__arrow">→</span>
-            </div>
+            {category.badge ? (
+              <div className="category-list__meta">
+                <span className="category-list__badge">{category.badge}</span>
+              </div>
+            ) : null}
           </Link>
         ))}
       </div>
