@@ -61,3 +61,8 @@ npm run start
 - контакты и обратная связь
 - финальная PWA-полировка
 - SEO и релизная оптимизация
+
+
+## Railway build note
+
+This project includes a root `.npmrc` with `include=dev` so Vite and TypeScript tooling are available during Railway builds. If your Railway service still has an old cached environment variable forcing production-only installs, set `NPM_CONFIG_PRODUCTION=false` and redeploy.
