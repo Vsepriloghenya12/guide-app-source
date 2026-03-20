@@ -29,8 +29,8 @@ export function OwnerLoginPage() {
     <div className="page-stack owner-login-page">
       <PageHeader
         title="Вход для владельца"
-        subtitle="Отдельная страница входа в owner-раздел. Позже сюда можно подключить полноценную серверную авторизацию."
-        showBack
+        subtitle="Это отдельная ссылка для входа в закрытую owner-CMS. В публичном приложении кнопок сюда нет."
+        badgeLabel="Owner CMS"
       />
 
       <section className="owner-login-card">
@@ -38,8 +38,8 @@ export function OwnerLoginPage() {
           <span className="eyebrow">Owner access</span>
           <h2>Управление наполнением приложения</h2>
           <p>
-            Сейчас вход защищён паролем на фронтенде. Для продакшена лучше вынести проверку на сервер и
-            хранить пароль в переменной Railway `VITE_OWNER_PASSWORD`.
+            Сейчас вход защищён паролем на фронтенде. Когда подключим серверную часть, перенесём
+            авторизацию в backend и Railway Variables.
           </p>
         </div>
 
@@ -62,7 +62,7 @@ export function OwnerLoginPage() {
 
           <div className="owner-login-form__actions">
             <button className="button button--primary" type="submit">
-              Войти в owner-page
+              Войти в owner-CMS
             </button>
           </div>
         </form>

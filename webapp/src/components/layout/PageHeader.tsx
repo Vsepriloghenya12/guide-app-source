@@ -6,6 +6,7 @@ type PageHeaderProps = {
   showBack?: boolean;
   actionLabel?: string;
   actionPath?: string;
+  badgeLabel?: string;
 };
 
 export function PageHeader({
@@ -13,7 +14,8 @@ export function PageHeader({
   subtitle,
   showBack = false,
   actionLabel,
-  actionPath
+  actionPath,
+  badgeLabel = 'Guide'
 }: PageHeaderProps) {
   return (
     <header className="page-header card card--blur">
@@ -23,7 +25,7 @@ export function PageHeader({
             ← Назад
           </Link>
         ) : (
-          <span className="chip-link chip-link--ghost">Guide</span>
+          <span className="chip-link chip-link--ghost">{badgeLabel}</span>
         )}
 
         {actionLabel && actionPath ? (

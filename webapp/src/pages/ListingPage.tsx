@@ -7,7 +7,7 @@ import {
 } from '../components/filters/RestaurantFilters';
 import { WellnessFilters, WellnessFiltersState } from '../components/filters/WellnessFilters';
 import { PageHeader } from '../components/layout/PageHeader';
-import { restaurants, wellnessItems } from '../data/mockData';
+import { useGuideContent } from '../hooks/useGuideContent';
 
 type ListingPageProps = {
   category: 'restaurants' | 'wellness';
@@ -34,6 +34,7 @@ export function ListingPage({ category }: ListingPageProps) {
   );
   const [wellnessFiltersState, setWellnessFiltersState] =
     useState<WellnessFiltersState>(initialWellnessFilters);
+  const { restaurants, wellness } = useGuideContent();
 
   const filteredRestaurants = useMemo(() => {
     return restaurants.filter((item) => {
@@ -79,10 +80,10 @@ export function ListingPage({ category }: ListingPageProps) {
 
       return true;
     });
-  }, [restaurantFilters]);
+  }, [restaurantFilters, restaurants]);
 
   const filteredWellness = useMemo(() => {
-    return wellnessItems.filter((item) => {
+    return wellness.filter((item) => {
       if (
         wellnessFiltersState.service.length > 0 &&
         !wellnessFiltersState.service.some((service) => item.services.includes(service as never))
@@ -99,17 +100,15 @@ export function ListingPage({ category }: ListingPageProps) {
 
       return true;
     });
-  }, [wellnessFiltersState]);
+  }, [wellnessFiltersState, wellness]);
 
   if (category === 'restaurants') {
     return (
       <div className="page-stack">
         <PageHeader
           title="Рестораны, кафе и столовые"
-          subtitle="Каркас раздела уже готов: фильтры, карточки, адаптивная сетка и место под реальное наполнение."
+          subtitle="Раздел уже подключён к owner-CMS: новые карточки из закрытой страницы владельца появляются здесь автоматически."
           showBack
-          actionLabel="Владелец"
-          actionPath="/owner-login"
         />
 
         <FilterPanel title="Фильтр ресторанов">
@@ -156,10 +155,8 @@ export function ListingPage({ category }: ListingPageProps) {
     <div className="page-stack">
       <PageHeader
         title="СПА и оздоровление"
-        subtitle="Раздел подготовлен под будущие карточки, фильтры и полноценное наполнение владельцем."
+        subtitle="Этот раздел тоже связан с owner-CMS: карточки из закрытой страницы владельца сразу выводятся здесь."
         showBack
-        actionLabel="Владелец"
-        actionPath="/owner-login"
       />
 
       <FilterPanel title="Фильтр СПА и оздоровления">

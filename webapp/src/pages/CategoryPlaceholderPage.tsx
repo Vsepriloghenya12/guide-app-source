@@ -12,8 +12,6 @@ export function CategoryPlaceholderPage() {
         title={title}
         subtitle="Здесь пока стоят аккуратные заглушки. Дальше можно наполнить раздел карточками, фильтрами, картой, подборками и внутренними страницами."
         showBack
-        actionLabel="Владелец"
-        actionPath="/owner-login"
       />
 
       <section className="card card--placeholder">
@@ -27,9 +25,6 @@ export function CategoryPlaceholderPage() {
           <div className="placeholder-state__actions">
             <Link className="button button--primary" to="/">
               На главную
-            </Link>
-            <Link className="button button--ghost" to="/owner-login">
-              Вход для владельца
             </Link>
           </div>
         </div>
