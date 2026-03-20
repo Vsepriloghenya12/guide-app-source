@@ -1,15 +1,24 @@
-export const OWNER_SESSION_KEY = 'guide-owner-auth';
+import { fetchOwnerSessionRequest, loginOwnerRequest, logoutOwnerRequest } from '../data/api';
+import { notifyOwnerAuthRequired } from './ownerEvents';
 
-export const getOwnerPassword = () => import.meta.env.VITE_OWNER_PASSWORD || 'guide2026';
-
-export function isOwnerAuthenticated() {
-  return localStorage.getItem(OWNER_SESSION_KEY) === 'true';
+export async function isOwnerAuthenticated() {
+  try {
+    const response = await fetchOwnerSessionRequest();
+    return response.authenticated;
+  } catch {
+    return false;
+  }
 }
 
-export function loginOwner() {
-  localStorage.setItem(OWNER_SESSION_KEY, 'true');
+export async function loginOwner(password: string) {
+  const response = await loginOwnerRequest(password);
+  return response.authenticated;
 }
 
-export function logoutOwner() {
-  localStorage.removeItem(OWNER_SESSION_KEY);
+export async function logoutOwner() {
+  try {
+    await logoutOwnerRequest();
+  } finally {
+    notifyOwnerAuthRequired();
+  }
 }

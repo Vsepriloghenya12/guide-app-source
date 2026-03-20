@@ -1,11 +1,12 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
-import { getOwnerPassword, loginOwner } from '../utils/ownerAuth';
+import { loginOwner } from '../utils/ownerAuth';
 
 export function OwnerLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const nextPath = useMemo(() => {
@@ -13,23 +14,31 @@ export function OwnerLoginPage() {
     return state?.from || '/owner';
   }, [location.state]);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
+    setError('');
 
-    if (password.trim() === getOwnerPassword()) {
-      loginOwner();
+    try {
+      const authenticated = await loginOwner(password);
+      if (!authenticated) {
+        setError('Не удалось открыть owner-CMS. Попробуй ещё раз.');
+        return;
+      }
+
       navigate(nextPath, { replace: true });
-      return;
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'Не удалось выполнить вход.');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setError('Неверный пароль. Проверь значение и попробуй снова.');
   };
 
   return (
     <div className="page-stack owner-login-page">
       <PageHeader
         title="Вход для владельца"
-        subtitle="Это отдельная ссылка для входа в закрытую owner-CMS. В публичном приложении кнопок сюда нет."
+        subtitle="Это отдельная ссылка для входа в закрытую owner-CMS. В публичном приложении кнопок сюда нет. Вход теперь проверяется на сервере, а не во фронтенде."
         badgeLabel="Owner CMS"
       />
 
@@ -38,8 +47,8 @@ export function OwnerLoginPage() {
           <span className="eyebrow">Owner access</span>
           <h2>Управление наполнением приложения</h2>
           <p>
-            Сейчас вход защищён паролем на фронтенде. Когда подключим серверную часть, перенесём
-            авторизацию в backend и Railway Variables.
+            Пароль хранится на сервере через Railway Variables. После входа открывается защищённая owner-сессия,
+            а CRUD-операции больше не доступны из публичной части.
           </p>
         </div>
 
@@ -61,8 +70,8 @@ export function OwnerLoginPage() {
           {error ? <div className="owner-login-form__error">{error}</div> : null}
 
           <div className="owner-login-form__actions">
-            <button className="button button--primary" type="submit">
-              Войти в owner-CMS
+            <button className="button button--primary" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Проверяем…' : 'Войти в owner-CMS'}
             </button>
           </div>
         </form>

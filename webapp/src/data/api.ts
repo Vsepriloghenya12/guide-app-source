@@ -1,9 +1,16 @@
 import type { GuideContentStore } from './guideContent';
+import { notifyOwnerAuthRequired } from '../utils/ownerEvents';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
+type OwnerSessionResponse = {
+  authenticated: boolean;
+  ok?: boolean;
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...(init?.headers || {})
@@ -21,6 +28,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       }
     } catch {
       // ignore json parse failure
+    }
+
+    if (response.status === 401) {
+      notifyOwnerAuthRequired();
     }
 
     throw new Error(message);
@@ -51,4 +62,21 @@ export function resetGuideContentRequest() {
   return request<GuideContentStore>('/api/content/reset', {
     method: 'POST'
   });
+}
+
+export function loginOwnerRequest(password: string) {
+  return request<OwnerSessionResponse>('/api/owner/login', {
+    method: 'POST',
+    body: JSON.stringify({ password })
+  });
+}
+
+export function logoutOwnerRequest() {
+  return request<OwnerSessionResponse>('/api/owner/logout', {
+    method: 'POST'
+  });
+}
+
+export function fetchOwnerSessionRequest() {
+  return request<OwnerSessionResponse>('/api/owner/session');
 }

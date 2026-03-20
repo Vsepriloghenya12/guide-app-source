@@ -11,13 +11,17 @@ export function OwnerPage() {
   const navigate = useNavigate();
   const { restaurants, wellness, isLoading } = useGuideContent();
 
-  const handleLogout = () => {
-    logoutOwner();
+  const handleLogout = async () => {
+    await logoutOwner();
     navigate('/owner-login', { replace: true });
   };
 
   const handleReset = async () => {
-    await resetGuideContent();
+    try {
+      await resetGuideContent();
+    } catch (error) {
+      console.error('Owner reset failed', error);
+    }
   };
 
   return (
@@ -35,8 +39,8 @@ export function OwnerPage() {
             <h2>Мини-CMS владельца</h2>
             <p>
               Здесь уже можно добавлять, редактировать и удалять карточки ресторанов и СПА прямо из
-              интерфейса. Публичные разделы берут данные с сервера, а при наличии DATABASE_URL —
-              уже из PostgreSQL на Railway.
+              интерфейса. Публичные разделы берут данные с сервера, а owner-операции теперь
+              защищены серверной сессией.
             </p>
           </div>
 
@@ -67,12 +71,12 @@ export function OwnerPage() {
           <article className="owner-summary-card">
             <span className="owner-module__label">Ссылка</span>
             <h3>/owner-login</h3>
-            <p>Вход для владельца открыт только по отдельной ссылке и через пароль.</p>
+            <p>Вход проверяется на сервере и открывает отдельную owner-сессию.</p>
           </article>
           <article className="owner-summary-card">
             <span className="owner-module__label">Дальше</span>
             <h3>База данных</h3>
-            <p>Первый этап уже готов: данные вынесены на сервер и могут храниться в PostgreSQL на Railway.</p>
+            <p>Второй этап уже готов: owner-CRUD закрыт серверной авторизацией и больше не зависит от фронтового пароля.</p>
           </article>
         </div>
       </section>
