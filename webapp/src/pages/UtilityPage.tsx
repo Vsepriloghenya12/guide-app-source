@@ -1,54 +1,30 @@
-import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
 
 type UtilityPageProps = {
-  type: 'search' | 'favorites' | 'nearby' | 'help' | 'contacts';
-};
-
-const contentMap: Record<UtilityPageProps['type'], { title: string; description: string }> = {
-  search: {
-    title: 'Поиск',
-    description: 'Здесь позже можно сделать глобальный поиск по всем карточкам и категориям.'
-  },
-  favorites: {
-    title: 'Избранное',
-    description: 'Сюда можно добавить сохранённые места, маршруты и подборки пользователя.'
-  },
-  nearby: {
-    title: 'Рядом',
-    description: 'Этот раздел можно связать с геолокацией и выводить места рядом с пользователем.'
-  },
-  help: {
-    title: 'Помощь',
-    description: 'Подготовлено место под FAQ, чат поддержки, полезные инструкции и подсказки.'
-  },
-  contacts: {
-    title: 'Контакты',
-    description: 'Здесь можно вывести телефоны, соцсети, мессенджеры и форму обратной связи.'
-  }
+  type: 'help';
 };
 
 export function UtilityPage({ type }: UtilityPageProps) {
-  const content = contentMap[type];
+  if (type !== 'help') {
+    return null;
+  }
 
   return (
     <div className="page-stack">
-      <PageHeader title={content.title} subtitle={content.description} showBack />
-
-      <section className="card card--placeholder">
-        <div className="placeholder-state">
-          <span className="placeholder-state__badge">Технический раздел</span>
-          <h2>{content.title}</h2>
-          <p>
-            Страница уже создана в структуре приложения, поэтому её можно дорабатывать отдельно,
-            не ломая основную архитектуру.
-          </p>
-          <div className="placeholder-state__actions">
-            <Link className="button button--primary" to="/">
-              На главную
-            </Link>
-          </div>
-        </div>
+      <PageHeader title="Помощь" subtitle="Контакты отдельно добавим позже, как ты и попросил. Пока оставил полезный раздел помощи и FAQ." showBack />
+      <section className="panel faq-list">
+        <article>
+          <strong>Как управлять контентом?</strong>
+          <p>Через скрытую owner-ссылку. Там уже есть серверная сессия, CRUD карточек, загрузка фото и управление главной.</p>
+        </article>
+        <article>
+          <strong>Почему часть данных локально не хранится?</strong>
+          <p>Потому что контент переведён на серверную схему: Railway + PostgreSQL и файловое хранилище изображений.</p>
+        </article>
+        <article>
+          <strong>Когда будет геопозиция?</strong>
+          <p>Позже, отдельным этапом. Архитектура под это уже подготовлена, но сейчас модуль специально не включён.</p>
+        </article>
       </section>
     </div>
   );

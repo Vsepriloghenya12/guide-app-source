@@ -18,23 +18,22 @@ export function PageHeader({
   badgeLabel = 'Guide'
 }: PageHeaderProps) {
   return (
-    <header className="page-header card card--blur">
-      <div className="page-header__top">
+    <header className="page-header panel">
+      <div className="page-header__row">
         {showBack ? (
-          <Link className="chip-link" to="/">
+          <Link className="pill pill--ghost" to="/">
             ← Назад
           </Link>
         ) : (
-          <span className="chip-link chip-link--ghost">{badgeLabel}</span>
+          <span className="pill pill--ghost">{badgeLabel}</span>
         )}
 
         {actionLabel && actionPath ? (
-          <Link className="chip-link" to={actionPath}>
+          <Link className="pill" to={actionPath}>
             {actionLabel}
           </Link>
         ) : null}
       </div>
-
       <div className="page-header__content">
         <h1>{title}</h1>
         {subtitle ? <p>{subtitle}</p> : null}

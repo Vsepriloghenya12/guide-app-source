@@ -1,56 +1,63 @@
-# Guide App
+# Guide App — Railway + PostgreSQL + Owner CMS
 
-Стартовый каркас большого guide-приложения с отдельным frontend и backend.
+Рабочая версия городского гида с публичной частью и закрытой owner-CMS.
 
-## Что уже есть
-- React + TypeScript + Vite frontend
-- PWA-подготовка для установки на телефон
-- Отдельный backend на Express для Railway
-- Главная страница
-- Разделы:
-  - Рестораны, кафе и столовые
-  - СПА и оздоровление
-- Отдельная страница владельца
-- Нижнее меню
-- Адаптивный дизайн под телефон, планшет и ПК
+## Что уже переведено на рабочую схему
 
-## Структура
-- `webapp` — интерфейс приложения
-- `server` — backend и раздача собранного frontend на Railway
+- PostgreSQL-архитектура для:
+  - `categories`
+  - `filters`
+  - `listings`
+  - `banners`
+  - `collections`
+  - `collection_items`
+- серверная авторизация owner через session cookie
+- CRUD карточек из owner-CMS
+- статусы карточек: `published` / `hidden` / `draft`
+- сортировка и `featured`
+- загрузка изображений через owner-CMS
+- автоматическое сжатие изображений через `sharp`
+- публикация публичных страниц из серверных данных
+- глобальный поиск
+- избранное пользователя
+- детальная карточка места
 
-## Установка
+## Railway env variables
+
+Обязательные:
+
+- `DATABASE_URL`
+- `SESSION_SECRET`
+- `OWNER_PASSWORD` или `OWNER_PASSWORD_HASH`
+
+Опциональные:
+
+- `UPLOAD_DIR=/data/uploads`
+- `DATABASE_SSL=false` — если SSL не нужен
+
+## Storage
+
+Для изображений лучше подключить Railway Volume и смонтировать его в `/data`.
+Тогда `UPLOAD_DIR=/data/uploads` будет сохранять файлы между деплоями.
+
+## Локальный запуск
+
 ```bash
-npm install
-```
-
-## Разработка
-```bash
-npm run dev
-```
-- frontend: `http://localhost:5173`
-- backend: `http://localhost:8080`
-
-## Сборка
-```bash
+npm install --workspaces --include=dev
 npm run build
 npm run start
 ```
 
-## Лого
-Положите свой логотип в `webapp/public/` под одним из этих имён:
-- `logo.svg`
-- `logo.png`
-- `logo.jpg`
-- `logo.jpeg`
+Если `DATABASE_URL` не задан, сервер стартует в memory fallback режиме для локальной проверки интерфейса.
 
-Приоритет загрузки такой: `svg -> png -> jpg -> jpeg`. Если ни одного файла нет, приложение покажет встроенную заглушку.
+## Owner route
 
-Сейчас используется заглушка `logo-placeholder.svg`.
+- `/owner-login`
+- после входа открывается `/owner`
 
-## PWA
-Для установки на телефон уже добавлены:
-- `manifest.webmanifest`
-- service worker `sw.js`
-- иконки-заглушки
+## Что отложено отдельно
 
-Потом можно заменить иконки на брендовые.
+- геолокация и расстояние
+- контакты и обратная связь
+- финальная PWA-полировка
+- SEO и релизная оптимизация
