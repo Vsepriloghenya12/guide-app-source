@@ -1,11 +1,24 @@
 const { Pool } = require('pg');
 const { defaultCategories, defaultGuideContent } = require('./seed');
 
+function cloneHome(home) {
+  return {
+    popular: (home?.popular || []).map((item) => ({ ...item })),
+    categories: (home?.categories || []).map((item) => ({ ...item })),
+    tips: (home?.tips || []).map((item) => ({ ...item }))
+  };
+}
+
 function createInMemoryState() {
   return {
     categories: defaultCategories.map((item) => ({ ...item })),
-    restaurants: defaultGuideContent.restaurants.map((item) => ({ ...item })),
-    wellness: defaultGuideContent.wellness.map((item) => ({ ...item, services: [...item.services] }))
+    restaurants: defaultGuideContent.restaurants.map((item) => ({ ...item, tags: [...(item.tags || [])] })),
+    wellness: defaultGuideContent.wellness.map((item) => ({
+      ...item,
+      services: [...item.services],
+      tags: [...(item.tags || [])]
+    })),
+    home: cloneHome(defaultGuideContent.home)
   };
 }
 
@@ -17,6 +30,92 @@ function shouldUseSsl(connectionString) {
   }
 
   return !connectionString.includes('localhost') && !connectionString.includes('127.0.0.1');
+}
+
+function normalizeTags(tags) {
+  if (!Array.isArray(tags)) {
+    return [];
+  }
+
+  return tags
+    .map((item) => String(item || '').trim())
+    .filter(Boolean)
+    .slice(0, 12);
+}
+
+function normalizeRestaurant(item) {
+  return {
+    id: String(item?.id || ''),
+    title: String(item?.title || '').trim(),
+    kind: item?.kind || 'restaurant',
+    cuisine: item?.cuisine || 'european',
+    breakfast: Boolean(item?.breakfast),
+    vegan: Boolean(item?.vegan),
+    pets: Boolean(item?.pets),
+    avgCheck: Number(item?.avgCheck || 0),
+    address: String(item?.address || '').trim(),
+    description: String(item?.description || '').trim(),
+    rating: Number(item?.rating || 0),
+    imageLabel: String(item?.imageLabel || '').trim() || 'Карточка',
+    status: item?.status || 'draft',
+    sortOrder: Number(item?.sortOrder || 0),
+    featured: Boolean(item?.featured),
+    phone: String(item?.phone || '').trim(),
+    website: String(item?.website || '').trim(),
+    hours: String(item?.hours || '').trim(),
+    tags: normalizeTags(item?.tags)
+  };
+}
+
+function normalizeWellness(item) {
+  return {
+    id: String(item?.id || ''),
+    title: String(item?.title || '').trim(),
+    services: Array.isArray(item?.services) ? item.services.map((service) => String(service)) : [],
+    childPrograms: Boolean(item?.childPrograms),
+    address: String(item?.address || '').trim(),
+    description: String(item?.description || '').trim(),
+    rating: Number(item?.rating || 0),
+    imageLabel: String(item?.imageLabel || '').trim() || 'Карточка',
+    status: item?.status || 'draft',
+    sortOrder: Number(item?.sortOrder || 0),
+    featured: Boolean(item?.featured),
+    phone: String(item?.phone || '').trim(),
+    website: String(item?.website || '').trim(),
+    hours: String(item?.hours || '').trim(),
+    tags: normalizeTags(item?.tags)
+  };
+}
+
+function normalizeHomeContent(home) {
+  return {
+    popular: Array.isArray(home?.popular)
+      ? home.popular.map((item, index) => ({
+          id: String(item?.id || `popular-${index + 1}`),
+          title: String(item?.title || '').trim(),
+          description: String(item?.description || '').trim(),
+          path: String(item?.path || '/').trim() || '/',
+          tone: item?.tone || 'coast'
+        }))
+      : [],
+    categories: Array.isArray(home?.categories)
+      ? home.categories.map((item, index) => ({
+          id: String(item?.id || `category-${index + 1}`),
+          title: String(item?.title || '').trim(),
+          subtitle: String(item?.subtitle || '').trim(),
+          path: String(item?.path || '/').trim() || '/',
+          badge: String(item?.badge || '').trim(),
+          tone: item?.tone || 'orange'
+        }))
+      : [],
+    tips: Array.isArray(home?.tips)
+      ? home.tips.map((item, index) => ({
+          id: String(item?.id || `tip-${index + 1}`),
+          title: String(item?.title || '').trim(),
+          path: String(item?.path || '/').trim() || '/'
+        }))
+      : []
+  };
 }
 
 class GuideStore {
@@ -62,10 +161,25 @@ class GuideStore {
         description TEXT NOT NULL,
         rating NUMERIC(3,1) NOT NULL DEFAULT 0,
         image_label TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'draft',
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        featured BOOLEAN NOT NULL DEFAULT FALSE,
+        phone TEXT NOT NULL DEFAULT '',
+        website TEXT NOT NULL DEFAULT '',
+        hours TEXT NOT NULL DEFAULT '',
+        tags JSONB NOT NULL DEFAULT '[]'::jsonb,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `);
+
+    await this.pool.query(`ALTER TABLE guide_restaurants ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'draft';`);
+    await this.pool.query(`ALTER TABLE guide_restaurants ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0;`);
+    await this.pool.query(`ALTER TABLE guide_restaurants ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT FALSE;`);
+    await this.pool.query(`ALTER TABLE guide_restaurants ADD COLUMN IF NOT EXISTS phone TEXT NOT NULL DEFAULT '';`);
+    await this.pool.query(`ALTER TABLE guide_restaurants ADD COLUMN IF NOT EXISTS website TEXT NOT NULL DEFAULT '';`);
+    await this.pool.query(`ALTER TABLE guide_restaurants ADD COLUMN IF NOT EXISTS hours TEXT NOT NULL DEFAULT '';`);
+    await this.pool.query(`ALTER TABLE guide_restaurants ADD COLUMN IF NOT EXISTS tags JSONB NOT NULL DEFAULT '[]'::jsonb;`);
 
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS guide_wellness (
@@ -77,7 +191,30 @@ class GuideStore {
         description TEXT NOT NULL,
         rating NUMERIC(3,1) NOT NULL DEFAULT 0,
         image_label TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'draft',
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        featured BOOLEAN NOT NULL DEFAULT FALSE,
+        phone TEXT NOT NULL DEFAULT '',
+        website TEXT NOT NULL DEFAULT '',
+        hours TEXT NOT NULL DEFAULT '',
+        tags JSONB NOT NULL DEFAULT '[]'::jsonb,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    await this.pool.query(`ALTER TABLE guide_wellness ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'draft';`);
+    await this.pool.query(`ALTER TABLE guide_wellness ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0;`);
+    await this.pool.query(`ALTER TABLE guide_wellness ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT FALSE;`);
+    await this.pool.query(`ALTER TABLE guide_wellness ADD COLUMN IF NOT EXISTS phone TEXT NOT NULL DEFAULT '';`);
+    await this.pool.query(`ALTER TABLE guide_wellness ADD COLUMN IF NOT EXISTS website TEXT NOT NULL DEFAULT '';`);
+    await this.pool.query(`ALTER TABLE guide_wellness ADD COLUMN IF NOT EXISTS hours TEXT NOT NULL DEFAULT '';`);
+    await this.pool.query(`ALTER TABLE guide_wellness ADD COLUMN IF NOT EXISTS tags JSONB NOT NULL DEFAULT '[]'::jsonb;`);
+
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS guide_home_content (
+        id TEXT PRIMARY KEY,
+        payload JSONB NOT NULL DEFAULT '{}'::jsonb,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `);
@@ -102,28 +239,35 @@ class GuideStore {
       await this.replaceWellness(defaultGuideContent.wellness);
     }
 
+    const homeCount = await this.pool.query(`SELECT COUNT(*)::int AS count FROM guide_home_content WHERE id = 'main'`);
+    if (homeCount.rows[0].count === 0) {
+      await this.replaceHomeContent(defaultGuideContent.home);
+    }
+
     console.log('GuideStore: PostgreSQL connected and initialized.');
   }
 
   async getContent() {
     if (!this.pool) {
       return {
-        restaurants: memoryState.restaurants.map((item) => ({ ...item })),
-        wellness: memoryState.wellness.map((item) => ({ ...item, services: [...item.services] }))
+        restaurants: memoryState.restaurants.map((item) => ({ ...item, tags: [...(item.tags || [])] })),
+        wellness: memoryState.wellness.map((item) => ({ ...item, services: [...item.services], tags: [...(item.tags || [])] })),
+        home: cloneHome(memoryState.home)
       };
     }
 
-    const [restaurantsResult, wellnessResult] = await Promise.all([
+    const [restaurantsResult, wellnessResult, homeResult] = await Promise.all([
       this.pool.query(
-        `SELECT id, title, kind, cuisine, breakfast, vegan, pets, avg_check, address, description, rating, image_label
+        `SELECT id, title, kind, cuisine, breakfast, vegan, pets, avg_check, address, description, rating, image_label, status, sort_order, featured, phone, website, hours, tags
          FROM guide_restaurants
-         ORDER BY rating DESC, title ASC`
+         ORDER BY featured DESC, sort_order ASC, rating DESC, title ASC`
       ),
       this.pool.query(
-        `SELECT id, title, services, child_programs, address, description, rating, image_label
+        `SELECT id, title, services, child_programs, address, description, rating, image_label, status, sort_order, featured, phone, website, hours, tags
          FROM guide_wellness
-         ORDER BY rating DESC, title ASC`
-      )
+         ORDER BY featured DESC, sort_order ASC, rating DESC, title ASC`
+      ),
+      this.pool.query(`SELECT payload FROM guide_home_content WHERE id = 'main' LIMIT 1`)
     ]);
 
     return {
@@ -139,7 +283,14 @@ class GuideStore {
         address: row.address,
         description: row.description,
         rating: Number(row.rating || 0),
-        imageLabel: row.image_label
+        imageLabel: row.image_label,
+        status: row.status || 'draft',
+        sortOrder: Number(row.sort_order || 0),
+        featured: Boolean(row.featured),
+        phone: row.phone || '',
+        website: row.website || '',
+        hours: row.hours || '',
+        tags: normalizeTags(row.tags)
       })),
       wellness: wellnessResult.rows.map((row) => ({
         id: row.id,
@@ -149,14 +300,24 @@ class GuideStore {
         address: row.address,
         description: row.description,
         rating: Number(row.rating || 0),
-        imageLabel: row.image_label
-      }))
+        imageLabel: row.image_label,
+        status: row.status || 'draft',
+        sortOrder: Number(row.sort_order || 0),
+        featured: Boolean(row.featured),
+        phone: row.phone || '',
+        website: row.website || '',
+        hours: row.hours || '',
+        tags: normalizeTags(row.tags)
+      })),
+      home: normalizeHomeContent(homeResult.rows[0]?.payload || defaultGuideContent.home)
     };
   }
 
   async replaceRestaurants(restaurants) {
+    const normalized = Array.isArray(restaurants) ? restaurants.map(normalizeRestaurant) : [];
+
     if (!this.pool) {
-      memoryState.restaurants = restaurants.map((item) => ({ ...item }));
+      memoryState.restaurants = normalized.map((item) => ({ ...item, tags: [...item.tags] }));
       return this.getContent();
     }
 
@@ -164,11 +325,11 @@ class GuideStore {
     try {
       await client.query('BEGIN');
       await client.query('DELETE FROM guide_restaurants');
-      for (const item of restaurants) {
+      for (const item of normalized) {
         await client.query(
           `INSERT INTO guide_restaurants (
-            id, title, kind, cuisine, breakfast, vegan, pets, avg_check, address, description, rating, image_label, updated_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())`,
+            id, title, kind, cuisine, breakfast, vegan, pets, avg_check, address, description, rating, image_label, status, sort_order, featured, phone, website, hours, tags, updated_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19::jsonb, NOW())`,
           [
             item.id,
             item.title,
@@ -177,11 +338,18 @@ class GuideStore {
             item.breakfast,
             item.vegan,
             item.pets,
-            Number(item.avgCheck || 0),
+            item.avgCheck,
             item.address,
             item.description,
-            Number(item.rating || 0),
-            item.imageLabel
+            item.rating,
+            item.imageLabel,
+            item.status,
+            item.sortOrder,
+            item.featured,
+            item.phone,
+            item.website,
+            item.hours,
+            JSON.stringify(item.tags)
           ]
         );
       }
@@ -197,8 +365,10 @@ class GuideStore {
   }
 
   async replaceWellness(wellness) {
+    const normalized = Array.isArray(wellness) ? wellness.map(normalizeWellness) : [];
+
     if (!this.pool) {
-      memoryState.wellness = wellness.map((item) => ({ ...item, services: [...item.services] }));
+      memoryState.wellness = normalized.map((item) => ({ ...item, services: [...item.services], tags: [...item.tags] }));
       return this.getContent();
     }
 
@@ -206,20 +376,27 @@ class GuideStore {
     try {
       await client.query('BEGIN');
       await client.query('DELETE FROM guide_wellness');
-      for (const item of wellness) {
+      for (const item of normalized) {
         await client.query(
           `INSERT INTO guide_wellness (
-            id, title, services, child_programs, address, description, rating, image_label, updated_at
-          ) VALUES ($1, $2, $3::jsonb, $4, $5, $6, $7, $8, NOW())`,
+            id, title, services, child_programs, address, description, rating, image_label, status, sort_order, featured, phone, website, hours, tags, updated_at
+          ) VALUES ($1, $2, $3::jsonb, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15::jsonb, NOW())`,
           [
             item.id,
             item.title,
-            JSON.stringify(item.services || []),
+            JSON.stringify(item.services),
             item.childPrograms,
             item.address,
             item.description,
-            Number(item.rating || 0),
-            item.imageLabel
+            item.rating,
+            item.imageLabel,
+            item.status,
+            item.sortOrder,
+            item.featured,
+            item.phone,
+            item.website,
+            item.hours,
+            JSON.stringify(item.tags)
           ]
         );
       }
@@ -234,20 +411,44 @@ class GuideStore {
     return this.getContent();
   }
 
+  async replaceHomeContent(home) {
+    const normalized = normalizeHomeContent(home);
+
+    if (!this.pool) {
+      memoryState.home = cloneHome(normalized);
+      return this.getContent();
+    }
+
+    await this.pool.query(
+      `INSERT INTO guide_home_content (id, payload, updated_at)
+       VALUES ('main', $1::jsonb, NOW())
+       ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = NOW()`,
+      [JSON.stringify(normalized)]
+    );
+
+    return this.getContent();
+  }
+
   async resetContent() {
     await this.replaceRestaurants(defaultGuideContent.restaurants);
     await this.replaceWellness(defaultGuideContent.wellness);
+    await this.replaceHomeContent(defaultGuideContent.home);
     return this.getContent();
   }
 
   async getOwnerSummary() {
     const content = await this.getContent();
+    const publishedRestaurants = content.restaurants.filter((item) => item.status === 'published').length;
+    const publishedWellness = content.wellness.filter((item) => item.status === 'published').length;
     return {
       sections: 14,
       listingsReady: 2,
       pwaEnabled: true,
       restaurants: content.restaurants.length,
       wellness: content.wellness.length,
+      publishedRestaurants,
+      publishedWellness,
+      featuredOnHome: content.home.popular.length,
       storage: this.pool ? 'postgresql' : 'memory'
     };
   }

@@ -58,6 +58,13 @@ export function saveWellnessRequest(wellness: GuideContentStore['wellness']) {
   });
 }
 
+export function saveHomeContentRequest(home: GuideContentStore['home']) {
+  return request<GuideContentStore>('/api/content/home', {
+    method: 'PUT',
+    body: JSON.stringify({ home })
+  });
+}
+
 export function resetGuideContentRequest() {
   return request<GuideContentStore>('/api/content/reset', {
     method: 'POST'

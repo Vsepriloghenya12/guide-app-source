@@ -11,7 +11,14 @@ const restaurants = [
     address: 'Набережная, 14',
     description: 'Элегантный ресторан с видом на город, винной картой и атмосферным интерьером.',
     rating: 4.9,
-    imageLabel: 'Видовой ресторан'
+    imageLabel: 'Видовой ресторан',
+    status: 'published',
+    sortOrder: 10,
+    featured: true,
+    phone: '+84 123 456 001',
+    website: 'https://example.com/panorama-terrace',
+    hours: '08:00–23:00',
+    tags: ['вид', 'ужин', 'терраса']
   },
   {
     id: 'r-2',
@@ -25,7 +32,14 @@ const restaurants = [
     address: 'Центральная улица, 8',
     description: 'Современная локальная кухня, авторская подача и спокойная вечерняя атмосфера.',
     rating: 4.7,
-    imageLabel: 'Локальная кухня'
+    imageLabel: 'Локальная кухня',
+    status: 'published',
+    sortOrder: 20,
+    featured: true,
+    phone: '+84 123 456 002',
+    website: 'https://example.com/silk-garden',
+    hours: '12:00–22:30',
+    tags: ['локальная кухня', 'ужин']
   },
   {
     id: 'r-3',
@@ -39,7 +53,14 @@ const restaurants = [
     address: 'Парк, 3',
     description: 'Кофейня с завтраками весь день, specialty coffee и уютной террасой.',
     rating: 4.8,
-    imageLabel: 'Кофейня и завтраки'
+    imageLabel: 'Кофейня и завтраки',
+    status: 'published',
+    sortOrder: 30,
+    featured: false,
+    phone: '+84 123 456 003',
+    website: 'https://example.com/morning-roast',
+    hours: '07:30–20:00',
+    tags: ['кофе', 'завтраки', 'терраса']
   },
   {
     id: 'r-4',
@@ -53,7 +74,14 @@ const restaurants = [
     address: 'Линия моря, 27',
     description: 'Яркая тайская кухня, панорамные окна и удобный формат для компаний.',
     rating: 4.6,
-    imageLabel: 'Тайская кухня'
+    imageLabel: 'Тайская кухня',
+    status: 'published',
+    sortOrder: 40,
+    featured: false,
+    phone: '+84 123 456 004',
+    website: 'https://example.com/spice-coast',
+    hours: '11:00–22:00',
+    tags: ['тайская кухня', 'компания']
   },
   {
     id: 'r-5',
@@ -67,7 +95,14 @@ const restaurants = [
     address: 'Старый квартал, 19',
     description: 'Вечернее место с музыкой, грилем и большими столами для компаний.',
     rating: 4.5,
-    imageLabel: 'Клуб и гриль'
+    imageLabel: 'Клуб и гриль',
+    status: 'hidden',
+    sortOrder: 50,
+    featured: false,
+    phone: '+84 123 456 005',
+    website: 'https://example.com/old-yard-grill',
+    hours: '17:00–02:00',
+    tags: ['музыка', 'гриль', 'компания']
   },
   {
     id: 'r-6',
@@ -81,7 +116,14 @@ const restaurants = [
     address: 'Бизнес-район, 4',
     description: 'Практичная столовая с домашней едой, быстрым обслуживанием и понятным меню.',
     rating: 4.3,
-    imageLabel: 'Столовая'
+    imageLabel: 'Столовая',
+    status: 'draft',
+    sortOrder: 60,
+    featured: false,
+    phone: '+84 123 456 006',
+    website: 'https://example.com/daily-spoon',
+    hours: '08:00–18:00',
+    tags: ['бюджетно', 'быстро']
   }
 ];
 
@@ -94,7 +136,14 @@ const wellness = [
     address: 'Морской проспект, 5',
     description: 'Спа-комплекс с расслабляющими ритуалами, ароматерапией и приватными кабинетами.',
     rating: 4.9,
-    imageLabel: 'Спа-комплекс'
+    imageLabel: 'Спа-комплекс',
+    status: 'published',
+    sortOrder: 10,
+    featured: true,
+    phone: '+84 123 456 101',
+    website: 'https://example.com/ocean-balance',
+    hours: '09:00–22:00',
+    tags: ['ритуалы', 'релакс', 'премиум']
   },
   {
     id: 'w-2',
@@ -104,7 +153,14 @@ const wellness = [
     address: 'Тихая улица, 11',
     description: 'Баня и хамам с зонами отдыха, парными и возможностью бронирования компании.',
     rating: 4.6,
-    imageLabel: 'Баня и хамам'
+    imageLabel: 'Баня и хамам',
+    status: 'published',
+    sortOrder: 20,
+    featured: false,
+    phone: '+84 123 456 102',
+    website: 'https://example.com/steam-house',
+    hours: '10:00–23:00',
+    tags: ['хамам', 'компания']
   },
   {
     id: 'w-3',
@@ -114,7 +170,14 @@ const wellness = [
     address: 'Городской центр, 21',
     description: 'Уходовые программы, косметология и восстановительные процедуры в камерном формате.',
     rating: 4.7,
-    imageLabel: 'Косметология'
+    imageLabel: 'Косметология',
+    status: 'published',
+    sortOrder: 30,
+    featured: true,
+    phone: '+84 123 456 103',
+    website: 'https://example.com/body-reset',
+    hours: '09:00–21:00',
+    tags: ['уход', 'косметология']
   },
   {
     id: 'w-4',
@@ -124,7 +187,14 @@ const wellness = [
     address: 'Зелёный квартал, 9',
     description: 'Студия йоги и мягких практик с утренними занятиями и семейными форматами.',
     rating: 4.8,
-    imageLabel: 'Йога и массаж'
+    imageLabel: 'Йога и массаж',
+    status: 'hidden',
+    sortOrder: 40,
+    featured: false,
+    phone: '+84 123 456 104',
+    website: 'https://example.com/lotus-flow',
+    hours: '07:00–20:00',
+    tags: ['йога', 'семейный формат']
   },
   {
     id: 'w-5',
@@ -134,27 +204,57 @@ const wellness = [
     address: 'Спа-аллея, 6',
     description: 'Эстетичное пространство с восточным интерьером и премиальными спа-ритуалами.',
     rating: 4.5,
-    imageLabel: 'Хамам'
+    imageLabel: 'Хамам',
+    status: 'draft',
+    sortOrder: 50,
+    featured: false,
+    phone: '+84 123 456 105',
+    website: 'https://example.com/golden-hammam',
+    hours: '11:00–22:00',
+    tags: ['хамам', 'ритуалы']
   }
 ];
 
-module.exports = {
-  defaultCategories: [
+const home = {
+  popular: [
     {
-      id: 'restaurants',
-      title: 'Рестораны, кафе и столовые',
-      sortOrder: 1,
-      isActive: true
+      id: 'top-restaurants',
+      title: 'Топ 5 ресторанов',
+      description: 'Подборка лучших мест с красивой подачей и атмосферой.',
+      path: '/restaurants',
+      tone: 'coast'
     },
     {
-      id: 'wellness',
-      title: 'СПА и оздоровление',
-      sortOrder: 2,
-      isActive: true
+      id: 'spa-selection',
+      title: 'Лучшие SPA-программы',
+      description: 'Где расслабиться, восстановиться и провести красивый slow day.',
+      path: '/wellness',
+      tone: 'sunset'
     }
+  ],
+  categories: [
+    { id: 'food', title: 'Еда', subtitle: 'рестораны, завтраки и локальные места', path: '/restaurants', badge: 'Популярно', tone: 'orange' },
+    { id: 'wellness', title: 'СПА', subtitle: 'ритуалы, массаж и отдых', path: '/wellness', tone: 'green' },
+    { id: 'events', title: 'Афиша', subtitle: 'события, бары и городская жизнь', path: '/section/events', tone: 'blue' },
+    { id: 'culture', title: 'Культура', subtitle: 'музеи, достопримечательности и прогулки', path: '/section/culture', tone: 'pink' },
+    { id: 'shops', title: 'Шопинг', subtitle: 'магазины, рынки и сувениры', path: '/section/shops', tone: 'red' },
+    { id: 'nature', title: 'Природа', subtitle: 'маршруты, виды и короткие выезды', path: '/section/routes', badge: 'Маршруты', tone: 'teal' }
+  ],
+  tips: [
+    { id: 'tip-1', title: 'Топ 10 мест Дананга', path: '/section/culture' },
+    { id: 'tip-2', title: 'Где купить сувениры', path: '/section/shops' },
+    { id: 'tip-3', title: 'Лучшие кафе города', path: '/restaurants' }
+  ]
+};
+
+module.exports = {
+  defaultCategories: [
+    { id: 'restaurants', title: 'Рестораны, кафе и столовые', sortOrder: 1, isActive: true },
+    { id: 'wellness', title: 'СПА и оздоровление', sortOrder: 2, isActive: true }
   ],
   defaultGuideContent: {
     restaurants,
-    wellness
+    wellness,
+    home
   }
 };

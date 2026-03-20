@@ -1,37 +1,23 @@
 import { Link } from 'react-router-dom';
-import { homeFeatures } from '../../data/categories';
-
-const categoryTiles = [
-  { id: 'food', title: 'Еда', icon: '🍽️', path: '/restaurants', tone: 'orange' },
-  { id: 'fun', title: 'Развлечения', icon: '🎉', path: '/section/events', tone: 'blue' },
-  { id: 'culture', title: 'Культура', icon: '🏛️', path: '/section/culture', tone: 'pink' },
-  { id: 'spa', title: 'СПА', icon: '🪷', path: '/wellness', tone: 'green' },
-  { id: 'shopping', title: 'Шопинг', icon: '🛍️', path: '/section/shops', tone: 'red' },
-  { id: 'nature', title: 'Природа', icon: '🌿', path: '/section/routes', tone: 'teal' }
-];
-
-const tips = [
-  { id: 'tip-1', title: 'Топ 10 мест Дананга', path: '/section/culture' },
-  { id: 'tip-2', title: 'Где купить сувениры', path: '/section/shops' },
-  { id: 'tip-3', title: 'Лучшие кафе города', path: '/restaurants' }
-];
-
-const popularCards = homeFeatures.slice(0, 2);
-const posterTones = ['coast', 'bridge'] as const;
+import { useGuideContent } from '../../hooks/useGuideContent';
 
 export function FeatureGrid() {
+  const { home } = useGuideContent();
+
   return (
     <section className="home-showcase" aria-label="Главное меню">
       <div className="home-column home-column--popular">
         <div className="home-section-title">Популярное</div>
         <div className="poster-grid poster-grid--two">
-          {popularCards.map((feature, index) => (
+          {home.popular.map((feature) => (
             <Link
               key={feature.id}
               to={feature.path}
-              className={`poster-tile poster-tile--${posterTones[index] ?? 'coast'}`}
+              className={`poster-tile poster-tile--${feature.tone || 'coast'}`}
             >
+              <span className="poster-tile__eyebrow">Подборка</span>
               <strong>{feature.title}</strong>
+              <small>{feature.description}</small>
             </Link>
           ))}
         </div>
@@ -39,13 +25,12 @@ export function FeatureGrid() {
 
       <div className="home-column home-column--categories">
         <div className="home-section-title">Категории</div>
-        <div className="tile-grid">
-          {categoryTiles.map((tile) => (
-            <Link key={tile.id} to={tile.path} className={`menu-tile menu-tile--${tile.tone}`}>
-              <span className="menu-tile__icon" aria-hidden="true">
-                {tile.icon}
-              </span>
+        <div className="tile-grid tile-grid--rich">
+          {home.categories.map((tile) => (
+            <Link key={tile.id} to={tile.path} className={`menu-tile menu-tile--${tile.tone || 'orange'}`}>
+              {tile.badge ? <span className="menu-tile__badge">{tile.badge}</span> : <span className="menu-tile__badge menu-tile__badge--empty">&nbsp;</span>}
               <span className="menu-tile__label">{tile.title}</span>
+              <span className="menu-tile__subtitle">{tile.subtitle}</span>
             </Link>
           ))}
         </div>
@@ -54,8 +39,9 @@ export function FeatureGrid() {
       <div className="home-column home-column--tips">
         <div className="home-section-title">Советы</div>
         <div className="tips-list">
-          {tips.map((tip) => (
+          {home.tips.map((tip, index) => (
             <Link key={tip.id} to={tip.path} className="tips-list__item">
+              <span className="tips-list__index">0{index + 1}</span>
               <span>{tip.title}</span>
             </Link>
           ))}

@@ -223,6 +223,17 @@ app.put('/api/content/wellness', requireOwnerSession, async (req, res) => {
   }
 });
 
+app.put('/api/content/home', requireOwnerSession, async (req, res) => {
+  try {
+    const home = req.body?.home && typeof req.body.home === 'object' ? req.body.home : {};
+    const content = await guideStore.replaceHomeContent(home);
+    res.json(content);
+  } catch (error) {
+    console.error('PUT /api/content/home failed', error);
+    res.status(500).json({ error: 'Не удалось сохранить главную страницу.' });
+  }
+});
+
 app.post('/api/content/reset', requireOwnerSession, async (_req, res) => {
   try {
     const content = await guideStore.resetContent();

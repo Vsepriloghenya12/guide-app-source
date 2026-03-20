@@ -9,6 +9,7 @@ import { WellnessFilters, WellnessFiltersState } from '../components/filters/Wel
 import { PageHeader } from '../components/layout/PageHeader';
 import { useGuideContent } from '../hooks/useGuideContent';
 
+
 type ListingPageProps = {
   category: 'restaurants' | 'wellness';
 };
@@ -28,6 +29,21 @@ const initialWellnessFilters: WellnessFiltersState = {
   childPrograms: 'all'
 };
 
+function sortListings<T extends { featured: boolean; sortOrder: number; rating: number; title: string }>(items: T[]) {
+  return [...items].sort((left, right) => {
+    if (left.featured !== right.featured) {
+      return left.featured ? -1 : 1;
+    }
+    if (left.sortOrder !== right.sortOrder) {
+      return left.sortOrder - right.sortOrder;
+    }
+    if (left.rating !== right.rating) {
+      return right.rating - left.rating;
+    }
+    return left.title.localeCompare(right.title, 'ru');
+  });
+}
+
 export function ListingPage({ category }: ListingPageProps) {
   const [restaurantFilters, setRestaurantFilters] = useState<RestaurantFiltersState>(
     initialRestaurantFilters
@@ -36,8 +52,18 @@ export function ListingPage({ category }: ListingPageProps) {
     useState<WellnessFiltersState>(initialWellnessFilters);
   const { restaurants, wellness, isLoading } = useGuideContent();
 
+  const publicRestaurants = useMemo(
+    () => restaurants.filter((item) => item.status === 'published'),
+    [restaurants]
+  );
+
+  const publicWellness = useMemo(
+    () => wellness.filter((item) => item.status === 'published'),
+    [wellness]
+  );
+
   const filteredRestaurants = useMemo(() => {
-    return restaurants.filter((item) => {
+    const filtered = publicRestaurants.filter((item) => {
       const minCheck = Number(restaurantFilters.minCheck || 0);
       const maxCheck = Number(restaurantFilters.maxCheck || 0);
 
@@ -80,10 +106,12 @@ export function ListingPage({ category }: ListingPageProps) {
 
       return true;
     });
-  }, [restaurantFilters, restaurants]);
+
+    return sortListings(filtered);
+  }, [restaurantFilters, publicRestaurants]);
 
   const filteredWellness = useMemo(() => {
-    return wellness.filter((item) => {
+    const filtered = publicWellness.filter((item) => {
       if (
         wellnessFiltersState.service.length > 0 &&
         !wellnessFiltersState.service.some((service) => item.services.includes(service as never))
@@ -100,14 +128,16 @@ export function ListingPage({ category }: ListingPageProps) {
 
       return true;
     });
-  }, [wellnessFiltersState, wellness]);
+
+    return sortListings(filtered);
+  }, [wellnessFiltersState, publicWellness]);
 
   if (category === 'restaurants') {
     return (
       <div className="page-stack">
         <PageHeader
           title="Рестораны, кафе и столовые"
-          subtitle="Раздел подключён к owner-CMS и серверному хранилищу: новые карточки появляются здесь сразу после сохранения."
+          subtitle="Раздел подключён к owner-CMS и серверному хранилищу: на витрину попадают только опубликованные карточки, а сортировка и топ-показ управляются владельцем."
           showBack
         />
 
@@ -117,9 +147,7 @@ export function ListingPage({ category }: ListingPageProps) {
 
         {isLoading ? <p className="loading-inline">Загружаем карточки…</p> : null}
 
-        {isLoading ? <p className="loading-inline">Загружаем карточки…</p> : null}
-
-      <section className="grid-listing">
+        <section className="grid-listing">
           {filteredRestaurants.map((item) => (
             <PlaceholderCard
               key={item.id}
@@ -129,6 +157,7 @@ export function ListingPage({ category }: ListingPageProps) {
               rating={item.rating}
               imageLabel={item.imageLabel}
               meta={[
+                item.featured ? 'Топ-показ' : 'Стандартный показ',
                 item.kind === 'restaurant'
                   ? 'Ресторан'
                   : item.kind === 'club'
@@ -144,9 +173,11 @@ export function ListingPage({ category }: ListingPageProps) {
                       ? 'Тайская'
                       : 'Вьетнамская',
                 `Средний чек ${item.avgCheck}`,
+                item.hours || 'Часы работы не указаны',
                 item.breakfast ? 'Есть завтраки' : 'Без завтраков',
                 item.vegan ? 'Веган меню' : 'Без веган меню',
-                item.pets ? 'Можно с животными' : 'Без животных'
+                item.pets ? 'Можно с животными' : 'Без животных',
+                ...item.tags.map((tag) => `#${tag}`)
               ]}
             />
           ))}
@@ -159,13 +190,15 @@ export function ListingPage({ category }: ListingPageProps) {
     <div className="page-stack">
       <PageHeader
         title="СПА и оздоровление"
-        subtitle="Этот раздел тоже связан с owner-CMS: карточки из закрытой страницы владельца сразу выводятся здесь."
+        subtitle="Этот раздел тоже связан с owner-CMS: на витрину попадают только опубликованные карточки, а порядок показа и блок «топ» управляются владельцем."
         showBack
       />
 
       <FilterPanel title="Фильтр СПА и оздоровления">
         <WellnessFilters value={wellnessFiltersState} onChange={setWellnessFiltersState} />
       </FilterPanel>
+
+      {isLoading ? <p className="loading-inline">Загружаем карточки…</p> : null}
 
       <section className="grid-listing">
         {filteredWellness.map((item) => (
@@ -177,6 +210,7 @@ export function ListingPage({ category }: ListingPageProps) {
             rating={item.rating}
             imageLabel={item.imageLabel}
             meta={[
+              item.featured ? 'Топ-показ' : 'Стандартный показ',
               ...item.services.map((service) => {
                 const serviceLabelMap: Record<string, string> = {
                   massage: 'Массаж',
@@ -190,7 +224,9 @@ export function ListingPage({ category }: ListingPageProps) {
 
                 return serviceLabelMap[service];
               }),
-              item.childPrograms ? 'Есть детские программы' : 'Без детских программ'
+              item.hours || 'Часы работы не указаны',
+              item.childPrograms ? 'Есть детские программы' : 'Без детских программ',
+              ...item.tags.map((tag) => `#${tag}`)
             ]}
           />
         ))}

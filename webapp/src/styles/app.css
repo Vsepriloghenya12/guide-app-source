@@ -1304,3 +1304,230 @@ body {
   color: rgba(255,255,255,0.68);
   font-size: 0.95rem;
 }
+
+.poster-tile--sunset {
+  background-position: right center;
+}
+
+.poster-tile--night {
+  background-position: center top;
+}
+
+.poster-tile small {
+  position: relative;
+  z-index: 1;
+  color: rgba(255, 246, 232, 0.86);
+  font-size: 0.84rem;
+  line-height: 1.25;
+}
+
+.poster-tile__eyebrow {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 8px;
+  color: rgba(255, 248, 236, 0.86);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.tile-grid--rich {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.menu-tile {
+  justify-items: start;
+  align-content: space-between;
+  min-height: 124px;
+  text-align: left;
+}
+
+.menu-tile__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 248, 236, 0.94);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.menu-tile__badge--empty {
+  visibility: hidden;
+}
+
+.menu-tile__subtitle {
+  color: rgba(255, 247, 233, 0.9);
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+.menu-tile--violet {
+  background: linear-gradient(180deg, #846fd2 0%, #5a46a5 100%);
+}
+
+.menu-tile--gold {
+  background: linear-gradient(180deg, #d4a74e 0%, #a97119 100%);
+}
+
+.tips-list__item {
+  gap: 14px;
+}
+
+.tips-list__index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff9ef;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.category-list__text {
+  gap: 6px;
+}
+
+.category-list__text span {
+  color: rgba(255, 244, 226, 0.78);
+  font-size: 0.84rem;
+  line-height: 1.25;
+}
+
+.owner-editor-form__grid--triple {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.owner-item-card__meta-row,
+.owner-item-card__subinfo,
+.owner-tags-row,
+.owner-home-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owner-item-card__meta-row {
+  margin-bottom: 10px;
+}
+
+.owner-status-badge,
+.owner-tag,
+.owner-inline-note {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.owner-status-badge--published {
+  background: rgba(78, 184, 110, 0.18);
+  color: #9df0b2;
+}
+
+.owner-status-badge--hidden {
+  background: rgba(255, 172, 76, 0.14);
+  color: #ffd08f;
+}
+
+.owner-status-badge--draft {
+  background: rgba(157, 171, 194, 0.14);
+  color: #d4dbe6;
+}
+
+.owner-status-badge--featured {
+  background: rgba(255, 216, 105, 0.16);
+  color: #ffe8a3;
+}
+
+.owner-inline-note {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 245, 229, 0.82);
+}
+
+.owner-tag {
+  background: rgba(61, 120, 188, 0.16);
+  color: #b4d6ff;
+}
+
+.owner-item-card__subinfo {
+  margin-top: 10px;
+  color: rgba(255, 244, 226, 0.72);
+  font-size: 0.82rem;
+}
+
+.checkbox-pill--owner-highlight {
+  border-color: rgba(255, 220, 123, 0.3);
+  background: rgba(255, 205, 104, 0.08);
+}
+
+.owner-home-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.owner-home-section-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 248, 235, 0.1);
+  background: linear-gradient(180deg, rgba(8, 14, 25, 0.44), rgba(7, 12, 20, 0.68));
+}
+
+.owner-home-section-card__header {
+  display: grid;
+  gap: 4px;
+}
+
+.owner-home-section-card__header strong {
+  color: #fff7e7;
+  font-size: 1rem;
+}
+
+.owner-home-section-card__header span {
+  color: rgba(255, 244, 226, 0.72);
+  font-size: 0.82rem;
+}
+
+.owner-home-item-list {
+  display: grid;
+  gap: 12px;
+}
+
+.owner-home-item {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 248, 235, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+@media (max-width: 1080px) {
+  .owner-home-grid,
+  .owner-editor-form__grid--triple {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .tile-grid--rich,
+  .owner-home-grid,
+  .owner-editor-form__grid--triple {
+    grid-template-columns: 1fr;
+  }
+}
