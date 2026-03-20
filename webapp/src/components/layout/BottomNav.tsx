@@ -5,7 +5,7 @@ const items = [
   { to: '/search', label: 'Поиск', icon: '⌕' },
   { to: '/favorites', label: 'Избранное', icon: '♡' },
   { to: '/nearby', label: 'Рядом', icon: '◎' },
-  { to: '/help', label: 'Помощь', icon: '?' }
+  { to: '/contacts', label: 'Контакты', icon: '✆' }
 ];
 
 export function BottomNav() {

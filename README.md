@@ -1,68 +1,79 @@
-# Guide App — Railway + PostgreSQL + Owner CMS
+# Guide App
 
-Рабочая версия городского гида с публичной частью и закрытой owner-CMS.
+Рабочая версия guide-приложения с поэтапным переходом от localStorage к серверному хранению данных.
 
-## Что уже переведено на рабочую схему
+## Что уже есть
+- React + TypeScript + Vite frontend
+- Отдельный backend на Express для Railway
+- Главная страница
+- Разделы:
+  - Рестораны, кафе и столовые
+  - СПА и оздоровление
+- Отдельная страница владельца
+- Нижнее меню
+- Адаптивный дизайн под телефон, планшет и ПК
+- Первый этап серверной архитектуры данных:
+  - backend API для контента
+  - PostgreSQL на Railway через `DATABASE_URL`
+  - автоматическое создание таблиц и стартовое заполнение
+  - fallback в memory-режим, если база пока не подключена
 
-- PostgreSQL-архитектура для:
-  - `categories`
-  - `filters`
-  - `listings`
-  - `banners`
-  - `collections`
-  - `collection_items`
-- серверная авторизация owner через session cookie
-- CRUD карточек из owner-CMS
-- статусы карточек: `published` / `hidden` / `draft`
-- сортировка и `featured`
-- загрузка изображений через owner-CMS
-- автоматическое сжатие изображений через `sharp`
-- публикация публичных страниц из серверных данных
-- глобальный поиск
-- избранное пользователя
-- детальная карточка места
+## Структура
+- `webapp` — интерфейс приложения
+- `server` — backend и раздача собранного frontend на Railway
 
-## Railway env variables
+## Таблицы первого этапа
+Сервер автоматически создаёт:
+- `guide_categories`
+- `guide_restaurants`
+- `guide_wellness`
 
-Обязательные:
+Это первый безопасный шаг: текущий UI почти не меняется, но данные уже можно хранить на сервере и в PostgreSQL.
 
-- `DATABASE_URL`
-- `SESSION_SECRET`
-- `OWNER_PASSWORD` или `OWNER_PASSWORD_HASH`
+## Установка
+```bash
+npm install
+```
 
-Опциональные:
+## Разработка
+```bash
+npm run dev
+```
+- frontend: `http://localhost:5173`
+- backend: `http://localhost:8080`
 
-- `UPLOAD_DIR=/data/uploads`
-- `DATABASE_SSL=false` — если SSL не нужен
+Во время локальной разработки Vite автоматически проксирует `/api` на backend.
 
-## Storage
-
-Для изображений лучше подключить Railway Volume и смонтировать его в `/data`.
-Тогда `UPLOAD_DIR=/data/uploads` будет сохранять файлы между деплоями.
-
-## Локальный запуск
+## Railway / PostgreSQL
+Для Railway достаточно добавить переменную окружения:
 
 ```bash
-npm install --workspaces --include=dev
+DATABASE_URL=postgresql://...
+```
+
+Если `DATABASE_URL` не задан, сервер запустится в fallback-режиме с данными в памяти. Это полезно для локальной проверки, но не для постоянного хранения.
+
+## Сборка
+```bash
 npm run build
 npm run start
 ```
 
-Если `DATABASE_URL` не задан, сервер стартует в memory fallback режиме для локальной проверки интерфейса.
+## Лого
+Положите свой логотип в `webapp/public/` под одним из этих имён:
+- `logo.svg`
+- `logo.png`
+- `logo.jpg`
+- `logo.jpeg`
 
-## Owner route
+Приоритет загрузки такой: `svg -> png -> jpg -> jpeg`. Если ни одного файла нет, приложение покажет встроенную заглушку.
 
-- `/owner-login`
-- после входа открывается `/owner`
+Сейчас используется заглушка `logo-placeholder.svg`.
 
-## Что отложено отдельно
+## PWA
+Для установки на телефон уже добавлены:
+- `manifest.webmanifest`
+- service worker `sw.js`
+- иконки-заглушки
 
-- геолокация и расстояние
-- контакты и обратная связь
-- финальная PWA-полировка
-- SEO и релизная оптимизация
-
-
-## Railway build note
-
-This project includes a root `.npmrc` with `include=dev` so Vite and TypeScript tooling are available during Railway builds. If your Railway service still has an old cached environment variable forcing production-only installs, set `NPM_CONFIG_PRODUCTION=false` and redeploy.
+Потом можно заменить иконки на брендовые.

@@ -1,4 +1,6 @@
-const restaurants = [
+import { RestaurantItem, WellnessItem } from '../types';
+
+export const restaurants: RestaurantItem[] = [
   {
     id: 'r-1',
     title: 'Panorama Terrace',
@@ -85,7 +87,7 @@ const restaurants = [
   }
 ];
 
-const wellness = [
+export const wellnessItems: WellnessItem[] = [
   {
     id: 'w-1',
     title: 'Ocean Balance Spa',
@@ -137,24 +139,3 @@ const wellness = [
     imageLabel: 'Хамам'
   }
 ];
-
-module.exports = {
-  defaultCategories: [
-    {
-      id: 'restaurants',
-      title: 'Рестораны, кафе и столовые',
-      sortOrder: 1,
-      isActive: true
-    },
-    {
-      id: 'wellness',
-      title: 'СПА и оздоровление',
-      sortOrder: 2,
-      isActive: true
-    }
-  ],
-  defaultGuideContent: {
-    restaurants,
-    wellness
-  }
-};

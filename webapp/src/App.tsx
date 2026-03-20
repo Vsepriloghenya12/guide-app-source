@@ -1,15 +1,12 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { RequireOwner } from './components/auth/RequireOwner';
 import { AppShell } from './components/layout/AppShell';
 import { OwnerShell } from './components/layout/OwnerShell';
-import { FavoritesPage } from './pages/FavoritesPage';
+import { CategoryPlaceholderPage } from './pages/CategoryPlaceholderPage';
 import { HomePage } from './pages/HomePage';
-import { ListingDetailPage } from './pages/ListingDetailPage';
 import { ListingPage } from './pages/ListingPage';
-import { NearbyPage } from './pages/NearbyPage';
 import { OwnerLoginPage } from './pages/OwnerLoginPage';
 import { OwnerPage } from './pages/OwnerPage';
-import { SearchPage } from './pages/SearchPage';
 import { UtilityPage } from './pages/UtilityPage';
 
 function App() {
@@ -17,15 +14,14 @@ function App() {
     <Routes>
       <Route element={<AppShell />}>
         <Route path="/" element={<HomePage />} />
-        <Route path="/restaurants" element={<Navigate to="/category/restaurants" replace />} />
-        <Route path="/wellness" element={<Navigate to="/category/wellness" replace />} />
-        <Route path="/category/:slug" element={<ListingPage />} />
-        <Route path="/place/:slug" element={<ListingDetailPage />} />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/favorites" element={<FavoritesPage />} />
-        <Route path="/nearby" element={<NearbyPage />} />
+        <Route path="/restaurants" element={<ListingPage category="restaurants" />} />
+        <Route path="/wellness" element={<ListingPage category="wellness" />} />
+        <Route path="/section/:slug" element={<CategoryPlaceholderPage />} />
+        <Route path="/search" element={<UtilityPage type="search" />} />
+        <Route path="/favorites" element={<UtilityPage type="favorites" />} />
+        <Route path="/nearby" element={<UtilityPage type="nearby" />} />
         <Route path="/help" element={<UtilityPage type="help" />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/contacts" element={<UtilityPage type="contacts" />} />
       </Route>
 
       <Route element={<OwnerShell />}>

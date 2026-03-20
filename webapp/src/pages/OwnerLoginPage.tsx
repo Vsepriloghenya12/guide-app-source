@@ -1,61 +1,70 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { api } from '../api/client';
 import { PageHeader } from '../components/layout/PageHeader';
+import { getOwnerPassword, loginOwner } from '../utils/ownerAuth';
 
 export function OwnerLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
   const nextPath = useMemo(() => {
     const state = location.state as { from?: string } | null;
     return state?.from || '/owner';
   }, [location.state]);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
-    setError('');
 
-    try {
-      await api.ownerLogin(password);
+    if (password.trim() === getOwnerPassword()) {
+      loginOwner();
       navigate(nextPath, { replace: true });
-    } catch {
-      setError('Неверный пароль владельца. Проверь значение и попробуй снова.');
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    setError('Неверный пароль. Проверь значение и попробуй снова.');
   };
 
   return (
-    <div className="page-stack owner-auth-page">
+    <div className="page-stack owner-login-page">
       <PageHeader
-        title="Owner login"
-        subtitle="Пароль теперь проверяется на сервере, а не во фронтенде. После входа создаётся owner-сессия."
-        badgeLabel="Hidden route"
+        title="Вход для владельца"
+        subtitle="Это отдельная ссылка для входа в закрытую owner-CMS. В публичном приложении кнопок сюда нет."
+        badgeLabel="Owner CMS"
       />
 
-      <section className="panel owner-auth-card">
-        <div>
-          <span className="pill pill--ghost">Server auth</span>
-          <h2>Вход в owner-CMS</h2>
-          <p>Ссылка остаётся скрытой от публичной навигации. CRUD-операции и загрузка фото защищены сессией.</p>
+      <section className="owner-login-card">
+        <div className="owner-login-card__intro">
+          <span className="eyebrow">Owner access</span>
+          <h2>Управление наполнением приложения</h2>
+          <p>
+            Сейчас вход защищён паролем на фронтенде. Когда подключим серверную часть, перенесём
+            авторизацию в backend и Railway Variables.
+          </p>
         </div>
 
-        <form className="owner-auth-form" onSubmit={handleSubmit}>
-          <label className="field field--grow">
+        <form className="owner-login-form" onSubmit={handleSubmit}>
+          <label className="field owner-login-form__field">
             <span>Пароль</span>
-            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Введите owner-пароль" autoComplete="current-password" />
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                if (error) setError('');
+              }}
+              placeholder="Введите пароль владельца"
+              autoComplete="current-password"
+            />
           </label>
 
-          {error ? <div className="form-error">{error}</div> : null}
+          {error ? <div className="owner-login-form__error">{error}</div> : null}
 
-          <button className="button" type="submit" disabled={loading}>
-            {loading ? 'Входим…' : 'Открыть owner-CMS'}
-          </button>
+          <div className="owner-login-form__actions">
+            <button className="button button--primary" type="submit">
+              Войти в owner-CMS
+            </button>
+          </div>
         </form>
       </section>
     </div>
