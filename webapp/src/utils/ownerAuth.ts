@@ -1,17 +1,15 @@
-export const OWNER_TOKEN_KEY = 'guide-owner-token';
+export const OWNER_SESSION_KEY = 'guide-owner-auth';
+
+export const getOwnerPassword = () => import.meta.env.VITE_OWNER_PASSWORD || 'guide2026';
 
 export function isOwnerAuthenticated() {
-  return Boolean(localStorage.getItem(OWNER_TOKEN_KEY));
+  return localStorage.getItem(OWNER_SESSION_KEY) === 'true';
 }
 
-export function getOwnerToken() {
-  return localStorage.getItem(OWNER_TOKEN_KEY) || '';
-}
-
-export function loginOwner(token: string) {
-  localStorage.setItem(OWNER_TOKEN_KEY, token);
+export function loginOwner() {
+  localStorage.setItem(OWNER_SESSION_KEY, 'true');
 }
 
 export function logoutOwner() {
-  localStorage.removeItem(OWNER_TOKEN_KEY);
+  localStorage.removeItem(OWNER_SESSION_KEY);
 }

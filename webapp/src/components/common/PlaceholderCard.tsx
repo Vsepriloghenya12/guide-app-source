@@ -4,7 +4,6 @@ type PlaceholderCardProps = {
   description: string;
   rating: number;
   imageLabel: string;
-  imageUrl?: string;
   meta: string[];
 };
 
@@ -14,15 +13,11 @@ export function PlaceholderCard({
   description,
   rating,
   imageLabel,
-  imageUrl,
   meta
 }: PlaceholderCardProps) {
   return (
     <article className="place-card card card--interactive">
-      <div
-        className="place-card__media"
-        style={imageUrl ? { backgroundImage: `linear-gradient(180deg, rgba(6,12,22,0.04), rgba(6,12,22,0.3)), url(${imageUrl})` } : undefined}
-      >
+      <div className="place-card__media">
         <span>{imageLabel}</span>
       </div>
 
@@ -36,7 +31,7 @@ export function PlaceholderCard({
         <p className="place-card__description">{description}</p>
 
         <div className="place-card__tags">
-          {meta.filter(Boolean).map((tag) => (
+          {meta.map((tag) => (
             <span key={tag} className="place-card__tag">
               {tag}
             </span>
