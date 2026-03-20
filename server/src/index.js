@@ -19,9 +19,31 @@ app.get('/api/owner/summary', (_req, res) => {
   });
 });
 
-app.use(express.static(webDistPath));
+app.use(
+  express.static(webDistPath, {
+    etag: true,
+    setHeaders: (res, filePath) => {
+      if (
+        filePath.endsWith('index.html') ||
+        filePath.endsWith('sw.js') ||
+        filePath.endsWith('manifest.webmanifest')
+      ) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+        return;
+      }
+
+      if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        return;
+      }
+
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+    }
+  })
+);
 
 app.get('*', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.sendFile(path.join(webDistPath, 'index.html'));
 });
 

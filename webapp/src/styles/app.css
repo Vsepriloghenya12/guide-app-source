@@ -9,7 +9,7 @@ body {
 .owner-shell {
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(6, 10, 16, 0.96), rgba(5, 9, 15, 0.98)),
+    linear-gradient(180deg, rgba(6, 11, 18, 0.95), rgba(8, 14, 24, 0.97) 52%, rgba(5, 9, 15, 0.985)),
     url('/danang-clean-poster.png') center top / cover no-repeat;
 }
 
@@ -24,7 +24,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background:
-    linear-gradient(180deg, rgba(7, 16, 27, 0.08) 0%, rgba(6, 13, 23, 0.3) 46%, rgba(6, 11, 19, 0.82) 80%, rgba(5, 8, 14, 0.98) 100%),
+    linear-gradient(180deg, rgba(8, 15, 27, 0.03) 0%, rgba(11, 24, 39, 0.16) 30%, rgba(8, 17, 29, 0.46) 58%, rgba(6, 12, 21, 0.84) 82%, rgba(5, 8, 14, 0.98) 100%),
     url('/danang-clean-poster.png') center top / cover no-repeat;
 }
 
@@ -35,9 +35,9 @@ body {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(circle at 16% 10%, rgba(255, 203, 122, 0.2), transparent 22%),
-    radial-gradient(circle at 84% 8%, rgba(255, 153, 91, 0.18), transparent 24%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(7, 11, 18, 0.14) 40%, rgba(6, 9, 16, 0.3));
+    radial-gradient(circle at 12% 12%, rgba(255, 203, 122, 0.16), transparent 22%),
+    radial-gradient(circle at 86% 12%, rgba(118, 180, 255, 0.12), transparent 20%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(7, 12, 20, 0.08) 38%, rgba(6, 10, 18, 0.28));
 }
 
 .app-gradient {
@@ -48,7 +48,7 @@ body {
   position: relative;
   z-index: 1;
   width: 100%;
-  padding: 14px clamp(12px, 2vw, 28px) calc(var(--nav-height) + 40px);
+  padding: 16px clamp(12px, 2vw, 30px) calc(var(--nav-height) + 40px);
 }
 
 .page-stack {
@@ -69,7 +69,8 @@ body {
   display: grid;
   align-content: space-between;
   min-height: calc(100vh - var(--nav-height) - 58px);
-  padding-top: max(6px, env(safe-area-inset-top, 0px));
+  padding-top: max(10px, env(safe-area-inset-top, 0px));
+  padding-bottom: 6px;
 }
 
 .card {
@@ -140,7 +141,7 @@ body {
 .home-showcase {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.96fr) minmax(280px, 0.98fr);
-  gap: 20px;
+  gap: 18px;
   align-items: end;
 }
 
@@ -182,7 +183,7 @@ body {
   margin: 0;
   color: #fff6e7;
   font-family: var(--heading-font);
-  font-size: clamp(1.45rem, 1.9vw, 2rem);
+  font-size: clamp(1.14rem, 1.5vw, 1.55rem);
   line-height: 0.98;
   letter-spacing: 0.01em;
   text-transform: uppercase;
@@ -215,8 +216,8 @@ body {
   padding: 18px 16px;
   overflow: hidden;
   border-radius: 18px;
-  border: 1px solid rgba(255, 247, 231, 0.22);
-  box-shadow: 0 18px 40px rgba(7, 13, 23, 0.24);
+  border: 1px solid rgba(255, 246, 227, 0.18);
+  box-shadow: 0 20px 42px rgba(7, 13, 23, 0.28);
   background-image: url('/danang-clean-poster.png');
   background-repeat: no-repeat;
   background-size: cover;
@@ -227,7 +228,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(9, 15, 24, 0.06) 36%, rgba(7, 11, 18, 0.78));
+  background: linear-gradient(180deg, rgba(255, 240, 214, 0.06), rgba(10, 18, 29, 0.08) 36%, rgba(7, 11, 18, 0.82));
 }
 
 .poster-tile > * {
@@ -280,10 +281,10 @@ body {
   min-height: 108px;
   padding: 14px 10px 12px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 248, 235, 0.25);
+  border: 1px solid rgba(255, 248, 235, 0.19);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 12px 28px rgba(7, 13, 23, 0.22);
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 14px 28px rgba(7, 13, 23, 0.24);
   text-align: center;
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
@@ -297,42 +298,42 @@ body {
 .menu-tile__label {
   color: #fff8ea;
   font-weight: 800;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   line-height: 1.08;
   letter-spacing: 0.02em;
   overflow-wrap: anywhere;
 }
 
 .menu-tile--orange {
-  background: linear-gradient(180deg, #f59c2c 0%, #b35a18 100%);
+  background: linear-gradient(180deg, #db8f2c 0%, #96511d 100%);
 }
 
 .menu-tile--blue {
-  background: linear-gradient(180deg, #3977c8 0%, #244b93 100%);
+  background: linear-gradient(180deg, #4d86c8 0%, #255183 100%);
 }
 
 .menu-tile--pink {
-  background: linear-gradient(180deg, #dc7ca6 0%, #b24672 100%);
+  background: linear-gradient(180deg, #d3829f 0%, #a74d73 100%);
 }
 
 .menu-tile--green {
-  background: linear-gradient(180deg, #7ba45a 0%, #4f7937 100%);
+  background: linear-gradient(180deg, #7fa85d 0%, #4c7a39 100%);
 }
 
 .menu-tile--red {
-  background: linear-gradient(180deg, #d76557 0%, #b22f37 100%);
+  background: linear-gradient(180deg, #d56d5b 0%, #a73d43 100%);
 }
 
 .menu-tile--teal {
-  background: linear-gradient(180deg, #70a96b 0%, #4b7b42 100%);
+  background: linear-gradient(180deg, #6ba793 0%, #376f61 100%);
 }
 
 .tips-list {
   overflow: hidden;
   border-radius: 14px;
-  border: 1px solid rgba(255, 247, 231, 0.2);
+  border: 1px solid rgba(255, 247, 231, 0.16);
   background:
-    linear-gradient(180deg, rgba(47, 112, 181, 0.9), rgba(28, 73, 128, 0.9)),
+    linear-gradient(180deg, rgba(51, 111, 176, 0.84), rgba(25, 61, 109, 0.92)),
     url('/danang-clean-poster.png') center / cover no-repeat;
   box-shadow: 0 18px 40px rgba(7, 13, 23, 0.24);
 }
@@ -344,7 +345,7 @@ body {
   padding: 0 18px;
   color: #fff6e8;
   font-weight: 800;
-  font-size: 0.96rem;
+  font-size: 0.9rem;
   line-height: 1.18;
   transition: transform 0.22s ease, background 0.22s ease;
 }
@@ -377,14 +378,15 @@ body {
 .owner-cms-section,
 .owner-editor-card {
   border-radius: 28px;
-  border: 1px solid rgba(255, 248, 235, 0.12);
-  background: linear-gradient(180deg, rgba(8, 14, 25, 0.54), rgba(7, 12, 20, 0.82));
+  border: 1px solid rgba(255, 244, 220, 0.12);
+  background: linear-gradient(180deg, rgba(10, 20, 34, 0.54), rgba(7, 13, 22, 0.82));
   box-shadow: var(--shadow-md);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(18px);
 }
 
 .category-section--all {
-  padding: 18px 20px 6px;
+  padding: 18px 20px 8px;
+  background: linear-gradient(180deg, rgba(9, 18, 31, 0.5), rgba(7, 12, 21, 0.78));
 }
 
 .section-heading {
@@ -413,7 +415,7 @@ body {
 
 .section-heading--poster h2 {
   margin-top: 6px;
-  font-size: clamp(1.55rem, 2.6vw, 2.2rem);
+  font-size: clamp(1.28rem, 2vw, 1.8rem);
 }
 
 .category-list {
@@ -445,8 +447,8 @@ body {
   color: #fff8ea;
   font-family: var(--heading-font);
   font-weight: 400;
-  font-size: clamp(0.98rem, 1.6vw, 1.22rem);
-  line-height: 1;
+  font-size: clamp(0.92rem, 1.4vw, 1.08rem);
+  line-height: 1.02;
   letter-spacing: 0.01em;
   text-transform: uppercase;
   overflow-wrap: anywhere;
@@ -483,6 +485,7 @@ body {
 
 .page-header {
   padding: 18px 20px 20px;
+  background: linear-gradient(180deg, rgba(11, 21, 36, 0.72), rgba(7, 13, 22, 0.88));
 }
 
 .page-header__top {
@@ -562,7 +565,7 @@ body {
   max-height: min(84vh, 880px);
   overflow: auto;
   border: 1px solid rgba(255, 248, 235, 0.12);
-  background: linear-gradient(180deg, rgba(8, 14, 25, 0.96), rgba(7, 12, 20, 0.98));
+  background: linear-gradient(180deg, rgba(10, 20, 34, 0.96), rgba(7, 12, 20, 0.98));
   box-shadow: var(--shadow-lg);
 }
 
@@ -721,7 +724,7 @@ body {
 }
 
 .button--primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-violet));
+  background: linear-gradient(135deg, var(--accent), #ff9f6e);
   color: #1c0e06;
 }
 
@@ -743,6 +746,7 @@ body {
 
 .place-card {
   overflow: hidden;
+  background: linear-gradient(180deg, rgba(10, 20, 34, 0.72), rgba(7, 13, 22, 0.9));
 }
 
 .place-card__media {
@@ -751,7 +755,7 @@ body {
   min-height: 210px;
   padding: 18px;
   background:
-    linear-gradient(180deg, rgba(255, 196, 117, 0.16), rgba(255, 117, 92, 0.08)),
+    linear-gradient(180deg, rgba(255, 196, 117, 0.14), rgba(66, 124, 199, 0.08)),
     url('/danang-clean-poster.png') center / cover no-repeat;
 }
 
@@ -1023,7 +1027,7 @@ body {
   padding: 16px;
   border-radius: 20px;
   border: 1px solid rgba(255, 248, 235, 0.1);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .owner-item-card__top {
@@ -1069,10 +1073,10 @@ body {
   transform: translateX(-50%);
   padding: 10px 12px;
   border-radius: 26px;
-  border: 1px solid rgba(255, 247, 231, 0.16);
-  background: rgba(8, 12, 20, 0.72);
-  box-shadow: 0 22px 50px rgba(2, 7, 20, 0.38);
-  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 247, 231, 0.14);
+  background: linear-gradient(180deg, rgba(7, 12, 21, 0.76), rgba(10, 18, 30, 0.9));
+  box-shadow: 0 24px 56px rgba(2, 7, 20, 0.42);
+  backdrop-filter: blur(22px);
 }
 
 .bottom-nav::before {
@@ -1083,7 +1087,7 @@ body {
   top: -1px;
   height: 2px;
   border-radius: 999px;
-  background: linear-gradient(90deg, transparent, rgba(255, 246, 227, 0.46), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 138, 0.52), transparent);
 }
 
 .bottom-nav__item {
@@ -1093,8 +1097,8 @@ body {
   min-height: 62px;
   padding: 7px 4px;
   border-radius: 18px;
-  color: rgba(255, 248, 234, 0.78);
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  color: rgba(255, 248, 234, 0.76);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .bottom-nav__item:hover {
@@ -1104,6 +1108,8 @@ body {
 
 .bottom-nav__item.is-active {
   color: #fff8ea;
+  background: linear-gradient(180deg, rgba(255, 214, 138, 0.14), rgba(255, 255, 255, 0.04));
+  box-shadow: inset 0 1px 0 rgba(255, 228, 177, 0.18);
 }
 
 .bottom-nav__icon {
@@ -1113,7 +1119,7 @@ body {
 }
 
 .bottom-nav__label {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 800;
   line-height: 1;
 }
