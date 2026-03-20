@@ -9,10 +9,6 @@ import { WellnessFilters, WellnessFiltersState } from '../components/filters/Wel
 import { PageHeader } from '../components/layout/PageHeader';
 import { useGuideContent } from '../hooks/useGuideContent';
 
-type ListingPageProps = {
-  category: 'restaurants' | 'wellness';
-};
-
 const initialRestaurantFilters: RestaurantFiltersState = {
   kind: 'all',
   cuisine: 'all',
@@ -28,56 +24,30 @@ const initialWellnessFilters: WellnessFiltersState = {
   childPrograms: 'all'
 };
 
+type ListingPageProps = {
+  category: 'restaurants' | 'wellness';
+};
+
 export function ListingPage({ category }: ListingPageProps) {
   const [restaurantFilters, setRestaurantFilters] = useState<RestaurantFiltersState>(
     initialRestaurantFilters
   );
   const [wellnessFiltersState, setWellnessFiltersState] =
     useState<WellnessFiltersState>(initialWellnessFilters);
-  const { restaurants, wellness } = useGuideContent();
+  const { restaurants, wellness, loading, error, reload } = useGuideContent();
 
   const filteredRestaurants = useMemo(() => {
     return restaurants.filter((item) => {
       const minCheck = Number(restaurantFilters.minCheck || 0);
       const maxCheck = Number(restaurantFilters.maxCheck || 0);
 
-      if (restaurantFilters.kind !== 'all' && item.kind !== restaurantFilters.kind) {
-        return false;
-      }
-
-      if (restaurantFilters.cuisine !== 'all' && item.cuisine !== restaurantFilters.cuisine) {
-        return false;
-      }
-
-      if (restaurantFilters.breakfast !== 'all') {
-        const shouldHaveBreakfast = restaurantFilters.breakfast === 'yes';
-        if (item.breakfast !== shouldHaveBreakfast) {
-          return false;
-        }
-      }
-
-      if (restaurantFilters.vegan !== 'all') {
-        const shouldHaveVegan = restaurantFilters.vegan === 'yes';
-        if (item.vegan !== shouldHaveVegan) {
-          return false;
-        }
-      }
-
-      if (restaurantFilters.pets !== 'all') {
-        const shouldAllowPets = restaurantFilters.pets === 'yes';
-        if (item.pets !== shouldAllowPets) {
-          return false;
-        }
-      }
-
-      if (minCheck > 0 && item.avgCheck < minCheck) {
-        return false;
-      }
-
-      if (maxCheck > 0 && item.avgCheck > maxCheck) {
-        return false;
-      }
-
+      if (restaurantFilters.kind !== 'all' && item.kind !== restaurantFilters.kind) return false;
+      if (restaurantFilters.cuisine !== 'all' && item.cuisine !== restaurantFilters.cuisine) return false;
+      if (restaurantFilters.breakfast !== 'all' && item.breakfast !== (restaurantFilters.breakfast === 'yes')) return false;
+      if (restaurantFilters.vegan !== 'all' && item.vegan !== (restaurantFilters.vegan === 'yes')) return false;
+      if (restaurantFilters.pets !== 'all' && item.pets !== (restaurantFilters.pets === 'yes')) return false;
+      if (minCheck > 0 && item.avgCheck < minCheck) return false;
+      if (maxCheck > 0 && item.avgCheck > maxCheck) return false;
       return true;
     });
   }, [restaurantFilters, restaurants]);
@@ -91,30 +61,63 @@ export function ListingPage({ category }: ListingPageProps) {
         return false;
       }
 
-      if (wellnessFiltersState.childPrograms !== 'all') {
-        const shouldHavePrograms = wellnessFiltersState.childPrograms === 'yes';
-        if (item.childPrograms !== shouldHavePrograms) {
-          return false;
-        }
+      if (
+        wellnessFiltersState.childPrograms !== 'all' &&
+        item.childPrograms !== (wellnessFiltersState.childPrograms === 'yes')
+      ) {
+        return false;
       }
 
       return true;
     });
   }, [wellnessFiltersState, wellness]);
 
-  if (category === 'restaurants') {
-    return (
-      <div className="page-stack">
-        <PageHeader
-          title="Рестораны, кафе и столовые"
-          subtitle="Раздел уже подключён к owner-CMS: новые карточки из закрытой страницы владельца появляются здесь автоматически."
-          showBack
-        />
+  return (
+    <div className="page-stack">
+      <PageHeader
+        title={category === 'restaurants' ? 'Рестораны, кафе и столовые' : 'СПА и оздоровление'}
+        subtitle={
+          category === 'restaurants'
+            ? 'Карточки идут из owner-CMS и сохраняются через backend. Здесь сразу виден опубликованный контент.'
+            : 'Этот раздел тоже получает данные из backend и owner-CMS. Публикуются только видимые карточки.'
+        }
+        showBack
+      />
 
-        <FilterPanel title="Фильтр ресторанов">
+      <FilterPanel title={category === 'restaurants' ? 'Фильтр ресторанов' : 'Фильтр СПА и оздоровления'}>
+        {category === 'restaurants' ? (
           <RestaurantFilters value={restaurantFilters} onChange={setRestaurantFilters} />
-        </FilterPanel>
+        ) : (
+          <WellnessFilters value={wellnessFiltersState} onChange={setWellnessFiltersState} />
+        )}
+      </FilterPanel>
 
+      {loading ? (
+        <section className="card card--placeholder">
+          <div className="placeholder-state">
+            <span className="placeholder-state__badge">Загрузка</span>
+            <h2>Подгружаем карточки</h2>
+            <p>Сейчас загрузим актуальные данные из приложения.</p>
+          </div>
+        </section>
+      ) : null}
+
+      {!loading && error ? (
+        <section className="card card--placeholder">
+          <div className="placeholder-state">
+            <span className="placeholder-state__badge">Ошибка</span>
+            <h2>Не удалось загрузить раздел</h2>
+            <p>{error}</p>
+            <div className="placeholder-state__actions">
+              <button className="button button--primary" type="button" onClick={() => reload()}>
+                Повторить
+              </button>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {!loading && !error && category === 'restaurants' ? (
         <section className="grid-listing">
           {filteredRestaurants.map((item) => (
             <PlaceholderCard
@@ -124,6 +127,7 @@ export function ListingPage({ category }: ListingPageProps) {
               description={item.description}
               rating={item.rating}
               imageLabel={item.imageLabel}
+              imageUrl={item.imageUrl}
               meta={[
                 item.kind === 'restaurant'
                   ? 'Ресторан'
@@ -142,55 +146,48 @@ export function ListingPage({ category }: ListingPageProps) {
                 `Средний чек ${item.avgCheck}`,
                 item.breakfast ? 'Есть завтраки' : 'Без завтраков',
                 item.vegan ? 'Веган меню' : 'Без веган меню',
-                item.pets ? 'Можно с животными' : 'Без животных'
+                item.pets ? 'Можно с животными' : 'Без животных',
+                item.hours,
+                item.phone
               ]}
             />
           ))}
         </section>
-      </div>
-    );
-  }
+      ) : null}
 
-  return (
-    <div className="page-stack">
-      <PageHeader
-        title="СПА и оздоровление"
-        subtitle="Этот раздел тоже связан с owner-CMS: карточки из закрытой страницы владельца сразу выводятся здесь."
-        showBack
-      />
+      {!loading && !error && category === 'wellness' ? (
+        <section className="grid-listing">
+          {filteredWellness.map((item) => (
+            <PlaceholderCard
+              key={item.id}
+              title={item.title}
+              address={item.address}
+              description={item.description}
+              rating={item.rating}
+              imageLabel={item.imageLabel}
+              imageUrl={item.imageUrl}
+              meta={[
+                ...item.services.map((service) => {
+                  const serviceLabelMap: Record<string, string> = {
+                    massage: 'Массаж',
+                    sauna: 'Баня',
+                    spa: 'СПА',
+                    hammam: 'Хамам',
+                    cosmetology: 'Косметология',
+                    wraps: 'Обертывания',
+                    yoga: 'Йога'
+                  };
 
-      <FilterPanel title="Фильтр СПА и оздоровления">
-        <WellnessFilters value={wellnessFiltersState} onChange={setWellnessFiltersState} />
-      </FilterPanel>
-
-      <section className="grid-listing">
-        {filteredWellness.map((item) => (
-          <PlaceholderCard
-            key={item.id}
-            title={item.title}
-            address={item.address}
-            description={item.description}
-            rating={item.rating}
-            imageLabel={item.imageLabel}
-            meta={[
-              ...item.services.map((service) => {
-                const serviceLabelMap: Record<string, string> = {
-                  massage: 'Массаж',
-                  sauna: 'Баня',
-                  spa: 'СПА',
-                  hammam: 'Хамам',
-                  cosmetology: 'Косметология',
-                  wraps: 'Обертывания',
-                  yoga: 'Йога'
-                };
-
-                return serviceLabelMap[service];
-              }),
-              item.childPrograms ? 'Есть детские программы' : 'Без детских программ'
-            ]}
-          />
-        ))}
-      </section>
+                  return serviceLabelMap[service];
+                }),
+                item.childPrograms ? 'Есть детские программы' : 'Без детских программ',
+                item.hours,
+                item.phone
+              ]}
+            />
+          ))}
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -1,22 +1,40 @@
 import { useEffect, useState } from 'react';
-import { GUIDE_CONTENT_EVENT, readGuideContent, type GuideContentStore } from '../data/guideContent';
+import type { PublicGuideContent } from '../types';
+import { fetchPublicBootstrap } from '../lib/api';
+
+const initialState: PublicGuideContent = {
+  restaurants: [],
+  wellness: [],
+  featured: [],
+  tips: []
+};
 
 export function useGuideContent() {
-  const [content, setContent] = useState<GuideContentStore>(() => readGuideContent());
+  const [content, setContent] = useState<PublicGuideContent>(initialState);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const reload = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await fetchPublicBootstrap();
+      setContent(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Не удалось загрузить данные приложения.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const sync = () => {
-      setContent(readGuideContent());
-    };
-
-    window.addEventListener(GUIDE_CONTENT_EVENT, sync);
-    window.addEventListener('storage', sync);
-
-    return () => {
-      window.removeEventListener(GUIDE_CONTENT_EVENT, sync);
-      window.removeEventListener('storage', sync);
-    };
+    reload().catch(() => undefined);
   }, []);
 
-  return content;
+  return {
+    ...content,
+    loading,
+    error,
+    reload
+  };
 }
