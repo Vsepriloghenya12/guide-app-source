@@ -79,7 +79,7 @@ export function OwnerPage() {
         </div>
       </section>
 
-      <OwnerPlacesManager items={places} />
+      <OwnerPlacesManager items={places} categories={categories} />
       <OwnerCategoryOverview categories={categories} />
       <OwnerTipsManager tips={tips} />
       <OwnerHomeManager

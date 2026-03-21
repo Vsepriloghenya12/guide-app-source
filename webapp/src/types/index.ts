@@ -46,6 +46,7 @@ export type GuidePlace = {
   rating: number;
   imageLabel: string;
   imageSrc: string;
+  imageGallery?: string[];
 };
 
 export type GuideTip = {
@@ -102,7 +103,6 @@ export type GuideContentStore = {
   collections: GuideCollection[];
   home: HomeContent;
 };
-
 
 // Compatibility aliases for older pages/API client
 export type Category = GuideCategory;

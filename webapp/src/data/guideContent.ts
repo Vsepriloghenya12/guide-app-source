@@ -2,8 +2,8 @@ import { defaultGuideContent } from './mockData';
 import { defaultCategories } from './categories';
 import type { GuideCategory, GuideContentStore, GuidePlace } from '../types';
 
-const GUIDE_CONTENT_KEY = 'guide-content-store-v2';
-const LEGACY_GUIDE_CONTENT_KEY = 'guide-content-store-v1';
+const GUIDE_CONTENT_KEY = 'guide-content-store-v3';
+const LEGACY_GUIDE_CONTENT_KEY = 'guide-content-store-v2';
 
 export const GUIDE_CONTENT_EVENT = 'guide-content-updated';
 
@@ -52,7 +52,8 @@ function createMigratedPlace(item: {
     top: false,
     rating: item.rating,
     imageLabel: item.imageLabel ?? 'Карточка',
-    imageSrc: ''
+    imageSrc: '',
+    imageGallery: []
   };
 }
 
@@ -117,7 +118,17 @@ function normalizeStore(parsed: Partial<GuideContentStore>): GuideContentStore {
 
   return {
     version: 2,
-    places: Array.isArray(parsed.places) ? parsed.places : defaults.places,
+    places: Array.isArray(parsed.places)
+      ? parsed.places.map((place) => ({
+          ...place,
+          imageGallery: Array.isArray(place.imageGallery)
+            ? place.imageGallery.filter((image): image is string => Boolean(image))
+            : place.imageSrc
+              ? [place.imageSrc]
+              : [],
+          imageSrc: place.imageSrc ?? ''
+        }))
+      : defaults.places,
     categories: Array.isArray(parsed.categories)
       ? defaultCategories.map((fallback) => {
           const found = parsed.categories?.find((category) => category.id === fallback.id);

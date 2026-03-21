@@ -1,9 +1,10 @@
 import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
 import { updateGuideContent } from '../../data/guideContent';
-import type { GuidePlace } from '../../types';
+import type { GuideCategory, GuideCategoryId, GuidePlace } from '../../types';
 
 type OwnerPlacesManagerProps = {
   items: GuidePlace[];
+  categories: GuideCategory[];
 };
 
 type PlaceDraft = {
@@ -28,6 +29,7 @@ type PlaceDraft = {
   rating: string;
   imageLabel: string;
   imageSrc: string;
+  imageGallery: string[];
 };
 
 const initialDraft: PlaceDraft = {
@@ -50,7 +52,8 @@ const initialDraft: PlaceDraft = {
   top: false,
   rating: '4.7',
   imageLabel: '',
-  imageSrc: ''
+  imageSrc: '',
+  imageGallery: []
 };
 
 function createId() {
@@ -68,7 +71,16 @@ function parseMultiValue(value: string) {
     .filter(Boolean);
 }
 
+function getPlaceImages(item: GuidePlace) {
+  if (Array.isArray(item.imageGallery) && item.imageGallery.length > 0) {
+    return item.imageGallery;
+  }
+  return item.imageSrc ? [item.imageSrc] : [];
+}
+
 function toDraft(item: GuidePlace): PlaceDraft {
+  const imageGallery = getPlaceImages(item);
+
   return {
     id: item.id,
     categoryId: item.categoryId,
@@ -90,39 +102,63 @@ function toDraft(item: GuidePlace): PlaceDraft {
     top: item.top,
     rating: String(item.rating),
     imageLabel: item.imageLabel,
-    imageSrc: item.imageSrc
+    imageSrc: imageGallery[0] ?? '',
+    imageGallery
   };
 }
 
-export function OwnerPlacesManager({ items }: OwnerPlacesManagerProps) {
+function readFileAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+        return;
+      }
+      reject(new Error('Не удалось прочитать файл.'));
+    };
+    reader.onerror = () => reject(reader.error ?? new Error('Ошибка чтения файла.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProps) {
   const [draft, setDraft] = useState<PlaceDraft>(initialDraft);
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState('');
-  const [activeTab, setActiveTab] = useState<'all' | 'restaurants' | 'wellness'>('all');
+  const [activeTab, setActiveTab] = useState<GuideCategoryId>('restaurants');
+
+  const visibleCategories = useMemo(
+    () => categories.filter((category) => category.visible || items.some((item) => item.categoryId === category.id)),
+    [categories, items]
+  );
+
+  const activeCategory = categories.find((category) => category.id === activeTab);
 
   const visibleItems = useMemo(() => {
-    const sorted = [...items].sort((left, right) => {
-      if (left.top !== right.top) {
-        return Number(right.top) - Number(left.top);
-      }
-      return right.rating - left.rating;
-    });
-
-    if (activeTab === 'all') {
-      return sorted;
-    }
-
-    return sorted.filter((item) => item.categoryId === activeTab);
+    return [...items]
+      .filter((item) => item.categoryId === activeTab)
+      .sort((left, right) => {
+        if (left.top !== right.top) {
+          return Number(right.top) - Number(left.top);
+        }
+        return right.rating - left.rating;
+      });
   }, [activeTab, items]);
 
   const resetForm = () => {
-    setDraft(initialDraft);
+    setDraft((current) => ({
+      ...initialDraft,
+      categoryId: activeTab,
+      imageLabel: current.imageLabel && isEditing ? '' : initialDraft.imageLabel
+    }));
     setIsEditing(false);
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const normalizedGallery = draft.imageGallery.filter(Boolean);
     const nextItem: GuidePlace = {
       id: draft.id || createId(),
       categoryId: draft.categoryId,
@@ -144,7 +180,8 @@ export function OwnerPlacesManager({ items }: OwnerPlacesManagerProps) {
       top: draft.top,
       rating: Number(draft.rating || 0),
       imageLabel: draft.imageLabel.trim() || 'Карточка места',
-      imageSrc: draft.imageSrc
+      imageSrc: normalizedGallery[0] ?? '',
+      imageGallery: normalizedGallery
     };
 
     if (!nextItem.title || !nextItem.address || !nextItem.description) {
@@ -159,12 +196,15 @@ export function OwnerPlacesManager({ items }: OwnerPlacesManagerProps) {
         : [nextItem, ...current.places]
     }));
 
+    setActiveTab(nextItem.categoryId);
     setStatus(draft.id ? 'Карточка обновлена.' : 'Новая карточка добавлена.');
-    resetForm();
+    setDraft({ ...initialDraft, categoryId: nextItem.categoryId });
+    setIsEditing(false);
   };
 
   const startEdit = (item: GuidePlace) => {
     setDraft(toDraft(item));
+    setActiveTab(item.categoryId);
     setIsEditing(true);
     setStatus('');
   };
@@ -184,27 +224,54 @@ export function OwnerPlacesManager({ items }: OwnerPlacesManagerProps) {
     }));
 
     if (draft.id === id) {
-      resetForm();
+      setDraft({ ...initialDraft, categoryId: activeTab });
+      setIsEditing(false);
     }
 
     setStatus('Карточка удалена.');
   };
 
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
+  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (files.length === 0) {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setDraft((current) => ({
+    const uploadedImages = await Promise.all(files.map((file) => readFileAsDataUrl(file)));
+    setDraft((current) => ({
+      ...current,
+      imageGallery: [...current.imageGallery, ...uploadedImages],
+      imageSrc: current.imageSrc || uploadedImages[0] || '',
+      imageLabel: current.imageLabel || files[0]?.name || current.imageLabel
+    }));
+    event.target.value = '';
+  };
+
+  const removeImage = (imageIndex: number) => {
+    setDraft((current) => {
+      const nextGallery = current.imageGallery.filter((_, index) => index !== imageIndex);
+      return {
         ...current,
-        imageSrc: typeof reader.result === 'string' ? reader.result : current.imageSrc,
-        imageLabel: current.imageLabel || file.name
-      }));
-    };
-    reader.readAsDataURL(file);
+        imageGallery: nextGallery,
+        imageSrc: nextGallery[0] ?? ''
+      };
+    });
+  };
+
+  const makeCover = (imageIndex: number) => {
+    setDraft((current) => {
+      const nextGallery = [...current.imageGallery];
+      const [selectedImage] = nextGallery.splice(imageIndex, 1);
+      if (!selectedImage) {
+        return current;
+      }
+      nextGallery.unshift(selectedImage);
+      return {
+        ...current,
+        imageGallery: nextGallery,
+        imageSrc: nextGallery[0] ?? ''
+      };
+    });
   };
 
   return (
@@ -212,15 +279,36 @@ export function OwnerPlacesManager({ items }: OwnerPlacesManagerProps) {
       <div className="owner-cms-section__header">
         <div>
           <span className="eyebrow">CMS / карточки</span>
-          <h2>Карточки мест</h2>
+          <h2>Карточки мест по категориям</h2>
           <p>
-            Здесь уже есть полноценная форма: фото, категория, описание, контакты, часы работы,
-            средний чек, тип, услуги, теги и переключатель “показывать в топе”.
+            У владельца теперь отдельные вкладки по категориям. В каждой вкладке можно создавать,
+            редактировать и удалять карточки, а также загружать несколько фото для карусели.
           </p>
         </div>
         <button className="button button--ghost" type="button" onClick={resetForm}>
           Новая карточка
         </button>
+      </div>
+
+      <div className="owner-inline-tabs owner-inline-tabs--categories">
+        {visibleCategories.map((category) => {
+          const count = items.filter((item) => item.categoryId === category.id).length;
+          return (
+            <button
+              key={category.id}
+              type="button"
+              className={`button button--ghost ${activeTab === category.id ? 'is-active' : ''}`}
+              onClick={() => {
+                setActiveTab(category.id);
+                if (!isEditing) {
+                  setDraft((current) => ({ ...current, categoryId: category.id }));
+                }
+              }}
+            >
+              {category.title} · {count}
+            </button>
+          );
+        })}
       </div>
 
       <div className="owner-cms-layout">
@@ -237,8 +325,11 @@ export function OwnerPlacesManager({ items }: OwnerPlacesManagerProps) {
                   }))
                 }
               >
-                <option value="restaurants">Рестораны</option>
-                <option value="wellness">СПА и оздоровление</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.title}
+                  </option>
+                ))}
               </select>
             </label>
 
@@ -370,20 +461,29 @@ export function OwnerPlacesManager({ items }: OwnerPlacesManagerProps) {
           </div>
 
           <label className="field field--file">
-            <span>Фото</span>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
+            <span>Фото карточки</span>
+            <input type="file" accept="image/*" multiple onChange={handleImageChange} />
           </label>
 
-          {draft.imageSrc ? (
-            <div className="owner-image-preview">
-              <img src={draft.imageSrc} alt={draft.title || 'Превью'} />
-              <button
-                className="button button--ghost"
-                type="button"
-                onClick={() => setDraft((current) => ({ ...current, imageSrc: '' }))}
-              >
-                Удалить фото
-              </button>
+          {draft.imageGallery.length > 0 ? (
+            <div className="owner-gallery-preview-grid">
+              {draft.imageGallery.map((image, index) => (
+                <article key={`${image}-${index}`} className="owner-gallery-preview-card">
+                  <img src={image} alt={`${draft.title || 'Фото'} ${index + 1}`} />
+                  <div className="owner-gallery-preview-card__actions">
+                    {index === 0 ? (
+                      <span className="owner-gallery-preview-card__cover">Обложка</span>
+                    ) : (
+                      <button className="button button--ghost" type="button" onClick={() => makeCover(index)}>
+                        Сделать обложкой
+                      </button>
+                    )}
+                    <button className="button button--ghost" type="button" onClick={() => removeImage(index)}>
+                      Удалить
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
           ) : null}
 
@@ -447,57 +547,58 @@ export function OwnerPlacesManager({ items }: OwnerPlacesManagerProps) {
         <div className="owner-editor-card owner-editor-list">
           <div className="owner-editor-list__head owner-editor-list__head--stack">
             <div>
-              <strong>Карточки в системе</strong>
-              <span>{items.length} шт.</span>
+              <strong>{activeCategory?.title ?? 'Карточки категории'}</strong>
+              <span>{visibleItems.length} шт.</span>
             </div>
-            <div className="owner-inline-tabs">
-              {[
-                { value: 'all', label: 'Все' },
-                { value: 'restaurants', label: 'Рестораны' },
-                { value: 'wellness', label: 'СПА' }
-              ].map((tab) => (
-                <button
-                  key={tab.value}
-                  type="button"
-                  className={`button button--ghost ${activeTab === tab.value ? 'is-active' : ''}`}
-                  onClick={() => setActiveTab(tab.value as 'all' | 'restaurants' | 'wellness')}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            <span>
+              Во вкладке отображаются только карточки выбранной категории. Редактирование и удаление
+              тоже происходят внутри этой вкладки.
+            </span>
           </div>
 
           <div className="owner-item-list">
-            {visibleItems.map((item) => (
-              <article key={item.id} className="owner-item-card">
-                <div className="owner-item-card__top">
-                  <div>
-                    <h3>{item.title}</h3>
-                    <p>
-                      {item.categoryId === 'restaurants' ? 'Рестораны' : 'СПА'} · {item.kind || 'Без типа'}
-                      {item.top ? ' · Топ' : ''}
-                    </p>
+            {visibleItems.length > 0 ? (
+              visibleItems.map((item) => (
+                <article key={item.id} className="owner-item-card">
+                  <div className="owner-item-card__top">
+                    <div>
+                      <h3>{item.title}</h3>
+                      <p>
+                        {activeCategory?.title ?? item.categoryId} · {item.kind || 'Без типа'}
+                        {item.top ? ' · Топ' : ''}
+                      </p>
+                    </div>
+                    <span className="owner-item-card__rating">★ {item.rating.toFixed(1)}</span>
                   </div>
-                  <span className="owner-item-card__rating">★ {item.rating.toFixed(1)}</span>
-                </div>
 
-                <p className="owner-item-card__address">{item.address}</p>
-                <p className="owner-item-card__description">{item.description}</p>
-                <p className="owner-item-card__meta-row">
-                  {[item.cuisine, ...(item.services ?? []), ...(item.tags ?? [])].filter(Boolean).join(' · ')}
+                  <p className="owner-item-card__address">{item.address}</p>
+                  <p className="owner-item-card__description">{item.description}</p>
+                  <p className="owner-item-card__meta-row">
+                    {[item.cuisine, ...(item.services ?? []), ...(item.tags ?? [])].filter(Boolean).join(' · ')}
+                  </p>
+                  <p className="owner-item-card__meta-row">
+                    Фото: {getPlaceImages(item).length} {getPlaceImages(item).length === 1 ? 'шт.' : 'шт.'}
+                  </p>
+
+                  <div className="owner-item-card__actions">
+                    <button className="button button--ghost" type="button" onClick={() => startEdit(item)}>
+                      Редактировать
+                    </button>
+                    <button className="button button--ghost" type="button" onClick={() => deleteItem(item.id)}>
+                      Удалить
+                    </button>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <article className="owner-item-card">
+                <h3>Пока пусто</h3>
+                <p>
+                  В категории “{activeCategory?.title ?? 'Раздел'}” ещё нет карточек. Добавь первую карточку
+                  через форму слева — она сразу появится в этой вкладке.
                 </p>
-
-                <div className="owner-item-card__actions">
-                  <button className="button button--ghost" type="button" onClick={() => startEdit(item)}>
-                    Редактировать
-                  </button>
-                  <button className="button button--ghost" type="button" onClick={() => deleteItem(item.id)}>
-                    Удалить
-                  </button>
-                </div>
               </article>
-            ))}
+            )}
           </div>
         </div>
       </div>

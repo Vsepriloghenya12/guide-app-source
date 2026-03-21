@@ -5,10 +5,10 @@ import { RestaurantFilters, RestaurantFiltersState } from '../components/filters
 import { WellnessFilters, WellnessFiltersState } from '../components/filters/WellnessFilters';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useGuideContent } from '../hooks/useGuideContent';
-import type { GuidePlace } from '../types';
+import type { GuideCategoryId, GuidePlace } from '../types';
 
 type ListingPageProps = {
-  category: 'restaurants' | 'wellness';
+  category: GuideCategoryId;
 };
 
 const initialRestaurantFilters: RestaurantFiltersState = {
@@ -30,13 +30,26 @@ function compactStrings(values: Array<string | undefined>) {
   return values.filter((value): value is string => Boolean(value));
 }
 
+function getPlaceImages(item: GuidePlace) {
+  if (Array.isArray(item.imageGallery) && item.imageGallery.length > 0) {
+    return item.imageGallery;
+  }
+  return item.imageSrc ? [item.imageSrc] : [];
+}
+
 export function ListingPage({ category }: ListingPageProps) {
   const [restaurantFilters, setRestaurantFilters] = useState<RestaurantFiltersState>(
     initialRestaurantFilters
   );
   const [wellnessFiltersState, setWellnessFiltersState] =
     useState<WellnessFiltersState>(initialWellnessFilters);
-  const { places } = useGuideContent();
+  const { places, categories } = useGuideContent();
+
+  const categoryMeta = categories.find((item) => item.id === category);
+  const categoryPlaces = useMemo(
+    () => places.filter((place: GuidePlace) => place.categoryId === category),
+    [category, places]
+  );
 
   const restaurants = useMemo(
     () => places.filter((place: GuidePlace) => place.categoryId === 'restaurants'),
@@ -154,6 +167,7 @@ export function ListingPage({ category }: ListingPageProps) {
               rating={item.rating}
               imageLabel={item.imageLabel}
               imageSrc={item.imageSrc}
+              imageSources={getPlaceImages(item)}
               phone={item.phone}
               website={item.website}
               hours={item.hours}
@@ -175,45 +189,86 @@ export function ListingPage({ category }: ListingPageProps) {
     );
   }
 
+  if (category === 'wellness') {
+    return (
+      <div className="page-stack">
+        <PageHeader
+          title="СПА и оздоровление"
+          subtitle="Этот раздел тоже связан с owner-CMS: карточки, услуги, теги и тексты редактируются из закрытой страницы владельца."
+          showBack
+        />
+
+        <FilterPanel title="Фильтр СПА и оздоровления">
+          <WellnessFilters
+            value={wellnessFiltersState}
+            onChange={setWellnessFiltersState}
+            serviceOptions={wellnessServiceOptions}
+          />
+        </FilterPanel>
+
+        <section className="grid-listing">
+          {filteredWellness.map((item: GuidePlace) => (
+            <PlaceholderCard
+              key={item.id}
+              title={item.title}
+              address={item.address}
+              description={item.description}
+              rating={item.rating}
+              imageLabel={item.imageLabel}
+              imageSrc={item.imageSrc}
+              imageSources={getPlaceImages(item)}
+              phone={item.phone}
+              website={item.website}
+              hours={item.hours}
+              top={item.top}
+              meta={compactStrings([
+                item.kind,
+                ...item.services,
+                item.childPrograms ? 'Есть детские программы' : undefined,
+                ...item.tags
+              ])}
+            />
+          ))}
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="page-stack">
       <PageHeader
-        title="СПА и оздоровление"
-        subtitle="Этот раздел тоже связан с owner-CMS: карточки, услуги, теги и тексты редактируются из закрытой страницы владельца."
+        title={categoryMeta?.title ?? 'Раздел'}
+        subtitle={categoryMeta?.description ?? 'Карточки этого раздела редактируются владельцем из owner-CMS.'}
         showBack
       />
 
-      <FilterPanel title="Фильтр СПА и оздоровления">
-        <WellnessFilters
-          value={wellnessFiltersState}
-          onChange={setWellnessFiltersState}
-          serviceOptions={wellnessServiceOptions}
-        />
-      </FilterPanel>
-
-      <section className="grid-listing">
-        {filteredWellness.map((item: GuidePlace) => (
-          <PlaceholderCard
-            key={item.id}
-            title={item.title}
-            address={item.address}
-            description={item.description}
-            rating={item.rating}
-            imageLabel={item.imageLabel}
-            imageSrc={item.imageSrc}
-            phone={item.phone}
-            website={item.website}
-            hours={item.hours}
-            top={item.top}
-            meta={compactStrings([
-              item.kind,
-              ...item.services,
-              item.childPrograms ? 'Есть детские программы' : undefined,
-              ...item.tags
-            ])}
-          />
-        ))}
-      </section>
+      {categoryPlaces.length > 0 ? (
+        <section className="grid-listing">
+          {categoryPlaces.map((item: GuidePlace) => (
+            <PlaceholderCard
+              key={item.id}
+              title={item.title}
+              address={item.address}
+              description={item.description}
+              rating={item.rating}
+              imageLabel={item.imageLabel}
+              imageSrc={item.imageSrc}
+              imageSources={getPlaceImages(item)}
+              phone={item.phone}
+              website={item.website}
+              hours={item.hours}
+              top={item.top}
+              meta={compactStrings([
+                item.kind,
+                item.cuisine,
+                item.avgCheck ? `Средний чек ${item.avgCheck}` : undefined,
+                ...item.services,
+                ...item.tags
+              ])}
+            />
+          ))}
+        </section>
+      ) : null}
     </div>
   );
 }

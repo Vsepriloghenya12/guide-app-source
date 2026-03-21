@@ -26,9 +26,9 @@ export function FeatureGrid({
           {popularPlaces.map((place, index) => (
             <Link
               key={place.id}
-              to={place.categoryId === 'restaurants' ? '/restaurants' : '/wellness'}
+              to={place.categoryId === 'restaurants' ? '/restaurants' : place.categoryId === 'wellness' ? '/wellness' : `/section/${place.categoryId}`}
               className={`poster-tile poster-tile--${index % 2 === 0 ? 'coast' : 'bridge'}`}
-              style={place.imageSrc ? { backgroundImage: `url(${place.imageSrc})` } : undefined}
+              style={place.imageSrc ? { backgroundImage: `url(${place.imageGallery?.[0] ?? place.imageSrc})` } : undefined}
             >
               <strong>{place.title}</strong>
               <span>{place.imageLabel}</span>
