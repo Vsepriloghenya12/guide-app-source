@@ -1,55 +1,107 @@
-import { homeCategories } from '../../data/categories';
+import { categoryStatusMap } from '../../data/categories';
+import { updateGuideContent } from '../../data/guideContent';
+import type { GuideCategory } from '../../types';
 
 type OwnerCategoryOverviewProps = {
-  restaurantsCount: number;
-  wellnessCount: number;
+  categories: GuideCategory[];
 };
 
-const categoryStatusMap: Record<string, string> = {
-  restaurants: 'Есть полноценная CMS для карточек',
-  wellness: 'Есть полноценная CMS для карточек',
-  'active-rest': 'Раздел подготовлен, ждёт наполнение',
-  routes: 'Можно добавлять контент на следующем этапе',
-  hotels: 'Раздел подготовлен, ждёт наполнение',
-  events: 'Подойдёт для афиши и баннеров',
-  transport: 'Раздел подготовлен, ждёт наполнение',
-  atm: 'Можно подключить карту и точки',
-  shops: 'Раздел подготовлен, ждёт наполнение',
-  culture: 'Подойдёт для достопримечательностей и гайдов',
-  kids: 'Раздел подготовлен, ждёт наполнение',
-  medicine: 'Раздел подготовлен, ждёт наполнение',
-  'photo-spots': 'Подойдёт для локаций и точек на карте',
-  'car-rental': 'Раздел подготовлен, ждёт наполнение'
-};
+export function OwnerCategoryOverview({ categories }: OwnerCategoryOverviewProps) {
+  const handleCategoryField = <K extends keyof GuideCategory>(
+    categoryId: string,
+    field: K,
+    value: GuideCategory[K]
+  ) => {
+    updateGuideContent((current) => ({
+      ...current,
+      categories: current.categories.map((category) =>
+        category.id === categoryId ? { ...category, [field]: value } : category
+      )
+    }));
+  };
 
-export function OwnerCategoryOverview({ restaurantsCount, wellnessCount }: OwnerCategoryOverviewProps) {
   return (
-    <section className="owner-category-manager">
-      <div className="section-heading section-heading--poster owner-category-manager__heading">
+    <section className="owner-category-manager owner-cms-section">
+      <div className="owner-cms-section__header">
         <div>
-          <span className="eyebrow">Категории</span>
-          <h2>Структура разделов</h2>
+          <span className="eyebrow">CMS / категории</span>
+          <h2>Управление категориями</h2>
+          <p>Здесь можно менять названия, бейджи, видимость и показ категорий на главной странице.</p>
         </div>
       </div>
 
-      <div className="owner-category-list">
-        {homeCategories.map((category) => {
-          const count =
-            category.id === 'restaurants' ? restaurantsCount : category.id === 'wellness' ? wellnessCount : 0;
-
-          return (
-            <article key={category.id} className="owner-category-card">
-              <div className="owner-category-card__top">
-                <div className="owner-category-card__title-wrap">
-                  <h3>{category.title}</h3>
-                  <p>{categoryStatusMap[category.id] ?? 'Раздел готов к дальнейшей доработке'}</p>
-                </div>
-
-                <div className="owner-category-card__count">{count} карточек</div>
+      <div className="owner-category-list owner-category-list--editable">
+        {categories.map((category) => (
+          <article key={category.id} className="owner-category-card owner-category-card--editable">
+            <div className="owner-category-card__top owner-category-card__top--stack">
+              <div className="owner-category-card__title-wrap">
+                <h3>{category.title}</h3>
+                <p>{categoryStatusMap[category.id]}</p>
               </div>
-            </article>
-          );
-        })}
+            </div>
+
+            <div className="owner-editor-form__grid owner-editor-form__grid--double">
+              <label className="field">
+                <span>Название категории</span>
+                <input
+                  value={category.title}
+                  onChange={(event) => handleCategoryField(category.id, 'title', event.target.value)}
+                />
+              </label>
+
+              <label className="field">
+                <span>Бейдж</span>
+                <input
+                  value={category.badge ?? ''}
+                  onChange={(event) => handleCategoryField(category.id, 'badge', event.target.value)}
+                  placeholder="Например, Популярно"
+                />
+              </label>
+
+              <label className="field">
+                <span>Ссылка</span>
+                <input
+                  value={category.path}
+                  onChange={(event) => handleCategoryField(category.id, 'path', event.target.value)}
+                />
+              </label>
+
+              <label className="field">
+                <span>Описание</span>
+                <input
+                  value={category.description ?? ''}
+                  onChange={(event) =>
+                    handleCategoryField(category.id, 'description', event.target.value)
+                  }
+                />
+              </label>
+            </div>
+
+            <div className="owner-checkbox-grid">
+              <label className="checkbox-pill checkbox-pill--owner">
+                <input
+                  type="checkbox"
+                  checked={category.visible}
+                  onChange={(event) =>
+                    handleCategoryField(category.id, 'visible', event.target.checked)
+                  }
+                />
+                <span>Показывать в общем списке</span>
+              </label>
+
+              <label className="checkbox-pill checkbox-pill--owner">
+                <input
+                  type="checkbox"
+                  checked={category.showOnHome}
+                  onChange={(event) =>
+                    handleCategoryField(category.id, 'showOnHome', event.target.checked)
+                  }
+                />
+                <span>Показывать в блоке “Категории”</span>
+              </label>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   );

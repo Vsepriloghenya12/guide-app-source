@@ -1,41 +1,104 @@
-export type HomeFeature = {
-  id: string;
-  title: string;
-  description: string;
-  path: string;
-};
+export type GuideCategoryId =
+  | 'restaurants'
+  | 'wellness'
+  | 'active-rest'
+  | 'routes'
+  | 'hotels'
+  | 'events'
+  | 'transport'
+  | 'atm'
+  | 'shops'
+  | 'culture'
+  | 'kids'
+  | 'medicine'
+  | 'photo-spots'
+  | 'car-rental';
 
-export type HomeCategory = {
-  id: string;
+export type GuideCategory = {
+  id: GuideCategoryId;
   title: string;
   path: string;
   badge?: string;
+  description?: string;
+  visible: boolean;
+  showOnHome: boolean;
 };
 
-export type RestaurantItem = {
+export type GuidePlace = {
   id: string;
+  categoryId: 'restaurants' | 'wellness';
   title: string;
-  kind: 'restaurant' | 'club' | 'canteen' | 'coffee';
-  cuisine: 'european' | 'caucasian' | 'thai' | 'vietnamese';
+  description: string;
+  address: string;
+  phone: string;
+  website: string;
+  hours: string;
+  avgCheck?: number;
+  kind: string;
+  cuisine: string;
+  services: string[];
+  tags: string[];
   breakfast: boolean;
   vegan: boolean;
   pets: boolean;
-  avgCheck: number;
-  address: string;
-  description: string;
+  childPrograms: boolean;
+  top: boolean;
   rating: number;
   imageLabel: string;
+  imageSrc: string;
 };
 
-export type WellnessItem = {
+export type GuideTip = {
   id: string;
   title: string;
-  services: Array<
-    'massage' | 'sauna' | 'spa' | 'hammam' | 'cosmetology' | 'wraps' | 'yoga'
-  >;
-  childPrograms: boolean;
-  address: string;
+  text: string;
+  linkPath: string;
+  active: boolean;
+};
+
+export type HomeBanner = {
+  id: string;
+  title: string;
+  subtitle: string;
+  linkPath: string;
+  tone: 'coast' | 'bridge' | 'sunset' | 'emerald';
+  imageSrc: string;
+  active: boolean;
+};
+
+export type GuideCollection = {
+  id: string;
+  title: string;
   description: string;
-  rating: number;
-  imageLabel: string;
+  linkPath: string;
+  imageSrc: string;
+  itemIds: string[];
+  active: boolean;
+};
+
+export type HomeSectionTitles = {
+  popular: string;
+  categories: string;
+  tips: string;
+  collections: string;
+  allCategories: string;
+};
+
+export type HomeContent = {
+  popularPlaceIds: string[];
+  featuredCategoryIds: GuideCategoryId[];
+  tipIds: string[];
+  bannerIds: string[];
+  collectionIds: string[];
+  sectionTitles: HomeSectionTitles;
+};
+
+export type GuideContentStore = {
+  version: 2;
+  places: GuidePlace[];
+  categories: GuideCategory[];
+  tips: GuideTip[];
+  banners: HomeBanner[];
+  collections: GuideCollection[];
+  home: HomeContent;
 };

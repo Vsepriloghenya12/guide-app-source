@@ -1297,3 +1297,175 @@ body {
     flex-direction: column;
   }
 }
+
+.home-banners {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+.home-banner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 124px;
+  padding: 18px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(12, 16, 31, 0.92), rgba(42, 70, 112, 0.9));
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.home-banner::after,
+.place-card__media::after,
+.poster-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 8, 18, 0.08), rgba(5, 8, 18, 0.72));
+  pointer-events: none;
+}
+
+.home-banner > *,
+.place-card__media > *,
+.poster-tile > * {
+  position: relative;
+  z-index: 1;
+}
+
+.home-banner--bridge {
+  background: linear-gradient(135deg, rgba(18, 16, 35, 0.95), rgba(71, 56, 132, 0.9));
+}
+
+.home-banner--sunset {
+  background: linear-gradient(135deg, rgba(43, 16, 16, 0.95), rgba(156, 71, 38, 0.9));
+}
+
+.home-banner--emerald {
+  background: linear-gradient(135deg, rgba(9, 31, 27, 0.95), rgba(45, 124, 112, 0.9));
+}
+
+.home-banner strong,
+.tips-list__item strong {
+  font-size: 1rem;
+}
+
+.home-banner span,
+.tips-list__item span,
+.category-list__text span {
+  opacity: 0.9;
+}
+
+.home-section-title--small {
+  margin-top: 18px;
+  font-size: 0.9rem;
+}
+
+.tips-list__item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.category-list__text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.owner-category-list--editable,
+.owner-cms-layout--stack,
+.owner-selection-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.owner-category-card--editable,
+.owner-selection-card,
+.owner-image-preview,
+.place-card__contacts {
+  display: grid;
+  gap: 12px;
+}
+
+.owner-category-card__top--stack,
+.owner-editor-list__head--stack {
+  display: grid;
+  gap: 12px;
+}
+
+.owner-image-preview img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.owner-inline-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owner-inline-tabs .button.is-active,
+.checkbox-pill--owner-accent {
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.14) inset, 0 18px 40px rgba(67, 109, 255, 0.18);
+}
+
+.owner-selection-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.owner-selection-card {
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(12, 16, 31, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.owner-item-card__meta-row,
+.place-card__contacts p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.field--file input {
+  padding: 12px;
+}
+
+.place-card__media {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+}
+
+.place-card__top-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 198, 74, 0.92);
+  color: #111;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.place-card__contacts a {
+  color: inherit;
+}
+
+@media (max-width: 700px) {
+  .home-banners,
+  .owner-selection-grid,
+  .owner-cms-layout {
+    grid-template-columns: 1fr;
+  }
+}

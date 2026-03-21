@@ -4,7 +4,12 @@ type PlaceholderCardProps = {
   description: string;
   rating: number;
   imageLabel: string;
+  imageSrc?: string;
   meta: string[];
+  phone?: string;
+  website?: string;
+  hours?: string;
+  top?: boolean;
 };
 
 export function PlaceholderCard({
@@ -13,12 +18,18 @@ export function PlaceholderCard({
   description,
   rating,
   imageLabel,
-  meta
+  imageSrc,
+  meta,
+  phone,
+  website,
+  hours,
+  top
 }: PlaceholderCardProps) {
   return (
     <article className="place-card card card--interactive">
-      <div className="place-card__media">
-        <span>{imageLabel}</span>
+      <div className="place-card__media" style={imageSrc ? { backgroundImage: `url(${imageSrc})` } : undefined}>
+        {!imageSrc ? <span>{imageLabel}</span> : null}
+        {top ? <span className="place-card__top-badge">Топ</span> : null}
       </div>
 
       <div className="place-card__body">
@@ -29,6 +40,21 @@ export function PlaceholderCard({
 
         <p className="place-card__address">{address}</p>
         <p className="place-card__description">{description}</p>
+
+        {phone || website || hours ? (
+          <div className="place-card__contacts">
+            {hours ? <p>Часы: {hours}</p> : null}
+            {phone ? <p>Телефон: {phone}</p> : null}
+            {website ? (
+              <p>
+                Сайт:{' '}
+                <a href={website} target="_blank" rel="noreferrer">
+                  {website}
+                </a>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="place-card__tags">
           {meta.map((tag) => (

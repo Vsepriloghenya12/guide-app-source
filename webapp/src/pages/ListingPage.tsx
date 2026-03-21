@@ -1,13 +1,11 @@
 import { useMemo, useState } from 'react';
 import { FilterPanel } from '../components/common/FilterPanel';
 import { PlaceholderCard } from '../components/common/PlaceholderCard';
-import {
-  RestaurantFilters,
-  RestaurantFiltersState
-} from '../components/filters/RestaurantFilters';
+import { RestaurantFilters, RestaurantFiltersState } from '../components/filters/RestaurantFilters';
 import { WellnessFilters, WellnessFiltersState } from '../components/filters/WellnessFilters';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useGuideContent } from '../hooks/useGuideContent';
+import type { GuidePlace } from '../types';
 
 type ListingPageProps = {
   category: 'restaurants' | 'wellness';
@@ -28,16 +26,42 @@ const initialWellnessFilters: WellnessFiltersState = {
   childPrograms: 'all'
 };
 
+function compactStrings(values: Array<string | undefined>) {
+  return values.filter((value): value is string => Boolean(value));
+}
+
 export function ListingPage({ category }: ListingPageProps) {
   const [restaurantFilters, setRestaurantFilters] = useState<RestaurantFiltersState>(
     initialRestaurantFilters
   );
   const [wellnessFiltersState, setWellnessFiltersState] =
     useState<WellnessFiltersState>(initialWellnessFilters);
-  const { restaurants, wellness } = useGuideContent();
+  const { places } = useGuideContent();
+
+  const restaurants = useMemo(
+    () => places.filter((place: GuidePlace) => place.categoryId === 'restaurants'),
+    [places]
+  );
+  const wellness = useMemo(
+    () => places.filter((place: GuidePlace) => place.categoryId === 'wellness'),
+    [places]
+  );
+
+  const restaurantKindOptions = useMemo(
+    () => Array.from(new Set(restaurants.map((item: GuidePlace) => item.kind).filter(Boolean))),
+    [restaurants]
+  );
+  const restaurantCuisineOptions = useMemo(
+    () => Array.from(new Set(restaurants.map((item: GuidePlace) => item.cuisine).filter(Boolean))),
+    [restaurants]
+  );
+  const wellnessServiceOptions = useMemo(
+    () => Array.from(new Set(wellness.flatMap((item: GuidePlace) => item.services).filter(Boolean))),
+    [wellness]
+  );
 
   const filteredRestaurants = useMemo(() => {
-    return restaurants.filter((item) => {
+    return restaurants.filter((item: GuidePlace) => {
       const minCheck = Number(restaurantFilters.minCheck || 0);
       const maxCheck = Number(restaurantFilters.maxCheck || 0);
 
@@ -70,11 +94,11 @@ export function ListingPage({ category }: ListingPageProps) {
         }
       }
 
-      if (minCheck > 0 && item.avgCheck < minCheck) {
+      if (minCheck > 0 && (item.avgCheck ?? 0) < minCheck) {
         return false;
       }
 
-      if (maxCheck > 0 && item.avgCheck > maxCheck) {
+      if (maxCheck > 0 && (item.avgCheck ?? 0) > maxCheck) {
         return false;
       }
 
@@ -83,10 +107,10 @@ export function ListingPage({ category }: ListingPageProps) {
   }, [restaurantFilters, restaurants]);
 
   const filteredWellness = useMemo(() => {
-    return wellness.filter((item) => {
+    return wellness.filter((item: GuidePlace) => {
       if (
         wellnessFiltersState.service.length > 0 &&
-        !wellnessFiltersState.service.some((service) => item.services.includes(service as never))
+        !wellnessFiltersState.service.some((service) => item.services.includes(service))
       ) {
         return false;
       }
@@ -107,16 +131,21 @@ export function ListingPage({ category }: ListingPageProps) {
       <div className="page-stack">
         <PageHeader
           title="Рестораны, кафе и столовые"
-          subtitle="Раздел уже подключён к owner-CMS: новые карточки из закрытой страницы владельца появляются здесь автоматически."
+          subtitle="Раздел подключён к owner-CMS: фото, контакты, теги и фильтры обновляются сразу после сохранения."
           showBack
         />
 
         <FilterPanel title="Фильтр ресторанов">
-          <RestaurantFilters value={restaurantFilters} onChange={setRestaurantFilters} />
+          <RestaurantFilters
+            value={restaurantFilters}
+            onChange={setRestaurantFilters}
+            kindOptions={restaurantKindOptions}
+            cuisineOptions={restaurantCuisineOptions}
+          />
         </FilterPanel>
 
         <section className="grid-listing">
-          {filteredRestaurants.map((item) => (
+          {filteredRestaurants.map((item: GuidePlace) => (
             <PlaceholderCard
               key={item.id}
               title={item.title}
@@ -124,26 +153,21 @@ export function ListingPage({ category }: ListingPageProps) {
               description={item.description}
               rating={item.rating}
               imageLabel={item.imageLabel}
-              meta={[
-                item.kind === 'restaurant'
-                  ? 'Ресторан'
-                  : item.kind === 'club'
-                    ? 'Клуб'
-                    : item.kind === 'canteen'
-                      ? 'Столовая'
-                      : 'Кофейня',
-                item.cuisine === 'european'
-                  ? 'Европейская'
-                  : item.cuisine === 'caucasian'
-                    ? 'Кавказская'
-                    : item.cuisine === 'thai'
-                      ? 'Тайская'
-                      : 'Вьетнамская',
-                `Средний чек ${item.avgCheck}`,
-                item.breakfast ? 'Есть завтраки' : 'Без завтраков',
-                item.vegan ? 'Веган меню' : 'Без веган меню',
-                item.pets ? 'Можно с животными' : 'Без животных'
-              ]}
+              imageSrc={item.imageSrc}
+              phone={item.phone}
+              website={item.website}
+              hours={item.hours}
+              top={item.top}
+              meta={compactStrings([
+                item.kind,
+                item.cuisine,
+                item.avgCheck ? `Средний чек ${item.avgCheck}` : undefined,
+                item.breakfast ? 'Есть завтраки' : undefined,
+                item.vegan ? 'Веган меню' : undefined,
+                item.pets ? 'Можно с животными' : undefined,
+                ...item.services,
+                ...item.tags
+              ])}
             />
           ))}
         </section>
@@ -155,16 +179,20 @@ export function ListingPage({ category }: ListingPageProps) {
     <div className="page-stack">
       <PageHeader
         title="СПА и оздоровление"
-        subtitle="Этот раздел тоже связан с owner-CMS: карточки из закрытой страницы владельца сразу выводятся здесь."
+        subtitle="Этот раздел тоже связан с owner-CMS: карточки, услуги, теги и тексты редактируются из закрытой страницы владельца."
         showBack
       />
 
       <FilterPanel title="Фильтр СПА и оздоровления">
-        <WellnessFilters value={wellnessFiltersState} onChange={setWellnessFiltersState} />
+        <WellnessFilters
+          value={wellnessFiltersState}
+          onChange={setWellnessFiltersState}
+          serviceOptions={wellnessServiceOptions}
+        />
       </FilterPanel>
 
       <section className="grid-listing">
-        {filteredWellness.map((item) => (
+        {filteredWellness.map((item: GuidePlace) => (
           <PlaceholderCard
             key={item.id}
             title={item.title}
@@ -172,22 +200,17 @@ export function ListingPage({ category }: ListingPageProps) {
             description={item.description}
             rating={item.rating}
             imageLabel={item.imageLabel}
-            meta={[
-              ...item.services.map((service) => {
-                const serviceLabelMap: Record<string, string> = {
-                  massage: 'Массаж',
-                  sauna: 'Баня',
-                  spa: 'СПА',
-                  hammam: 'Хамам',
-                  cosmetology: 'Косметология',
-                  wraps: 'Обертывания',
-                  yoga: 'Йога'
-                };
-
-                return serviceLabelMap[service];
-              }),
-              item.childPrograms ? 'Есть детские программы' : 'Без детских программ'
-            ]}
+            imageSrc={item.imageSrc}
+            phone={item.phone}
+            website={item.website}
+            hours={item.hours}
+            top={item.top}
+            meta={compactStrings([
+              item.kind,
+              ...item.services,
+              item.childPrograms ? 'Есть детские программы' : undefined,
+              ...item.tags
+            ])}
           />
         ))}
       </section>

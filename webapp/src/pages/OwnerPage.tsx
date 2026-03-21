@@ -1,15 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
 import { OwnerCategoryOverview } from '../components/owner/OwnerCategoryOverview';
-import { OwnerRestaurantManager } from '../components/owner/OwnerRestaurantManager';
-import { OwnerWellnessManager } from '../components/owner/OwnerWellnessManager';
+import { OwnerHomeManager } from '../components/owner/OwnerHomeManager';
+import { OwnerPlacesManager } from '../components/owner/OwnerPlacesManager';
+import { OwnerTipsManager } from '../components/owner/OwnerTipsManager';
 import { resetGuideContent } from '../data/guideContent';
 import { useGuideContent } from '../hooks/useGuideContent';
 import { logoutOwner } from '../utils/ownerAuth';
 
 export function OwnerPage() {
   const navigate = useNavigate();
-  const { restaurants, wellness } = useGuideContent();
+  const { places, categories, tips, banners, collections, home } = useGuideContent();
 
   const handleLogout = () => {
     logoutOwner();
@@ -20,11 +21,13 @@ export function OwnerPage() {
     resetGuideContent();
   };
 
+  const topPlacesCount = places.filter((place: { top: boolean }) => place.top).length;
+
   return (
     <div className="page-stack owner-page">
       <PageHeader
         title="Owner CMS"
-        subtitle="Отдельная закрытая страница управления. Эта ссылка живёт отдельно от публичного приложения и не показывается в нижнем меню или на публичных страницах."
+        subtitle="Закрытая система управления контентом: карточки, фото, главная страница, категории, советы, баннеры и подборки управляются из одной панели."
         badgeLabel="Owner CMS"
       />
 
@@ -32,11 +35,10 @@ export function OwnerPage() {
         <div className="owner-dashboard__hero">
           <div>
             <span className="eyebrow">Управление контентом</span>
-            <h2>Мини-CMS владельца</h2>
+            <h2>Полноценная CMS владельца</h2>
             <p>
-              Здесь уже можно добавлять, редактировать и удалять карточки ресторанов и СПА прямо из
-              интерфейса. Публичные разделы берут данные из этой CMS и обновляются сразу после
-              сохранения.
+              Эта версия уже похожа на рабочую админку: можно управлять карточками мест,
+              фотографиями, контактами, главной страницей, советами, баннерами и подборками.
             </p>
           </div>
 
@@ -55,31 +57,39 @@ export function OwnerPage() {
 
         <div className="owner-summary-grid owner-summary-grid--compact">
           <article className="owner-summary-card">
-            <span className="owner-module__label">Рестораны</span>
-            <h3>{restaurants.length} карточек</h3>
-            <p>Полный модуль добавления и редактирования уже активен.</p>
+            <span className="owner-module__label">Карточки</span>
+            <h3>{places.length} карточек</h3>
+            <p>Все карточки редактируются в одной системе с выбором категории и фото.</p>
           </article>
           <article className="owner-summary-card">
-            <span className="owner-module__label">СПА</span>
-            <h3>{wellness.length} карточек</h3>
-            <p>Карточки создаются и редактируются прямо на этой странице.</p>
+            <span className="owner-module__label">Топ</span>
+            <h3>{topPlacesCount} карточек</h3>
+            <p>Отдельный переключатель управляет показом в блоке “Популярное”.</p>
           </article>
           <article className="owner-summary-card">
-            <span className="owner-module__label">Ссылка</span>
-            <h3>/owner-login</h3>
-            <p>Вход для владельца открыт только по отдельной ссылке и через пароль.</p>
+            <span className="owner-module__label">Главная</span>
+            <h3>{banners.length} баннеров</h3>
+            <p>Главная страница собирается из баннеров, советов, категорий и подборок.</p>
           </article>
           <article className="owner-summary-card">
-            <span className="owner-module__label">Дальше</span>
-            <h3>База данных</h3>
-            <p>Следующим этапом можно перенести эту CMS с localStorage на PostgreSQL и Railway.</p>
+            <span className="owner-module__label">Контент</span>
+            <h3>{tips.length} советов / {collections.length} подборок</h3>
+            <p>Тексты и подборки редактируются отдельно и подключаются к главной.</p>
           </article>
         </div>
       </section>
 
-      <OwnerCategoryOverview restaurantsCount={restaurants.length} wellnessCount={wellness.length} />
-      <OwnerRestaurantManager items={restaurants} />
-      <OwnerWellnessManager items={wellness} />
+      <OwnerPlacesManager items={places} />
+      <OwnerCategoryOverview categories={categories} />
+      <OwnerTipsManager tips={tips} />
+      <OwnerHomeManager
+        home={home}
+        places={places}
+        categories={categories}
+        tips={tips}
+        banners={banners}
+        collections={collections}
+      />
     </div>
   );
 }

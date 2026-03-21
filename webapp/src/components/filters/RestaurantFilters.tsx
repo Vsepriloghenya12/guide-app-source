@@ -13,9 +13,16 @@ export type RestaurantFiltersState = {
 type RestaurantFiltersProps = {
   value: RestaurantFiltersState;
   onChange: (next: RestaurantFiltersState) => void;
+  kindOptions: string[];
+  cuisineOptions: string[];
 };
 
-export function RestaurantFilters({ value, onChange }: RestaurantFiltersProps) {
+export function RestaurantFilters({
+  value,
+  onChange,
+  kindOptions,
+  cuisineOptions
+}: RestaurantFiltersProps) {
   const handleField = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     onChange({
       ...value,
@@ -29,10 +36,11 @@ export function RestaurantFilters({ value, onChange }: RestaurantFiltersProps) {
         <span>Тип</span>
         <select name="kind" value={value.kind} onChange={handleField}>
           <option value="all">Все</option>
-          <option value="restaurant">Ресторан</option>
-          <option value="club">Клуб</option>
-          <option value="canteen">Столовая</option>
-          <option value="coffee">Кофейня</option>
+          {kindOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
         </select>
       </label>
 
@@ -40,10 +48,11 @@ export function RestaurantFilters({ value, onChange }: RestaurantFiltersProps) {
         <span>Кухня</span>
         <select name="cuisine" value={value.cuisine} onChange={handleField}>
           <option value="all">Все</option>
-          <option value="european">Европейская</option>
-          <option value="caucasian">Кавказская</option>
-          <option value="thai">Тайская</option>
-          <option value="vietnamese">Вьетнамская</option>
+          {cuisineOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
         </select>
       </label>
 

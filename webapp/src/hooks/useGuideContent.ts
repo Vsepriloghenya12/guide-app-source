@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { GUIDE_CONTENT_EVENT, readGuideContent, type GuideContentStore } from '../data/guideContent';
+import { GUIDE_CONTENT_EVENT, readGuideContent } from '../data/guideContent';
+import type { GuideContentStore } from '../types';
 
 export function useGuideContent() {
   const [content, setContent] = useState<GuideContentStore>(() => readGuideContent());

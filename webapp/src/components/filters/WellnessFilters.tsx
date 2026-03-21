@@ -8,19 +8,10 @@ export type WellnessFiltersState = {
 type WellnessFiltersProps = {
   value: WellnessFiltersState;
   onChange: (next: WellnessFiltersState) => void;
+  serviceOptions: string[];
 };
 
-const serviceOptions = [
-  { value: 'massage', label: 'Массажные салоны' },
-  { value: 'sauna', label: 'Баня' },
-  { value: 'spa', label: 'СПА комплексы' },
-  { value: 'hammam', label: 'Хамам' },
-  { value: 'cosmetology', label: 'Косметология' },
-  { value: 'wraps', label: 'Обертывания' },
-  { value: 'yoga', label: 'Йога' }
-];
-
-export function WellnessFilters({ value, onChange }: WellnessFiltersProps) {
+export function WellnessFilters({ value, onChange, serviceOptions }: WellnessFiltersProps) {
   const handleCheckbox = (event: ChangeEvent<HTMLInputElement>) => {
     const { checked, value: itemValue } = event.target;
 
@@ -51,14 +42,14 @@ export function WellnessFilters({ value, onChange }: WellnessFiltersProps) {
         <legend>Тип услуг</legend>
         <div className="checkbox-list">
           {serviceOptions.map((option) => (
-            <label key={option.value} className="checkbox-pill">
+            <label key={option} className="checkbox-pill">
               <input
                 type="checkbox"
-                value={option.value}
-                checked={value.service.includes(option.value)}
+                value={option}
+                checked={value.service.includes(option)}
                 onChange={handleCheckbox}
               />
-              <span>{option.label}</span>
+              <span>{option}</span>
             </label>
           ))}
         </div>
