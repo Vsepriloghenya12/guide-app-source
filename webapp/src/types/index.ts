@@ -14,6 +14,11 @@ export type GuideCategoryId =
   | 'photo-spots'
   | 'car-rental';
 
+export type GuideFilterSchema = {
+  quickFilters?: string[];
+  fields?: string[];
+};
+
 export type GuideCategory = {
   id: GuideCategoryId;
   title: string;
@@ -22,6 +27,10 @@ export type GuideCategory = {
   description?: string;
   visible: boolean;
   showOnHome: boolean;
+  slug: string;
+  shortTitle: string;
+  accent: string;
+  filterSchema: GuideFilterSchema;
 };
 
 export type GuidePlace = {
@@ -47,6 +56,23 @@ export type GuidePlace = {
   imageLabel: string;
   imageSrc: string;
   imageGallery?: string[];
+  slug?: string;
+  categorySlug?: string;
+  featured?: boolean;
+  shortDescription?: string;
+  priceLabel?: string;
+  listingType?: string;
+  childFriendly?: boolean;
+  petFriendly?: boolean;
+  mapQuery?: string;
+  extra?: string[];
+  imageUrls?: string[];
+  coverImageUrl?: string;
+  websiteUrl?: string;
+  phoneNumber?: string;
+  district?: string;
+  location?: string;
+  type?: string;
 };
 
 export type GuideTip = {
@@ -119,7 +145,7 @@ export type GuideAnalyticsStore = {
 };
 
 export type GuideContentStore = {
-  version: 3;
+  version: 4;
   places: GuidePlace[];
   categories: GuideCategory[];
   tips: GuideTip[];
@@ -127,20 +153,30 @@ export type GuideContentStore = {
   collections: GuideCollection[];
   home: HomeContent;
   analytics: GuideAnalyticsStore;
+  restaurants?: GuidePlace[];
+  wellness?: GuidePlace[];
 };
 
-// Compatibility aliases for older pages/API client
 export type Category = GuideCategory;
 
 export type Listing = GuidePlace & {
-  slug?: string;
-  imageUrls?: string[];
-  coverImageUrl?: string;
-  websiteUrl?: string;
-  phoneNumber?: string;
-  district?: string;
-  location?: string;
-  type?: string;
+  slug: string;
+  categorySlug: string;
+  imageUrls: string[];
+  coverImageUrl: string;
+  websiteUrl: string;
+  phoneNumber: string;
+  district: string;
+  location: string;
+  type: string;
+  featured: boolean;
+  shortDescription: string;
+  priceLabel: string;
+  listingType: string;
+  childFriendly: boolean;
+  petFriendly: boolean;
+  mapQuery: string;
+  extra: string[];
 };
 
 export type Banner = HomeBanner;

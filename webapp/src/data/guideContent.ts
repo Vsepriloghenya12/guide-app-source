@@ -7,7 +7,7 @@ const LEGACY_GUIDE_CONTENT_KEY = 'guide-content-store-v2';
 
 export const GUIDE_CONTENT_EVENT = 'guide-content-updated';
 
-function cloneDefaultStore(): GuideContentStore {
+function cloneRawDefaultStore(): GuideContentStore {
   return JSON.parse(JSON.stringify(defaultGuideContent)) as GuideContentStore;
 }
 
@@ -86,8 +86,8 @@ function migrateLegacyStore(raw: string): GuideContentStore | null {
       }>;
     };
 
-    return {
-      ...cloneDefaultStore(),
+    return normalizeStore({
+      ...cloneRawDefaultStore(),
       places: [
         ...(legacy.restaurants ?? []).map((item) =>
           createMigratedPlace({
@@ -98,68 +98,119 @@ function migrateLegacyStore(raw: string): GuideContentStore | null {
         ),
         ...(legacy.wellness ?? []).map((item) => createMigratedPlace(item))
       ]
-    };
+    });
   } catch {
     return null;
   }
 }
 
-function normalizeCategory(category: GuideCategory, fallback: GuideCategory): GuideCategory {
+function normalizeCategory(category: Partial<GuideCategory>, fallback: GuideCategory): GuideCategory {
   return {
     ...fallback,
     ...category,
     visible: category.visible ?? fallback.visible,
-    showOnHome: category.showOnHome ?? fallback.showOnHome
+    showOnHome: category.showOnHome ?? fallback.showOnHome,
+    slug: category.slug ?? fallback.slug ?? fallback.id,
+    shortTitle: category.shortTitle ?? fallback.shortTitle ?? fallback.title,
+    accent: category.accent ?? fallback.accent ?? 'coast',
+    filterSchema: {
+      quickFilters:
+        category.filterSchema?.quickFilters ?? fallback.filterSchema?.quickFilters ?? [],
+      fields: category.filterSchema?.fields ?? fallback.filterSchema?.fields ?? []
+    }
+  };
+}
+
+function normalizePlace(place: GuidePlace): GuidePlace {
+  const gallery = Array.isArray(place.imageGallery)
+    ? place.imageGallery.filter((image): image is string => Boolean(image))
+    : place.imageSrc
+      ? [place.imageSrc]
+      : [];
+
+  const imageUrls = Array.isArray(place.imageUrls)
+    ? place.imageUrls.filter((image): image is string => Boolean(image))
+    : gallery;
+
+  const categorySlug = place.categorySlug ?? place.categoryId;
+  const slug = place.slug ?? `${categorySlug}-${place.id}`;
+  const coverImageUrl = place.coverImageUrl ?? place.imageSrc ?? imageUrls[0] ?? '';
+
+  return {
+    ...place,
+    imageGallery: gallery,
+    imageSrc: place.imageSrc ?? '',
+    slug,
+    categorySlug,
+    featured: place.featured ?? place.top ?? false,
+    shortDescription: place.shortDescription ?? place.description,
+    priceLabel: place.priceLabel ?? (typeof place.avgCheck === 'number' ? `от ${place.avgCheck}` : ''),
+    listingType: place.listingType ?? place.kind ?? '',
+    childFriendly: place.childFriendly ?? place.childPrograms ?? false,
+    petFriendly: place.petFriendly ?? place.pets ?? false,
+    mapQuery: place.mapQuery ?? place.address ?? '',
+    extra: Array.isArray(place.extra) ? place.extra : place.services ?? [],
+    imageUrls,
+    coverImageUrl,
+    websiteUrl: place.websiteUrl ?? place.website ?? '',
+    phoneNumber: place.phoneNumber ?? place.phone ?? '',
+    district: place.district ?? '',
+    location: place.location ?? place.address ?? '',
+    type: place.type ?? place.kind ?? ''
   };
 }
 
 function normalizeStore(parsed: Partial<GuideContentStore>): GuideContentStore {
-  const defaults = cloneDefaultStore();
+  const rawDefaults = cloneRawDefaultStore();
+  const normalizedDefaultCategories = defaultCategories.map((fallback) => normalizeCategory(fallback, fallback));
+  const normalizedDefaultPlaces = (Array.isArray(rawDefaults.places) ? rawDefaults.places : []).map(normalizePlace);
+
+  const places = Array.isArray(parsed.places)
+    ? parsed.places.map(normalizePlace)
+    : normalizedDefaultPlaces;
+
+  const categories = Array.isArray(parsed.categories)
+    ? defaultCategories.map((fallback) => {
+        const found = parsed.categories?.find((category) => category.id === fallback.id);
+        return normalizeCategory(found ?? fallback, fallback);
+      })
+    : normalizedDefaultCategories;
 
   return {
-    version: 3,
-    places: Array.isArray(parsed.places)
-      ? parsed.places.map((place) => ({
-          ...place,
-          imageGallery: Array.isArray(place.imageGallery)
-            ? place.imageGallery.filter((image): image is string => Boolean(image))
-            : place.imageSrc
-              ? [place.imageSrc]
-              : [],
-          imageSrc: place.imageSrc ?? ''
-        }))
-      : defaults.places,
-    categories: Array.isArray(parsed.categories)
-      ? defaultCategories.map((fallback) => {
-          const found = parsed.categories?.find((category) => category.id === fallback.id);
-          return found ? normalizeCategory(found, fallback) : fallback;
-        })
-      : defaults.categories,
-    tips: Array.isArray(parsed.tips) ? parsed.tips : defaults.tips,
-    banners: Array.isArray(parsed.banners) ? parsed.banners : defaults.banners,
-    collections: Array.isArray(parsed.collections) ? parsed.collections : defaults.collections,
+    version: 4,
+    places,
+    restaurants: places.filter((place) => place.categoryId === 'restaurants'),
+    wellness: places.filter((place) => place.categoryId === 'wellness'),
+    categories,
+    tips: Array.isArray(parsed.tips) ? parsed.tips : rawDefaults.tips,
+    banners: Array.isArray(parsed.banners) ? parsed.banners : rawDefaults.banners,
+    collections: Array.isArray(parsed.collections) ? parsed.collections : rawDefaults.collections,
     home: {
-      popularPlaceIds: parsed.home?.popularPlaceIds ?? defaults.home.popularPlaceIds,
-      featuredCategoryIds: parsed.home?.featuredCategoryIds ?? defaults.home.featuredCategoryIds,
-      tipIds: parsed.home?.tipIds ?? defaults.home.tipIds,
-      bannerIds: parsed.home?.bannerIds ?? defaults.home.bannerIds,
-      collectionIds: parsed.home?.collectionIds ?? defaults.home.collectionIds,
+      popularPlaceIds: parsed.home?.popularPlaceIds ?? rawDefaults.home.popularPlaceIds,
+      featuredCategoryIds: parsed.home?.featuredCategoryIds ?? rawDefaults.home.featuredCategoryIds,
+      tipIds: parsed.home?.tipIds ?? rawDefaults.home.tipIds,
+      bannerIds: parsed.home?.bannerIds ?? rawDefaults.home.bannerIds,
+      collectionIds: parsed.home?.collectionIds ?? rawDefaults.home.collectionIds,
       sectionTitles: {
-        popular: parsed.home?.sectionTitles?.popular ?? defaults.home.sectionTitles.popular,
-        categories: parsed.home?.sectionTitles?.categories ?? defaults.home.sectionTitles.categories,
-        tips: parsed.home?.sectionTitles?.tips ?? defaults.home.sectionTitles.tips,
-        collections:
-          parsed.home?.sectionTitles?.collections ?? defaults.home.sectionTitles.collections,
-        allCategories:
-          parsed.home?.sectionTitles?.allCategories ?? defaults.home.sectionTitles.allCategories
+        popular: parsed.home?.sectionTitles?.popular ?? rawDefaults.home.sectionTitles.popular,
+        categories: parsed.home?.sectionTitles?.categories ?? rawDefaults.home.sectionTitles.categories,
+        tips: parsed.home?.sectionTitles?.tips ?? rawDefaults.home.sectionTitles.tips,
+        collections: parsed.home?.sectionTitles?.collections ?? rawDefaults.home.sectionTitles.collections,
+        allCategories: parsed.home?.sectionTitles?.allCategories ?? rawDefaults.home.sectionTitles.allCategories
       }
     },
     analytics: {
       events: Array.isArray(parsed.analytics?.events)
-        ? parsed.analytics.events.filter((event): event is NonNullable<typeof event> => Boolean(event)).slice(-400)
-        : defaults.analytics.events
+        ? parsed.analytics.events
+            .filter((event): event is NonNullable<typeof event> => Boolean(event))
+            .slice(-400)
+        : rawDefaults.analytics?.events ?? []
     }
   };
+}
+
+function cloneDefaultStore(): GuideContentStore {
+  return normalizeStore(cloneRawDefaultStore());
 }
 
 export function readGuideContent(): GuideContentStore {
@@ -202,7 +253,7 @@ export function writeGuideContent(store: GuideContentStore) {
     return;
   }
 
-  window.localStorage.setItem(GUIDE_CONTENT_KEY, JSON.stringify(store));
+  window.localStorage.setItem(GUIDE_CONTENT_KEY, JSON.stringify(normalizeStore(store)));
   emitGuideContentUpdate();
 }
 

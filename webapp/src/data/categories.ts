@@ -1,107 +1,109 @@
 import type { GuideCategory, GuideCategoryId } from '../types';
 
+function makeCategory(
+  id: GuideCategoryId,
+  title: string,
+  path: string,
+  options: {
+    badge?: string;
+    description?: string;
+    visible?: boolean;
+    showOnHome?: boolean;
+    shortTitle?: string;
+    accent?: string;
+    quickFilters?: string[];
+    fields?: string[];
+  } = {}
+): GuideCategory {
+  return {
+    id,
+    title,
+    path,
+    badge: options.badge,
+    description: options.description,
+    visible: options.visible ?? true,
+    showOnHome: options.showOnHome ?? false,
+    slug: id,
+    shortTitle: options.shortTitle ?? title,
+    accent: options.accent ?? 'coast',
+    filterSchema: {
+      quickFilters: options.quickFilters ?? [],
+      fields: options.fields ?? []
+    }
+  };
+}
+
 export const defaultCategories: GuideCategory[] = [
-  {
-    id: 'restaurants',
-    title: 'Рестораны, кафе и столовые',
-    path: '/restaurants',
+  makeCategory('restaurants', 'Рестораны, кафе и столовые', '/restaurants', {
     badge: 'Популярно',
     description: 'Где поесть, выпить кофе или позавтракать.',
-    visible: true,
-    showOnHome: true
-  },
-  {
-    id: 'wellness',
-    title: 'СПА и оздоровление',
-    path: '/wellness',
+    showOnHome: true,
+    shortTitle: 'Рестораны',
+    accent: 'sunset',
+    quickFilters: ['breakfast', 'vegan', 'pets'],
+    fields: ['avgCheck', 'cuisine', 'kind', 'tags']
+  }),
+  makeCategory('wellness', 'СПА и оздоровление', '/wellness', {
     description: 'СПА, массаж, хамам и мягкие практики.',
-    visible: true,
-    showOnHome: true
-  },
-  {
-    id: 'active-rest',
-    title: 'Активный отдых и экстрим',
-    path: '/section/active-rest',
-    visible: true,
-    showOnHome: true
-  },
-  {
-    id: 'routes',
-    title: 'Маршруты и тропы',
-    path: '/section/routes',
-    visible: true,
-    showOnHome: true
-  },
-  {
-    id: 'hotels',
-    title: 'Отели и проживание',
-    path: '/section/hotels',
-    visible: true,
-    showOnHome: false
-  },
-  {
-    id: 'events',
-    title: 'Афиша',
-    path: '/section/events',
-    visible: true,
-    showOnHome: true
-  },
-  {
-    id: 'transport',
-    title: 'Транспорт',
-    path: '/section/transport',
-    visible: true,
-    showOnHome: false
-  },
-  {
-    id: 'atm',
-    title: 'Банкоматы',
-    path: '/section/atm',
-    visible: true,
-    showOnHome: false
-  },
-  {
-    id: 'shops',
-    title: 'Магазины и сувениры',
-    path: '/section/shops',
-    visible: true,
-    showOnHome: true
-  },
-  {
-    id: 'culture',
-    title: 'Культура и достопримечательности',
-    path: '/section/culture',
-    visible: true,
-    showOnHome: true
-  },
-  {
-    id: 'kids',
-    title: 'Детский отдых',
-    path: '/section/kids',
-    visible: true,
-    showOnHome: false
-  },
-  {
-    id: 'medicine',
-    title: 'Медицина',
-    path: '/section/medicine',
-    visible: true,
-    showOnHome: false
-  },
-  {
-    id: 'photo-spots',
-    title: 'Фото зоны / смотровые',
-    path: '/section/photo-spots',
-    visible: true,
-    showOnHome: false
-  },
-  {
-    id: 'car-rental',
-    title: 'Авто прокат',
-    path: '/section/car-rental',
-    visible: true,
-    showOnHome: false
-  }
+    showOnHome: true,
+    shortTitle: 'СПА',
+    accent: 'emerald',
+    quickFilters: ['childPrograms'],
+    fields: ['services', 'avgCheck', 'tags']
+  }),
+  makeCategory('active-rest', 'Активный отдых и экстрим', '/section/active-rest', {
+    showOnHome: true,
+    shortTitle: 'Активный отдых',
+    accent: 'sunset'
+  }),
+  makeCategory('routes', 'Маршруты и тропы', '/section/routes', {
+    showOnHome: true,
+    shortTitle: 'Маршруты',
+    accent: 'bridge'
+  }),
+  makeCategory('hotels', 'Отели и проживание', '/section/hotels', {
+    shortTitle: 'Отели',
+    accent: 'coast'
+  }),
+  makeCategory('events', 'Афиша', '/section/events', {
+    showOnHome: true,
+    shortTitle: 'Афиша',
+    accent: 'sunset'
+  }),
+  makeCategory('transport', 'Транспорт', '/section/transport', {
+    shortTitle: 'Транспорт',
+    accent: 'bridge'
+  }),
+  makeCategory('atm', 'Банкоматы', '/section/atm', {
+    shortTitle: 'Банкоматы',
+    accent: 'emerald'
+  }),
+  makeCategory('shops', 'Магазины и сувениры', '/section/shops', {
+    showOnHome: true,
+    shortTitle: 'Магазины',
+    accent: 'sunset'
+  }),
+  makeCategory('culture', 'Культура и достопримечательности', '/section/culture', {
+    showOnHome: true,
+    shortTitle: 'Культура',
+    accent: 'coast'
+  }),
+  makeCategory('kids', 'Детский отдых', '/section/kids', {
+    shortTitle: 'Детям',
+    accent: 'emerald'
+  }),
+  makeCategory('medicine', 'Медицина', '/section/medicine', {
+    shortTitle: 'Медицина',
+    accent: 'bridge'
+  }),
+  makeCategory('photo-spots', 'Фото зоны / смотровые', '/section/photo-spots', {
+    shortTitle: 'Фото-споты',
+    accent: 'sunset'
+  }),
+  makeCategory('car-rental', 'Авто прокат', '/section/car-rental', {
+    shortTitle: 'Автопрокат',
+    accent: 'bridge'
+  })
 ];
 
 export const sectionTitles: Record<string, string> = defaultCategories.reduce(
