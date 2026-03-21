@@ -198,3 +198,5 @@ export function updateGuideContent(updater: (current: GuideContentStore) => Guid
 export function resetGuideContent() {
   writeGuideContent(cloneDefaultStore());
 }
+
+export type { GuideContentStore } from '../types';

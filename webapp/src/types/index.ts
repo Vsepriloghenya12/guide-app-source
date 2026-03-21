@@ -26,7 +26,7 @@ export type GuideCategory = {
 
 export type GuidePlace = {
   id: string;
-  categoryId: 'restaurants' | 'wellness';
+  categoryId: GuideCategoryId;
   title: string;
   description: string;
   address: string;
@@ -100,5 +100,32 @@ export type GuideContentStore = {
   tips: GuideTip[];
   banners: HomeBanner[];
   collections: GuideCollection[];
+  home: HomeContent;
+};
+
+
+// Compatibility aliases for older pages/API client
+export type Category = GuideCategory;
+
+export type Listing = GuidePlace & {
+  slug?: string;
+  imageUrls?: string[];
+  coverImageUrl?: string;
+  websiteUrl?: string;
+  phoneNumber?: string;
+  district?: string;
+  location?: string;
+  type?: string;
+};
+
+export type Banner = HomeBanner;
+export type Collection = GuideCollection;
+
+export type BootstrapPayload = {
+  categories: Category[];
+  listings: Listing[];
+  banners: Banner[];
+  collections: Collection[];
+  tips: GuideTip[];
   home: HomeContent;
 };
