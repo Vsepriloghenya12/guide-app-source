@@ -8,6 +8,12 @@ type OwnerSessionResponse = {
   ok?: boolean;
 };
 
+type WrappedContentResponse = {
+  ok?: boolean;
+  content?: GuideContentStore;
+  message?: string;
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: 'include',
@@ -18,16 +24,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init
   });
 
+  const data = await response.json().catch(() => ({}));
+
   if (!response.ok) {
     let message = 'Ошибка запроса';
 
-    try {
-      const data = await response.json();
-      if (typeof data?.error === 'string') {
-        message = data.error;
-      }
-    } catch {
-      // ignore json parse failure
+    if (typeof data?.error === 'string') {
+      message = data.error;
+    }
+    if (typeof data?.message === 'string') {
+      message = data.message;
     }
 
     if (response.status === 401) {
@@ -37,38 +43,43 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new Error(message);
   }
 
-  return (await response.json()) as T;
+  return data as T;
 }
 
-export function fetchGuideContent() {
-  return request<GuideContentStore>('/api/content');
+export async function fetchGuideContent() {
+  const response = await request<WrappedContentResponse>('/api/content');
+  return response.content as GuideContentStore;
 }
 
-export function saveRestaurantsRequest(restaurants: GuideContentStore['restaurants']) {
-  return request<GuideContentStore>('/api/content/restaurants', {
+export async function saveRestaurantsRequest(restaurants: GuideContentStore['restaurants']) {
+  const response = await request<WrappedContentResponse>('/api/content/restaurants', {
     method: 'PUT',
     body: JSON.stringify({ restaurants })
   });
+  return response.content as GuideContentStore;
 }
 
-export function saveWellnessRequest(wellness: GuideContentStore['wellness']) {
-  return request<GuideContentStore>('/api/content/wellness', {
+export async function saveWellnessRequest(wellness: GuideContentStore['wellness']) {
+  const response = await request<WrappedContentResponse>('/api/content/wellness', {
     method: 'PUT',
     body: JSON.stringify({ wellness })
   });
+  return response.content as GuideContentStore;
 }
 
-export function saveHomeContentRequest(home: GuideContentStore['home']) {
-  return request<GuideContentStore>('/api/content/home', {
+export async function saveHomeContentRequest(home: GuideContentStore['home']) {
+  const response = await request<WrappedContentResponse>('/api/content/home', {
     method: 'PUT',
     body: JSON.stringify({ home })
   });
+  return response.content as GuideContentStore;
 }
 
-export function resetGuideContentRequest() {
-  return request<GuideContentStore>('/api/content/reset', {
+export async function resetGuideContentRequest() {
+  const response = await request<WrappedContentResponse>('/api/content/reset', {
     method: 'POST'
   });
+  return response.content as GuideContentStore;
 }
 
 export function loginOwnerRequest(password: string) {

@@ -1,11 +1,12 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
-import { getOwnerPassword, loginOwner } from '../utils/ownerAuth';
+import { loginOwner } from '../utils/ownerAuth';
 
 export function OwnerLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const nextPath = useMemo(() => {
@@ -13,16 +14,23 @@ export function OwnerLoginPage() {
     return state?.from || '/owner';
   }, [location.state]);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
 
-    if (password.trim() === getOwnerPassword()) {
-      loginOwner();
-      navigate(nextPath, { replace: true });
-      return;
+    try {
+      const response = await loginOwner(password.trim());
+      if (response.authenticated) {
+        navigate(nextPath, { replace: true });
+        return;
+      }
+
+      setError('Неверный пароль. Проверь значение и попробуй снова.');
+    } catch {
+      setError('Неверный пароль. Проверь значение и попробуй снова.');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setError('Неверный пароль. Проверь значение и попробуй снова.');
   };
 
   return (
@@ -38,8 +46,8 @@ export function OwnerLoginPage() {
           <span className="eyebrow">Owner access</span>
           <h2>Управление наполнением приложения</h2>
           <p>
-            Сейчас вход защищён паролем на фронтенде. Когда подключим серверную часть, перенесём
-            авторизацию в backend и Railway Variables.
+            Вход владельца теперь проверяется на сервере, а сессия хранится в cookie. Пароль удобно
+            задаётся через Railway Variables.
           </p>
         </div>
 
@@ -55,14 +63,15 @@ export function OwnerLoginPage() {
               }}
               placeholder="Введите пароль владельца"
               autoComplete="current-password"
+              disabled={isSubmitting}
             />
           </label>
 
           {error ? <div className="owner-login-form__error">{error}</div> : null}
 
           <div className="owner-login-form__actions">
-            <button className="button button--primary" type="submit">
-              Войти в owner-CMS
+            <button className="button button--primary" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Проверяем пароль…' : 'Войти в owner-CMS'}
             </button>
           </div>
         </form>

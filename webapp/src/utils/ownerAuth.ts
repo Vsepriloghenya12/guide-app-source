@@ -1,15 +1,35 @@
-export const OWNER_SESSION_KEY = 'guide-owner-auth';
+async function ownerFetch<T>(input: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(input, {
+    credentials: 'include',
+    headers: {
+      ...(init?.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+      ...init?.headers
+    },
+    ...init
+  });
 
-export const getOwnerPassword = () => import.meta.env.VITE_OWNER_PASSWORD || 'guide2026';
+  const payload = (await response.json().catch(() => ({}))) as T & { message?: string };
 
-export function isOwnerAuthenticated() {
-  return localStorage.getItem(OWNER_SESSION_KEY) === 'true';
+  if (!response.ok) {
+    throw new Error(payload?.message || 'Owner request failed');
+  }
+
+  return payload;
 }
 
-export function loginOwner() {
-  localStorage.setItem(OWNER_SESSION_KEY, 'true');
+export async function getOwnerSession() {
+  return ownerFetch<{ ok: true; authenticated: boolean }>('/api/owner/session');
 }
 
-export function logoutOwner() {
-  localStorage.removeItem(OWNER_SESSION_KEY);
+export async function loginOwner(password: string) {
+  return ownerFetch<{ ok: true; authenticated: boolean }>('/api/owner/login', {
+    method: 'POST',
+    body: JSON.stringify({ password })
+  });
+}
+
+export async function logoutOwner() {
+  return ownerFetch<{ ok: true }>('/api/owner/logout', {
+    method: 'POST'
+  });
 }

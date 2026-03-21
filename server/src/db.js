@@ -1,6 +1,12 @@
 const fs = require('fs');
 const path = require('path');
-const { Pool } = require('pg');
+
+let Pool = null;
+try {
+  ({ Pool } = require('pg'));
+} catch {
+  Pool = null;
+}
 
 const seedPath = path.resolve(__dirname, '../../shared/default-guide-content.json');
 const defaultContent = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
@@ -20,7 +26,7 @@ function getSslConfig() {
 }
 
 function getPool() {
-  if (!process.env.DATABASE_URL) {
+  if (!process.env.DATABASE_URL || !Pool) {
     return null;
   }
 
