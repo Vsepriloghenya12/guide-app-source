@@ -23,7 +23,7 @@ export const api = {
   bootstrap: () => apiFetch<{ ok: true } & BootstrapPayload>('/api/bootstrap'),
   categories: () => apiFetch<{ ok: true; categories: Category[] }>('/api/categories'),
   category: (slug: string) =>
-    apiFetch<{ ok: true; category: Category; filters: Array<{ config: Category['filterSchema'][number] }> }>(
+    apiFetch<{ ok: true; category: Category; filters: Array<{ config: NonNullable<Category['filterSchema']> }> }>(
       `/api/categories/${slug}`
     ),
   listings: (params?: { category?: string; search?: string; includeHidden?: boolean }) => {
