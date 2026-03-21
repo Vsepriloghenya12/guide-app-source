@@ -13,8 +13,11 @@ type PlaceDraft = {
   id?: string;
   categoryId: GuidePlace['categoryId'];
   title: string;
+  slug: string;
   description: string;
   address: string;
+  district: string;
+  mapQuery: string;
   phone: string;
   website: string;
   hours: string;
@@ -28,7 +31,11 @@ type PlaceDraft = {
   pets: boolean;
   childPrograms: boolean;
   top: boolean;
+  status: NonNullable<GuidePlace['status']>;
+  sortOrder: string;
   rating: string;
+  lat: string;
+  lng: string;
   imageLabel: string;
   imageSrc: string;
   imageGallery: string[];
@@ -37,8 +44,11 @@ type PlaceDraft = {
 const initialDraft: PlaceDraft = {
   categoryId: 'restaurants',
   title: '',
+  slug: '',
   description: '',
   address: '',
+  district: '',
+  mapQuery: '',
   phone: '',
   website: '',
   hours: '',
@@ -52,10 +62,32 @@ const initialDraft: PlaceDraft = {
   pets: false,
   childPrograms: false,
   top: false,
+  status: 'published',
+  sortOrder: '100',
   rating: '4.7',
+  lat: '',
+  lng: '',
   imageLabel: '',
   imageSrc: '',
   imageGallery: []
+};
+
+const statusMeta: Record<NonNullable<GuidePlace['status']>, { label: string; className: string; helper: string }> = {
+  published: {
+    label: 'Опубликовано',
+    className: 'is-published',
+    helper: 'Карточка видна в публичной части приложения.'
+  },
+  hidden: {
+    label: 'Скрыто',
+    className: 'is-hidden',
+    helper: 'Карточка сохранена, но не показывается пользователям.'
+  },
+  draft: {
+    label: 'Черновик',
+    className: 'is-draft',
+    helper: 'Карточка редактируется и не публикуется наружу.'
+  }
 };
 
 function createId() {
@@ -73,6 +105,25 @@ function parseMultiValue(value: string) {
     .filter(Boolean);
 }
 
+function normalizeSlug(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9а-яё\s-]/gi, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+function parseNullableNumber(value: string) {
+  if (!value.trim()) {
+    return null;
+  }
+
+  const parsed = Number(value.replace(',', '.'));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function getPlaceImages(item: GuidePlace) {
   if (Array.isArray(item.imageGallery) && item.imageGallery.length > 0) {
     return item.imageGallery;
@@ -87,8 +138,11 @@ function toDraft(item: GuidePlace): PlaceDraft {
     id: item.id,
     categoryId: item.categoryId,
     title: item.title,
+    slug: item.slug || '',
     description: item.description,
     address: item.address,
+    district: item.district || '',
+    mapQuery: item.mapQuery || '',
     phone: item.phone,
     website: item.website,
     hours: item.hours,
@@ -102,13 +156,31 @@ function toDraft(item: GuidePlace): PlaceDraft {
     pets: item.pets,
     childPrograms: item.childPrograms,
     top: item.top,
+    status: item.status || 'published',
+    sortOrder: String(item.sortOrder ?? 100),
     rating: String(item.rating),
+    lat: typeof item.lat === 'number' ? String(item.lat) : '',
+    lng: typeof item.lng === 'number' ? String(item.lng) : '',
     imageLabel: item.imageLabel,
     imageSrc: imageGallery[0] ?? '',
     imageGallery
   };
 }
 
+function sortPlaces(left: GuidePlace, right: GuidePlace) {
+  const leftOrder = Number(left.sortOrder ?? 1000);
+  const rightOrder = Number(right.sortOrder ?? 1000);
+  if (leftOrder !== rightOrder) {
+    return leftOrder - rightOrder;
+  }
+  if (left.top !== right.top) {
+    return Number(right.top) - Number(left.top);
+  }
+  if (left.rating !== right.rating) {
+    return right.rating - left.rating;
+  }
+  return left.title.localeCompare(right.title);
+}
 
 export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProps) {
   const [draft, setDraft] = useState<PlaceDraft>(initialDraft);
@@ -125,22 +197,17 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
   const activeCategory = categories.find((category) => category.id === activeTab);
 
   const visibleItems = useMemo(() => {
-    return [...items]
-      .filter((item) => item.categoryId === activeTab)
-      .sort((left, right) => {
-        if (left.top !== right.top) {
-          return Number(right.top) - Number(left.top);
-        }
-        return right.rating - left.rating;
-      });
+    return [...items].filter((item) => item.categoryId === activeTab).sort(sortPlaces);
   }, [activeTab, items]);
 
+  const draftStatusMeta = statusMeta[draft.status];
+
   const resetForm = () => {
-    setDraft((current) => ({
+    setDraft({
       ...initialDraft,
       categoryId: activeTab,
-      imageLabel: current.imageLabel && isEditing ? '' : initialDraft.imageLabel
-    }));
+      sortOrder: String(Math.max(visibleItems.length * 10 + 10, 10))
+    });
     setIsEditing(false);
   };
 
@@ -148,12 +215,16 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
     event.preventDefault();
 
     const normalizedGallery = draft.imageGallery.filter(Boolean);
+    const generatedSlug = normalizeSlug(draft.slug || draft.title || `${draft.categoryId}-${draft.id || createId()}`);
     const nextItem: GuidePlace = {
       id: draft.id || createId(),
       categoryId: draft.categoryId,
       title: draft.title.trim(),
+      slug: generatedSlug,
       description: draft.description.trim(),
       address: draft.address.trim(),
+      district: draft.district.trim(),
+      mapQuery: draft.mapQuery.trim() || draft.address.trim(),
       phone: draft.phone.trim(),
       website: draft.website.trim(),
       hours: draft.hours.trim(),
@@ -167,7 +238,11 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
       pets: draft.pets,
       childPrograms: draft.childPrograms,
       top: draft.top,
+      status: draft.status,
+      sortOrder: Number(draft.sortOrder || 100) || 100,
       rating: Number(draft.rating || 0),
+      lat: parseNullableNumber(draft.lat),
+      lng: parseNullableNumber(draft.lng),
       imageLabel: draft.imageLabel.trim() || 'Карточка места',
       imageSrc: normalizedGallery[0] ?? '',
       imageGallery: normalizedGallery
@@ -178,16 +253,25 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
       return;
     }
 
+    if (!nextItem.slug) {
+      setStatus('Не удалось сформировать slug. Добавь латинское название или укажи slug вручную.');
+      return;
+    }
+
     updateGuideContent((current) => ({
       ...current,
       places: draft.id
         ? current.places.map((item) => (item.id === draft.id ? nextItem : item))
-        : [nextItem, ...current.places]
+        : [...current.places, nextItem]
     }));
 
     setActiveTab(nextItem.categoryId);
     setStatus(draft.id ? 'Карточка обновлена.' : 'Новая карточка добавлена.');
-    setDraft({ ...initialDraft, categoryId: nextItem.categoryId });
+    setDraft({
+      ...initialDraft,
+      categoryId: nextItem.categoryId,
+      sortOrder: String(Math.max((visibleItems.length + (draft.id ? 0 : 1)) * 10 + 10, 10))
+    });
     setIsEditing(false);
   };
 
@@ -213,7 +297,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
     }));
 
     if (draft.id === id) {
-      setDraft({ ...initialDraft, categoryId: activeTab });
+      setDraft({ ...initialDraft, categoryId: activeTab, sortOrder: String(Math.max((visibleItems.length - 1) * 10 + 10, 10)) });
       setIsEditing(false);
     }
 
@@ -280,8 +364,8 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
           <span className="eyebrow">CMS / карточки</span>
           <h2>Карточки мест по категориям</h2>
           <p>
-            У владельца теперь отдельные вкладки по категориям. В каждой вкладке можно создавать,
-            редактировать и удалять карточки, а также загружать несколько фото для карусели.
+            Владелец теперь управляет не только текстами и фото, но и статусом карточки, порядком
+            показа, slug и координатами для nearby и карт.
           </p>
         </div>
         <button className="button button--ghost" type="button" onClick={resetForm} disabled={isUploading}>
@@ -344,6 +428,29 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
             </label>
 
             <label className="field">
+              <span>Slug / URL</span>
+              <input
+                value={draft.slug}
+                onChange={(event) => setDraft((current) => ({ ...current, slug: normalizeSlug(event.target.value) }))}
+                placeholder="panorama-terrace"
+              />
+            </label>
+
+            <label className="field">
+              <span>Статус публикации</span>
+              <select
+                value={draft.status}
+                onChange={(event) =>
+                  setDraft((current) => ({ ...current, status: event.target.value as NonNullable<GuidePlace['status']> }))
+                }
+              >
+                <option value="published">Опубликовано</option>
+                <option value="hidden">Скрыто</option>
+                <option value="draft">Черновик</option>
+              </select>
+            </label>
+
+            <label className="field">
               <span>Тип</span>
               <input
                 value={draft.kind}
@@ -382,6 +489,21 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
                 onChange={(event) => setDraft((current) => ({ ...current, rating: event.target.value }))}
               />
             </label>
+
+            <label className="field">
+              <span>Порядок показа</span>
+              <input
+                type="number"
+                value={draft.sortOrder}
+                onChange={(event) => setDraft((current) => ({ ...current, sortOrder: event.target.value }))}
+                placeholder="10"
+              />
+            </label>
+
+            <div className={`owner-status-hint ${draftStatusMeta.className}`}>
+              <strong>{draftStatusMeta.label}</strong>
+              <span>{draftStatusMeta.helper}</span>
+            </div>
           </div>
 
           <label className="field">
@@ -394,6 +516,26 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
           </label>
 
           <div className="owner-editor-form__grid owner-editor-form__grid--double">
+            <label className="field">
+              <span>Район / ориентир</span>
+              <input
+                value={draft.district}
+                onChange={(event) => setDraft((current) => ({ ...current, district: event.target.value }))}
+                placeholder="Например, My An / Han River"
+              />
+            </label>
+
+            <label className="field">
+              <span>Запрос для карты</span>
+              <input
+                value={draft.mapQuery}
+                onChange={(event) => setDraft((current) => ({ ...current, mapQuery: event.target.value }))}
+                placeholder="Точный запрос для Google / Apple Maps"
+              />
+            </label>
+          </div>
+
+          <div className="owner-editor-form__grid owner-editor-form__grid--double owner-editor-form__grid--triple">
             <label className="field">
               <span>Телефон</span>
               <input
@@ -418,6 +560,26 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
                 value={draft.hours}
                 onChange={(event) => setDraft((current) => ({ ...current, hours: event.target.value }))}
                 placeholder="08:00–23:00"
+              />
+            </label>
+
+            <label className="field">
+              <span>Широта (lat)</span>
+              <input
+                inputMode="decimal"
+                value={draft.lat}
+                onChange={(event) => setDraft((current) => ({ ...current, lat: event.target.value }))}
+                placeholder="16.0544"
+              />
+            </label>
+
+            <label className="field">
+              <span>Долгота (lng)</span>
+              <input
+                inputMode="decimal"
+                value={draft.lng}
+                onChange={(event) => setDraft((current) => ({ ...current, lng: event.target.value }))}
+                placeholder="108.2022"
               />
             </label>
 
@@ -503,7 +665,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
                 checked={draft.vegan}
                 onChange={(event) => setDraft((current) => ({ ...current, vegan: event.target.checked }))}
               />
-              <span>Есть веган-меню</span>
+              <span>Веган-опции</span>
             </label>
             <label className="checkbox-pill checkbox-pill--owner">
               <input
@@ -513,13 +675,11 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               />
               <span>Можно с животными</span>
             </label>
-            <label className="checkbox-pill checkbox-pill--owner">
+            <label className="checkbox-pill checkbox-pill--owner checkbox-pill--owner-wide">
               <input
                 type="checkbox"
                 checked={draft.childPrograms}
-                onChange={(event) =>
-                  setDraft((current) => ({ ...current, childPrograms: event.target.checked }))
-                }
+                onChange={(event) => setDraft((current) => ({ ...current, childPrograms: event.target.checked }))}
               />
               <span>Есть детские программы</span>
             </label>
@@ -552,45 +712,57 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <span>{visibleItems.length} шт.</span>
             </div>
             <span>
-              Во вкладке отображаются только карточки выбранной категории. Редактирование и удаление
-              тоже происходят внутри этой вкладки.
+              Здесь видно, в каком статусе находится карточка, какой у неё порядок показа и заданы ли координаты для nearby.
             </span>
           </div>
 
           <div className="owner-item-list">
             {visibleItems.length > 0 ? (
-              visibleItems.map((item) => (
-                <article key={item.id} className="owner-item-card">
-                  <div className="owner-item-card__top">
-                    <div>
-                      <h3>{item.title}</h3>
-                      <p>
-                        {activeCategory?.title ?? item.categoryId} · {item.kind || 'Без типа'}
-                        {item.top ? ' · Топ' : ''}
-                      </p>
+              visibleItems.map((item) => {
+                const itemStatus = statusMeta[item.status || 'published'];
+                const imageCount = getPlaceImages(item).length;
+                const hasCoordinates = typeof item.lat === 'number' && typeof item.lng === 'number';
+
+                return (
+                  <article key={item.id} className="owner-item-card">
+                    <div className="owner-item-card__top">
+                      <div>
+                        <div className="owner-item-card__badges">
+                          <span className={`owner-status-pill ${itemStatus.className}`}>{itemStatus.label}</span>
+                          <span className="owner-meta-pill">Порядок {item.sortOrder ?? 100}</span>
+                          {item.top ? <span className="owner-meta-pill owner-meta-pill--accent">Топ</span> : null}
+                        </div>
+                        <h3>{item.title}</h3>
+                        <p>
+                          {activeCategory?.title ?? item.categoryId} · {item.kind || 'Без типа'}
+                          {item.slug ? ` · /place/${item.slug}` : ''}
+                        </p>
+                      </div>
+                      <span className="owner-item-card__rating">★ {item.rating.toFixed(1)}</span>
                     </div>
-                    <span className="owner-item-card__rating">★ {item.rating.toFixed(1)}</span>
-                  </div>
 
-                  <p className="owner-item-card__address">{item.address}</p>
-                  <p className="owner-item-card__description">{item.description}</p>
-                  <p className="owner-item-card__meta-row">
-                    {[item.cuisine, ...(item.services ?? []), ...(item.tags ?? [])].filter(Boolean).join(' · ')}
-                  </p>
-                  <p className="owner-item-card__meta-row">
-                    Фото: {getPlaceImages(item).length} {getPlaceImages(item).length === 1 ? 'шт.' : 'шт.'}
-                  </p>
+                    <p className="owner-item-card__address">{item.address}</p>
+                    <p className="owner-item-card__description">{item.description}</p>
+                    <p className="owner-item-card__meta-row">
+                      {[item.cuisine, item.district, ...(item.services ?? []), ...(item.tags ?? [])].filter(Boolean).join(' · ')}
+                    </p>
+                    <div className="owner-item-card__stats">
+                      <span>Фото: {imageCount}</span>
+                      <span>Координаты: {hasCoordinates ? 'есть' : 'нет'}</span>
+                      <span>Карта: {item.mapQuery || item.address ? 'готово' : 'пусто'}</span>
+                    </div>
 
-                  <div className="owner-item-card__actions">
-                    <button className="button button--ghost" type="button" onClick={() => startEdit(item)}>
-                      Редактировать
-                    </button>
-                    <button className="button button--ghost" type="button" onClick={() => deleteItem(item.id)}>
-                      Удалить
-                    </button>
-                  </div>
-                </article>
-              ))
+                    <div className="owner-item-card__actions">
+                      <button className="button button--ghost" type="button" onClick={() => startEdit(item)}>
+                        Редактировать
+                      </button>
+                      <button className="button button--ghost" type="button" onClick={() => deleteItem(item.id)}>
+                        Удалить
+                      </button>
+                    </div>
+                  </article>
+                );
+              })
             ) : (
               <article className="owner-item-card">
                 <h3>Пока пусто</h3>

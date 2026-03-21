@@ -4,7 +4,7 @@ import { ListingCard } from '../components/listing/ListingCard';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useFavorites } from '../hooks/useFavorites';
 import { useGuideContent } from '../hooks/useGuideContent';
-import { formatDistance, hasCoordinates, haversineDistanceKm, toListingLike } from '../utils/places';
+import { comparePlacesByPriority, formatDistance, hasCoordinates, haversineDistanceKm, toListingLike } from '../utils/places';
 
 type UserLocation = {
   lat: number;
@@ -67,10 +67,11 @@ export function NearbyPage() {
       })
       .filter((listing) => listing.distanceKm === null || listing.distanceKm <= radiusKm)
       .sort((left, right) => {
-        if (left.distanceKm === null && right.distanceKm === null) return right.rating - left.rating;
+        if (left.distanceKm === null && right.distanceKm === null) return comparePlacesByPriority(left, right);
         if (left.distanceKm === null) return 1;
         if (right.distanceKm === null) return -1;
-        return left.distanceKm - right.distanceKm;
+        if (left.distanceKm !== right.distanceKm) return left.distanceKm - right.distanceKm;
+        return comparePlacesByPriority(left, right);
       });
   }, [publishedPlaces, userLocation, categories, radiusKm]);
 

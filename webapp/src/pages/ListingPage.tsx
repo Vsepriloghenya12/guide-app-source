@@ -5,6 +5,7 @@ import { RestaurantFilters, RestaurantFiltersState } from '../components/filters
 import { WellnessFilters, WellnessFiltersState } from '../components/filters/WellnessFilters';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useGuideContent } from '../hooks/useGuideContent';
+import { sortPlacesByPriority } from '../utils/places';
 import type { GuideCategoryId, GuidePlace } from '../types';
 
 type ListingPageProps = {
@@ -47,16 +48,16 @@ export function ListingPage({ category }: ListingPageProps) {
 
   const categoryMeta = categories.find((item) => item.id === category);
   const categoryPlaces = useMemo(
-    () => places.filter((place: GuidePlace) => place.categoryId === category && place.status === 'published'),
+    () => sortPlacesByPriority(places.filter((place: GuidePlace) => place.categoryId === category && place.status === 'published')),
     [category, places]
   );
 
   const restaurants = useMemo(
-    () => places.filter((place: GuidePlace) => place.categoryId === 'restaurants' && place.status === 'published'),
+    () => sortPlacesByPriority(places.filter((place: GuidePlace) => place.categoryId === 'restaurants' && place.status === 'published')),
     [places]
   );
   const wellness = useMemo(
-    () => places.filter((place: GuidePlace) => place.categoryId === 'wellness' && place.status === 'published'),
+    () => sortPlacesByPriority(places.filter((place: GuidePlace) => place.categoryId === 'wellness' && place.status === 'published')),
     [places]
   );
 

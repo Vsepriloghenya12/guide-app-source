@@ -3,6 +3,7 @@ import { PlaceholderCard } from '../components/common/PlaceholderCard';
 import { PageHeader } from '../components/layout/PageHeader';
 import { sectionTitles } from '../data/categories';
 import { useGuideContent } from '../hooks/useGuideContent';
+import { sortPlacesByPriority } from '../utils/places';
 import type { GuidePlace } from '../types';
 
 function compactStrings(values: Array<string | undefined>) {
@@ -21,7 +22,7 @@ export function CategoryPlaceholderPage() {
   const { categories, places, loading, error } = useGuideContent();
   const title = sectionTitles[slug] ?? 'Раздел';
   const category = categories.find((item) => item.id === slug);
-  const categoryPlaces = places.filter((item) => item.categoryId === slug && item.status === 'published');
+  const categoryPlaces = sortPlacesByPriority(places.filter((item) => item.categoryId === slug && item.status === 'published'));
 
   return (
     <div className="page-stack">

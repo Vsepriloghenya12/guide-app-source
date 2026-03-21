@@ -5,7 +5,7 @@ import { ListingCard } from '../components/listing/ListingCard';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useFavorites } from '../hooks/useFavorites';
 import { recordGuideAnalytics } from '../utils/analytics';
-import { create2GisUrl, createAppleMapsUrl, createGoogleMapsUrl } from '../utils/places';
+import { create2GisUrl, createAppleMapsUrl, createGoogleMapsUrl, sortPlacesByPriority } from '../utils/places';
 import type { Category, Listing } from '../types';
 
 export function ListingDetailPage() {
@@ -26,7 +26,7 @@ export function ListingDetailPage() {
         if (!active) return;
         setListing(response.listing);
         setCategory(response.category);
-        setSimilar(response.similar);
+        setSimilar(sortPlacesByPriority(response.similar));
         setActiveImageIndex(0);
       })
       .finally(() => {

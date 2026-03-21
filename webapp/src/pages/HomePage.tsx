@@ -2,6 +2,7 @@ import { CategoryList } from '../components/home/CategoryList';
 import { FeatureGrid } from '../components/home/FeatureGrid';
 import { HomeHero } from '../components/home/HomeHero';
 import { useGuideContent } from '../hooks/useGuideContent';
+import { sortPlacesByPriority } from '../utils/places';
 import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeBanner } from '../types';
 
 export function HomePage() {
@@ -14,7 +15,7 @@ export function HomePage() {
   const activePopularPlaces = home.popularPlaceIds
     .map((id: string) => places.find((place: GuidePlace) => place.id === id))
     .filter((place): place is GuidePlace => Boolean(place));
-  const fallbackPopularPlaces = places.filter((place: GuidePlace) => place.top).slice(0, 4);
+  const fallbackPopularPlaces = sortPlacesByPriority(places.filter((place: GuidePlace) => place.top)).slice(0, 4);
   const popularPlaces = activePopularPlaces.length > 0 ? activePopularPlaces : fallbackPopularPlaces;
   const featuredCategories = home.featuredCategoryIds
     .map((id) => activeCategories.find((category: GuideCategory) => category.id === id))

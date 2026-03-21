@@ -969,6 +969,49 @@ body {
 .owner-editor-form__grid--double {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+.owner-editor-form__grid--triple {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.owner-status-hint {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.owner-status-hint strong {
+  font-size: 0.92rem;
+}
+
+.owner-status-hint span {
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.owner-status-hint.is-published,
+.owner-status-pill.is-published {
+  border-color: rgba(92, 201, 143, 0.28);
+  background: rgba(92, 201, 143, 0.12);
+  color: #d7ffe8;
+}
+
+.owner-status-hint.is-hidden,
+.owner-status-pill.is-hidden {
+  border-color: rgba(255, 183, 77, 0.24);
+  background: rgba(255, 183, 77, 0.1);
+  color: #ffe9c0;
+}
+
+.owner-status-hint.is-draft,
+.owner-status-pill.is-draft {
+  border-color: rgba(124, 151, 255, 0.24);
+  background: rgba(124, 151, 255, 0.12);
+  color: #e2e8ff;
+}
 
 .owner-checkbox-grid {
   display: flex;
@@ -1043,6 +1086,48 @@ body {
   color: var(--warning);
   font-size: 0.82rem;
   font-weight: 700;
+}
+
+.owner-item-card__badges,
+.owner-item-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owner-status-pill,
+.owner-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.owner-meta-pill {
+  color: rgba(255, 248, 234, 0.82);
+}
+
+.owner-meta-pill--accent {
+  background: rgba(255, 198, 74, 0.14);
+  color: #ffe6b0;
+  border-color: rgba(255, 198, 74, 0.24);
+}
+
+.owner-item-card__stats span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.76rem;
 }
 
 .owner-item-card__address {
@@ -1210,6 +1295,7 @@ body {
 
 
   .owner-editor-form__grid--double,
+  .owner-editor-form__grid--triple,
   .owner-editor-form__actions,
   .owner-item-card__actions,
   .owner-summary-grid--compact {

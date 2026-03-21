@@ -3,7 +3,7 @@ import { ListingCard } from '../components/listing/ListingCard';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useFavorites } from '../hooks/useFavorites';
 import { useGuideContent } from '../hooks/useGuideContent';
-import { toListingLike } from '../utils/places';
+import { sortPlacesByPriority, toListingLike } from '../utils/places';
 import type { GuidePlace, GuideCategory } from '../types';
 
 function normalizeText(value: string) {
@@ -61,7 +61,7 @@ export function SearchPage() {
   const normalizedQuery = normalizeText(query.trim());
 
   const results = useMemo(() => {
-    return searchableListings.filter(({ category, ...place }) => {
+    return sortPlacesByPriority(searchableListings.filter(({ category, ...place }) => {
       if (categoryFilter !== 'all' && place.categoryId !== categoryFilter) {
         return false;
       }
@@ -71,7 +71,7 @@ export function SearchPage() {
       }
 
       return createSearchText(place, category).includes(normalizedQuery);
-    });
+    }));
   }, [searchableListings, categoryFilter, normalizedQuery]);
 
   const hasQuery = normalizedQuery.length > 0 || categoryFilter !== 'all';

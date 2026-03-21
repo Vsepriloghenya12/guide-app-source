@@ -4,7 +4,7 @@ import { ListingCard } from '../components/listing/ListingCard';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useFavorites } from '../hooks/useFavorites';
 import { useGuideContent } from '../hooks/useGuideContent';
-import { toListingLike } from '../utils/places';
+import { sortPlacesByPriority, toListingLike } from '../utils/places';
 
 export function FavoritesPage() {
   const { favoriteSlugs, isFavorite, toggleFavorite } = useFavorites();
@@ -12,7 +12,7 @@ export function FavoritesPage() {
 
   const favoriteListings = useMemo(() => {
     const favoritesSet = new Set(favoriteSlugs);
-    return places.filter((item) => item.status === 'published' && item.slug && favoritesSet.has(item.slug));
+    return sortPlacesByPriority(places.filter((item) => item.status === 'published' && item.slug && favoritesSet.has(item.slug)));
   }, [places, favoriteSlugs]);
 
   const grouped = useMemo(() => {

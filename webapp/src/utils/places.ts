@@ -49,6 +49,32 @@ export function hasCoordinates(place: Partial<Listing>) {
 }
 
 
+
+export function comparePlacesByPriority(left: Partial<Listing>, right: Partial<Listing>) {
+  const leftOrder = Number(left.sortOrder ?? 1000);
+  const rightOrder = Number(right.sortOrder ?? 1000);
+  if (leftOrder !== rightOrder) {
+    return leftOrder - rightOrder;
+  }
+
+  const leftTop = Boolean(left.top ?? left.featured);
+  const rightTop = Boolean(right.top ?? right.featured);
+  if (leftTop !== rightTop) {
+    return Number(rightTop) - Number(leftTop);
+  }
+
+  const leftRating = Number(left.rating ?? 0);
+  const rightRating = Number(right.rating ?? 0);
+  if (leftRating !== rightRating) {
+    return rightRating - leftRating;
+  }
+
+  return String(left.title || '').localeCompare(String(right.title || ''));
+}
+
+export function sortPlacesByPriority<T extends Partial<Listing>>(places: T[]) {
+  return [...places].sort(comparePlacesByPriority);
+}
 export function toListingLike(place: Listing): Listing;
 export function toListingLike(place: Partial<Listing> & { id: string; title: string; categoryId: Listing['categoryId']; description: string; address: string; rating: number; }): Listing;
 export function toListingLike(place: Partial<Listing> & { id: string; title: string; categoryId: Listing['categoryId']; description: string; address: string; rating: number; }): Listing {
