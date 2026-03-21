@@ -47,6 +47,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function fetchGuideContent() {
+  const response = await request<WrappedContentResponse>('/api/public/content');
+  return response.content as GuideContentStore;
+}
+
+export async function fetchOwnerGuideContent() {
   const response = await request<WrappedContentResponse>('/api/content');
   return response.content as GuideContentStore;
 }

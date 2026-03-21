@@ -5,13 +5,17 @@ import { notifyOwnerAuthRequired } from '../utils/ownerEvents';
 
 const GUIDE_CONTENT_KEY = 'guide-content-store-v4';
 const LEGACY_GUIDE_CONTENT_KEY = 'guide-content-store-v2';
-const GUIDE_CONTENT_ENDPOINT = '/api/content';
+const GUIDE_CONTENT_PUBLIC_ENDPOINT = '/api/public/content';
+const GUIDE_CONTENT_OWNER_ENDPOINT = '/api/owner/bootstrap';
+const GUIDE_CONTENT_WRITE_ENDPOINT = '/api/content';
 const GUIDE_CONTENT_RESET_ENDPOINT = '/api/content/reset';
 
 export const GUIDE_CONTENT_EVENT = 'guide-content-updated';
 
 let persistQueue: Promise<unknown> = Promise.resolve();
-let serverSyncPromise: Promise<GuideContentStore> | null = null;
+let serverSyncPromises: Partial<Record<GuideContentScope, Promise<GuideContentStore>>> = {};
+
+export type GuideContentScope = 'public' | 'owner';
 
 function cloneRawDefaultStore(): GuideContentStore {
   return JSON.parse(JSON.stringify(defaultGuideContent)) as GuideContentStore;
@@ -222,8 +226,9 @@ function emitGuideContentUpdate() {
   window.dispatchEvent(new CustomEvent(GUIDE_CONTENT_EVENT));
 }
 
-async function fetchContentFromServer(): Promise<GuideContentStore> {
-  const response = await fetch(GUIDE_CONTENT_ENDPOINT, {
+async function fetchContentFromServer(scope: GuideContentScope = 'public'): Promise<GuideContentStore> {
+  const endpoint = scope === 'owner' ? GUIDE_CONTENT_OWNER_ENDPOINT : GUIDE_CONTENT_PUBLIC_ENDPOINT;
+  const response = await fetch(endpoint, {
     credentials: 'include'
   });
 
@@ -237,7 +242,7 @@ async function fetchContentFromServer(): Promise<GuideContentStore> {
 }
 
 async function pushContentToServer(store: GuideContentStore) {
-  const response = await fetch(GUIDE_CONTENT_ENDPOINT, {
+  const response = await fetch(GUIDE_CONTENT_WRITE_ENDPOINT, {
     method: 'PUT',
     credentials: 'include',
     headers: {
@@ -334,21 +339,21 @@ export function updateGuideContent(
   });
 }
 
-export async function syncGuideContentFromServer() {
+export async function syncGuideContentFromServer(scope: GuideContentScope = 'public') {
   if (typeof window === 'undefined') {
     return cloneDefaultStore();
   }
 
-  if (!serverSyncPromise) {
-    serverSyncPromise = fetchContentFromServer()
+  if (!serverSyncPromises[scope]) {
+    serverSyncPromises[scope] = fetchContentFromServer(scope)
       .then((remoteStore) => writeGuideContent(remoteStore, { persist: false, emit: true }))
       .catch(() => readGuideContent())
       .finally(() => {
-        serverSyncPromise = null;
+        delete serverSyncPromises[scope];
       }) as Promise<GuideContentStore>;
   }
 
-  return serverSyncPromise;
+  return serverSyncPromises[scope] as Promise<GuideContentStore>;
 }
 
 export async function resetGuideContent() {

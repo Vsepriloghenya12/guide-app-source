@@ -217,6 +217,45 @@ function toBootstrapPayload(store) {
   };
 }
 
+function toPublicStore(store) {
+  const visibleCategoryIds = new Set(store.categories.filter((category) => category.visible).map((category) => category.id));
+  const places = store.places
+    .filter((place) => place.status === 'published' && visibleCategoryIds.has(place.categoryId))
+    .map(toListing);
+
+  return {
+    ...store,
+    categories: store.categories.filter((category) => category.visible),
+    places,
+    restaurants: places.filter((place) => place.categoryId === 'restaurants'),
+    wellness: places.filter((place) => place.categoryId === 'wellness'),
+    tips: store.tips.filter((tip) => tip.active),
+    banners: store.banners.filter((banner) => banner.active),
+    collections: store.collections.filter((collection) => collection.active),
+    home: {
+      ...store.home,
+      popularPlaceIds: store.home.popularPlaceIds.filter((id) => places.some((place) => place.id === id)),
+      featuredCategoryIds: store.home.featuredCategoryIds.filter((id) => visibleCategoryIds.has(id)),
+      tipIds: store.home.tipIds.filter((id) => store.tips.some((tip) => tip.id === id && tip.active)),
+      bannerIds: store.home.bannerIds.filter((id) => store.banners.some((banner) => banner.id === id && banner.active)),
+      collectionIds: store.home.collectionIds.filter((id) => store.collections.some((collection) => collection.id === id && collection.active))
+    }
+  };
+}
+
+function toPublicBootstrapPayload(store) {
+  const publicStore = toPublicStore(store);
+  return {
+    content: publicStore,
+    categories: publicStore.categories,
+    listings: publicStore.places,
+    banners: publicStore.banners,
+    collections: publicStore.collections,
+    tips: publicStore.tips,
+    home: publicStore.home
+  };
+}
+
 function mergeCategoryPlaces(store, categoryId, incomingPlaces) {
   const normalizedIncoming = Array.isArray(incomingPlaces) ? incomingPlaces.map((item, index) => normalizePlace({ ...item, categoryId }, index)) : [];
   return {
@@ -306,12 +345,21 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
-app.get('/api/content', async (_req, res) => {
+app.get('/api/content', requireOwner, async (_req, res) => {
   try {
     const store = await getContentStore();
     res.json({ ok: true, content: store });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load content' });
+  }
+});
+
+app.get('/api/public/content', async (_req, res) => {
+  try {
+    const store = await getContentStore();
+    res.json({ ok: true, content: toPublicStore(store) });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load public content' });
   }
 });
 
@@ -423,7 +471,7 @@ app.get('/api/owner/summary', requireOwner, async (_req, res) => {
 app.get('/api/bootstrap', async (_req, res) => {
   try {
     const store = await getContentStore();
-    res.json({ ok: true, ...toBootstrapPayload(store) });
+    res.json({ ok: true, ...toPublicBootstrapPayload(store) });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load bootstrap' });
   }
@@ -431,7 +479,7 @@ app.get('/api/bootstrap', async (_req, res) => {
 
 app.get('/api/categories', async (_req, res) => {
   try {
-    const categories = await getCategories();
+    const categories = (await getCategories()).filter((category) => category.visible);
     res.json({ ok: true, categories });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load categories' });
@@ -440,7 +488,7 @@ app.get('/api/categories', async (_req, res) => {
 
 app.get('/api/categories/:slug', async (req, res) => {
   try {
-    const categories = await getCategories();
+    const categories = (await getCategories()).filter((item) => item.visible);
     const category = categories.find((item) => item.slug === req.params.slug || item.id === req.params.slug);
 
     if (!category) {
@@ -474,13 +522,13 @@ app.get('/api/listings/:slug', async (req, res) => {
   try {
     const listing = await getPlaceBySlug(req.params.slug);
 
-    if (!listing) {
+    if (!listing || listing.status !== 'published') {
       res.status(404).json({ ok: false, message: 'Listing not found' });
       return;
     }
 
-    const categories = await getCategories();
-    const similar = (await getPlaces({ categoryId: listing.categoryId, includeHidden: true }))
+    const categories = (await getCategories()).filter((item) => item.visible);
+    const similar = (await getPlaces({ categoryId: listing.categoryId, includeHidden: false }))
       .filter((item) => item.id !== listing.id)
       .slice(0, 6)
       .map(toListing);
@@ -505,7 +553,7 @@ app.get('/api/search', async (req, res) => {
 
 app.get('/api/owner/categories', requireOwner, async (_req, res) => {
   try {
-    const categories = await getCategories();
+    const categories = (await getCategories()).filter((category) => category.visible);
     res.json({ ok: true, categories });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load owner categories' });

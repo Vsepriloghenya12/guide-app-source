@@ -48,7 +48,7 @@ const ownerTabs: Array<{ id: OwnerTabId; label: string; description: string }> =
 
 export function OwnerPage() {
   const navigate = useNavigate();
-  const { places, categories, tips, banners, collections, home, analytics } = useGuideContent();
+  const { places, categories, tips, banners, collections, home, analytics } = useGuideContent({ scope: 'owner' });
   const [activeTab, setActiveTab] = useState<OwnerTabId>('overview');
 
   const handleLogout = async () => {

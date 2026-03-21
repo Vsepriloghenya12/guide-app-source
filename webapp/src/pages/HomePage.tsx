@@ -5,7 +5,7 @@ import { useGuideContent } from '../hooks/useGuideContent';
 import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeBanner } from '../types';
 
 export function HomePage() {
-  const { places, categories, tips, banners, collections, home } = useGuideContent();
+  const { places, categories, tips, banners, collections, home, loading, error } = useGuideContent();
 
   const activeCategories = categories.filter((category: GuideCategory) => category.visible);
   const activeBanners = home.bannerIds
@@ -28,6 +28,14 @@ export function HomePage() {
 
   return (
     <div className="page-stack home-page home-page--poster">
+      {loading ? <div className="panel page-loader">Загружаю главную страницу…</div> : null}
+      {error ? (
+        <div className="panel empty-state empty-state--left">
+          <strong>Временные трудности с загрузкой</strong>
+          <p>{error}</p>
+        </div>
+      ) : null}
+
       <section className="home-stage" aria-label="Главный экран Guide">
         <HomeHero banners={activeBanners} />
         <FeatureGrid

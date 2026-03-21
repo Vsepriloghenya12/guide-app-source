@@ -43,20 +43,20 @@ export function ListingPage({ category }: ListingPageProps) {
   );
   const [wellnessFiltersState, setWellnessFiltersState] =
     useState<WellnessFiltersState>(initialWellnessFilters);
-  const { places, categories } = useGuideContent();
+  const { places, categories, loading, error } = useGuideContent();
 
   const categoryMeta = categories.find((item) => item.id === category);
   const categoryPlaces = useMemo(
-    () => places.filter((place: GuidePlace) => place.categoryId === category),
+    () => places.filter((place: GuidePlace) => place.categoryId === category && place.status === 'published'),
     [category, places]
   );
 
   const restaurants = useMemo(
-    () => places.filter((place: GuidePlace) => place.categoryId === 'restaurants'),
+    () => places.filter((place: GuidePlace) => place.categoryId === 'restaurants' && place.status === 'published'),
     [places]
   );
   const wellness = useMemo(
-    () => places.filter((place: GuidePlace) => place.categoryId === 'wellness'),
+    () => places.filter((place: GuidePlace) => place.categoryId === 'wellness' && place.status === 'published'),
     [places]
   );
 
@@ -148,6 +148,9 @@ export function ListingPage({ category }: ListingPageProps) {
           showBack
         />
 
+        {loading ? <div className="panel page-loader">Загружаю карточки…</div> : null}
+        {error ? <div className="panel empty-state empty-state--left"><strong>Не удалось обновить данные</strong><p>{error}</p></div> : null}
+
         <FilterPanel title="Фильтр ресторанов">
           <RestaurantFilters
             value={restaurantFilters}
@@ -198,6 +201,9 @@ export function ListingPage({ category }: ListingPageProps) {
           subtitle="Этот раздел тоже связан с owner-CMS: карточки, услуги, теги и тексты редактируются из закрытой страницы владельца."
           showBack
         />
+
+        {loading ? <div className="panel page-loader">Загружаю карточки…</div> : null}
+        {error ? <div className="panel empty-state empty-state--left"><strong>Не удалось обновить данные</strong><p>{error}</p></div> : null}
 
         <FilterPanel title="Фильтр СПА и оздоровления">
           <WellnessFilters

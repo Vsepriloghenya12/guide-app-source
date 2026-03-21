@@ -18,10 +18,10 @@ function getPlaceImages(item: GuidePlace) {
 
 export function CategoryPlaceholderPage() {
   const { slug = '' } = useParams();
-  const { categories, places } = useGuideContent();
+  const { categories, places, loading, error } = useGuideContent();
   const title = sectionTitles[slug] ?? 'Раздел';
   const category = categories.find((item) => item.id === slug);
-  const categoryPlaces = places.filter((item) => item.categoryId === slug);
+  const categoryPlaces = places.filter((item) => item.categoryId === slug && item.status === 'published');
 
   return (
     <div className="page-stack">
@@ -34,6 +34,14 @@ export function CategoryPlaceholderPage() {
         }
         showBack
       />
+
+      {loading ? <div className="panel page-loader">Загружаю раздел…</div> : null}
+      {error ? (
+        <div className="panel empty-state empty-state--left">
+          <strong>Не удалось обновить раздел</strong>
+          <p>{error}</p>
+        </div>
+      ) : null}
 
       {categoryPlaces.length > 0 ? (
         <section className="grid-listing">
