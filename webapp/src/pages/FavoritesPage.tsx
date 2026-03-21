@@ -4,9 +4,14 @@ import { ListingCard } from '../components/listing/ListingCard';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useFavorites } from '../hooks/useFavorites';
 import { useGuideContent } from '../hooks/useGuideContent';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { sortPlacesByPriority, toListingLike } from '../utils/places';
 
 export function FavoritesPage() {
+  usePageMeta({
+    title: 'Избранное',
+    description: 'Сохранённые места пользователя, собранные по категориям для быстрого возврата.'
+  });
   const { favoriteSlugs, isFavorite, toggleFavorite } = useFavorites();
   const { places, categories, loading, error } = useGuideContent();
 

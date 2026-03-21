@@ -6,6 +6,7 @@ import { PageHeader } from '../layout/PageHeader';
 import { defaultCategories } from '../../data/categories';
 import { useGuideContent } from '../../hooks/useGuideContent';
 import { useUserLocation } from '../../hooks/useUserLocation';
+import { usePageMeta } from '../../hooks/usePageMeta';
 import {
   comparePlacesByPriority,
   createGoogleDirectionsUrl,
@@ -112,7 +113,7 @@ function matchQuickFilter(place: GuidePlace, filterKey: string) {
   }
 }
 
-function sortPlaces(places: GuidePlace[], sortMode: SortMode) {
+function sortPlaces<T extends GuidePlace>(places: T[], sortMode: SortMode): T[] {
   if (sortMode === 'priority') {
     return [...places].sort(comparePlacesByPriority);
   }
@@ -122,7 +123,7 @@ function sortPlaces(places: GuidePlace[], sortMode: SortMode) {
       case 'rating':
         return Number(right.rating || 0) - Number(left.rating || 0);
       case 'alphabet':
-        return left.title.localeCompare(right.title, 'ru');
+        return String(left.title || '').localeCompare(String(right.title || ''), 'ru');
       case 'check-low':
         return Number(left.avgCheck || 0) - Number(right.avgCheck || 0);
       case 'check-high':
@@ -308,6 +309,11 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
   );
 
   const category = useMemo(() => mergeCategoryWithFallback(rawCategory), [rawCategory]);
+
+  usePageMeta({
+    title: category ? category.title : 'Раздел не найден',
+    description: category?.description || 'Категория guide с фильтрами, карточками мест и быстрыми переходами по разделу.'
+  });
 
   const categoryPlaces = useMemo(() => {
     if (!category) {

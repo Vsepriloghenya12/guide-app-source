@@ -632,7 +632,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
             <div className="owner-gallery-preview-grid">
               {draft.imageGallery.map((image, index) => (
                 <article key={`${image}-${index}`} className="owner-gallery-preview-card">
-                  <img src={image} alt={`${draft.title || 'Фото'} ${index + 1}`} />
+                  <img src={image} alt={`${draft.title || 'Фото'} ${index + 1}`} loading="lazy" decoding="async" />
                   <div className="owner-gallery-preview-card__actions">
                     {index === 0 ? (
                       <span className="owner-gallery-preview-card__cover">Обложка</span>

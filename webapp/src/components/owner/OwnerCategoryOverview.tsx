@@ -99,7 +99,7 @@ export function OwnerCategoryOverview({ categories }: OwnerCategoryOverviewProps
 
               <div className="owner-category-card__media">
                 {category.imageSrc ? (
-                  <img src={category.imageSrc} alt={category.title} className="owner-category-card__preview" />
+                  <img src={category.imageSrc} alt={category.title} className="owner-category-card__preview" loading="lazy" decoding="async" />
                 ) : (
                   <div className="owner-category-card__preview owner-category-card__preview--empty">
                     Нет обложки

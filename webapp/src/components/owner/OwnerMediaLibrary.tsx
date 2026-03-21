@@ -113,7 +113,7 @@ export function OwnerMediaLibrary() {
               <div className="owner-media-grid">
                 {files.map((item) => (
                   <article key={item.id} className="owner-media-card">
-                    <img src={item.publicUrl} alt={item.fileName} className="owner-media-card__preview" />
+                    <img src={item.publicUrl} alt={item.fileName} className="owner-media-card__preview" loading="lazy" decoding="async" />
                     <div className="owner-media-card__body">
                       <strong>{item.fileName}</strong>
                       <span>{formatBytes(item.sizeBytes)} · {new Date(item.createdAt).toLocaleDateString('ru-RU')}</span>

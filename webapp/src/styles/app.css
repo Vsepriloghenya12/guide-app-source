@@ -2653,3 +2653,88 @@ html.display-mode-standalone .pwa-prompt {
     grid-template-columns: 1fr;
   }
 }
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+img {
+  max-width: 100%;
+}
+
+.page-header__content h1,
+.category-hero__content h2,
+.listing-card__top h3,
+.place-card__topline h3,
+.utility-hero-card h2,
+.event-highlight-card strong,
+.home-section-title {
+  text-wrap: balance;
+}
+
+.page-header__content p,
+.listing-card__top p,
+.place-card__description,
+.category-list__text span,
+.utility-link-card p,
+.utility-channel-card p,
+.utility-emergency-card p,
+.faq-item p,
+.tips-list__item span,
+.event-highlight-card span {
+  text-wrap: pretty;
+}
+
+.listing-card,
+.place-card,
+.utility-link-card,
+.utility-channel-card,
+.utility-emergency-card,
+.event-highlight-card,
+.nearby-grid__item {
+  content-visibility: auto;
+  contain-intrinsic-size: 320px;
+}
+
+.listing-card__media img,
+.detail-hero__image,
+.detail-gallery img,
+.owner-category-card__preview,
+.owner-media-card__preview {
+  display: block;
+}
+
+@media (max-width: 560px) {
+  .page-stack {
+    gap: 18px;
+  }
+
+  .app-main {
+    padding-inline: 12px;
+  }
+
+  .page-header,
+  .panel,
+  .card {
+    border-radius: 18px;
+  }
+
+  .hero__logo--giant {
+    width: min(92vw, 540px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

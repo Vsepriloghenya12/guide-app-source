@@ -5,6 +5,7 @@ import { ListingCard } from '../components/listing/ListingCard';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useFavorites } from '../hooks/useFavorites';
 import { useUserLocation } from '../hooks/useUserLocation';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { recordGuideAnalytics } from '../utils/analytics';
 import {
   create2GisDirectionsUrl,
@@ -110,6 +111,10 @@ export function ListingDetailPage() {
   const [similar, setSimilar] = useState<Listing[]>([]);
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
+  usePageMeta({
+    title: listing?.title || 'Карточка места',
+    description: listing?.shortDescription || listing?.description || 'Подробная карточка места с фото, контактами, похожими местами и быстрыми маршрутами.'
+  });
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
@@ -193,7 +198,7 @@ export function ListingDetailPage() {
       <section className="detail-hero panel">
         <div className="detail-hero__media">
           <div className="detail-hero__image-wrap">
-            <img className="detail-hero__image" src={activeImage} alt={listing.title} loading="lazy" />
+            <img className="detail-hero__image" src={activeImage} alt={listing.title} loading="lazy" decoding="async" />
             <div className="detail-hero__overlay">
               <span className="rating-pill">★ {listing.rating.toFixed(1)}</span>
               {listing.featured ? <span className="chip">Топ</span> : null}
@@ -211,7 +216,7 @@ export function ListingDetailPage() {
                   className={`detail-gallery-strip__thumb ${index === activeImageIndex ? 'is-active' : ''}`}
                   onClick={() => setActiveImageIndex(index)}
                 >
-                  <img src={imageUrl} alt={`${listing.title} ${index + 1}`} loading="lazy" />
+                  <img src={imageUrl} alt={`${listing.title} ${index + 1}`} loading="lazy" decoding="async" />
                 </button>
               ))}
             </div>

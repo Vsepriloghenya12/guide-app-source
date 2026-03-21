@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
 import { contactChannels, emergencyContacts } from '../data/supportContent';
 import { recordGuideAnalytics } from '../utils/analytics';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 function getChannelBadge(kind: string) {
   switch (kind) {
@@ -21,6 +22,10 @@ function getChannelBadge(kind: string) {
 }
 
 export function ContactsPage() {
+  usePageMeta({
+    title: 'Контакты',
+    description: 'Связь с guide-командой, мессенджеры и экстренные контакты для поездки.'
+  });
   return (
     <div className="page-stack utility-page utility-page--contacts">
       <PageHeader

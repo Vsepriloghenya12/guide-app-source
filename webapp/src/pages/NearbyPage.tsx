@@ -5,6 +5,7 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { useFavorites } from '../hooks/useFavorites';
 import { useGuideContent } from '../hooks/useGuideContent';
 import { useUserLocation } from '../hooks/useUserLocation';
+import { usePageMeta } from '../hooks/usePageMeta';
 import {
   comparePlacesByPriority,
   createGoogleDirectionsUrl,
@@ -28,6 +29,10 @@ const nearbyCategoryOptions: Array<{ value: 'all' | GuideCategoryId; label: stri
 ];
 
 export function NearbyPage() {
+  usePageMeta({
+    title: 'Рядом',
+    description: 'Ближайшие места, сортировка по расстоянию, радиусу и категориям с быстрыми маршрутами.'
+  });
   const { isFavorite, toggleFavorite } = useFavorites();
   const { places, categories, loading, error } = useGuideContent();
   const { location: userLocation, state: geoState, message: geoMessage, requestLocation, clearLocation, updatedAtLabel } = useUserLocation();

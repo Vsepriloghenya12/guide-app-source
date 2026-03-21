@@ -2,10 +2,15 @@ import { CategoryList } from '../components/home/CategoryList';
 import { FeatureGrid } from '../components/home/FeatureGrid';
 import { HomeHero } from '../components/home/HomeHero';
 import { useGuideContent } from '../hooks/useGuideContent';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { sortPlacesByPriority } from '../utils/places';
 import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeBanner } from '../types';
 
 export function HomePage() {
+  usePageMeta({
+    title: 'Danang Guide',
+    description: 'Главная витрина guide-приложения: места, категории, советы, подборки и события в Дананге.'
+  });
   const { places, categories, tips, banners, collections, home, loading, error } = useGuideContent();
 
   const activeCategories = categories.filter((category: GuideCategory) => category.visible);

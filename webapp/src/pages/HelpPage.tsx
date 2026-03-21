@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/layout/PageHeader';
 import { helpFaq, supportQuickLinks } from '../data/supportContent';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export function HelpPage() {
+  usePageMeta({
+    title: 'Помощь',
+    description: 'FAQ, подсказки по nearby, офлайн-режиму, избранному и картам внутри Danang Guide.'
+  });
   return (
     <div className="page-stack utility-page utility-page--help">
       <PageHeader

@@ -9,6 +9,14 @@ export function AppShell() {
   const location = useLocation();
 
   useEffect(() => {
+    if (location.hash) {
+      return;
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname, location.search, location.hash]);
+
+  useEffect(() => {
     if (location.pathname.startsWith('/owner')) {
       return;
     }

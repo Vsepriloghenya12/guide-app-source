@@ -29,7 +29,7 @@ export function ListingCard({ listing, accent = 'orange', isFavorite, onToggleFa
         }
       >
         <div className="listing-card__media">
-          <img src={image} alt={listing.title} loading="lazy" />
+          <img src={image} alt={listing.title} loading="lazy" decoding="async" />
           {listing.featured ? <span className="listing-card__badge">Топ</span> : null}
         </div>
 

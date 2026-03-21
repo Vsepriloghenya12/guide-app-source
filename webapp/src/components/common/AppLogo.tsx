@@ -26,6 +26,7 @@ export function AppLogo({ className, alt = 'Логотип Danang Guide' }: AppL
       className={className}
       src={currentSrc}
       alt={alt}
+      decoding="async"
       onError={() => {
         setCurrentIndex((prev) => {
           if (prev >= LOGO_CANDIDATES.length - 1) {

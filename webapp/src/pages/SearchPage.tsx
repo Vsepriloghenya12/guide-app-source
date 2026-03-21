@@ -3,6 +3,7 @@ import { ListingCard } from '../components/listing/ListingCard';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useFavorites } from '../hooks/useFavorites';
 import { useGuideContent } from '../hooks/useGuideContent';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { sortPlacesByPriority, toListingLike } from '../utils/places';
 import type { GuidePlace, GuideCategory } from '../types';
 
@@ -31,6 +32,10 @@ function createSearchText(place: GuidePlace, category?: GuideCategory) {
 }
 
 export function SearchPage() {
+  usePageMeta({
+    title: 'Поиск',
+    description: 'Глобальный поиск по категориям, тегам, услугам и названиям мест внутри Danang Guide.'
+  });
   const { isFavorite, toggleFavorite } = useFavorites();
   const { places, categories, loading, error } = useGuideContent();
   const [query, setQuery] = useState('');
