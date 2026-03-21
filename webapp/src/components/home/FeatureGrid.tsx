@@ -8,6 +8,7 @@ type FeatureGridProps = {
   featuredCategories: GuideCategory[];
   tips: GuideTip[];
   collections: GuideCollection[];
+  upcomingEvents: GuidePlace[];
   sectionTitles: HomeSectionTitles;
 };
 
@@ -22,6 +23,7 @@ export function FeatureGrid({
   featuredCategories,
   tips,
   collections,
+  upcomingEvents,
   sectionTitles
 }: FeatureGridProps) {
   return (
@@ -102,6 +104,33 @@ export function FeatureGrid({
             </Link>
           ))}
         </div>
+
+        {upcomingEvents.length > 0 ? (
+          <div className="home-collections">
+            <div className="home-section-title home-section-title--small">Скоро в афише</div>
+            <div className="tips-list">
+              {upcomingEvents.map((event) => (
+                <Link
+                  key={event.id}
+                  to={getPlacePath(event)}
+                  className="tips-list__item tips-list__item--event"
+                  onClick={() =>
+                    recordGuideAnalytics({
+                      kind: 'place-click',
+                      label: `Афиша · ${event.title}`,
+                      path: getPlacePath(event),
+                      entityId: event.id,
+                      categoryId: event.categoryId
+                    })
+                  }
+                >
+                  <strong>{event.title}</strong>
+                  <span>{[event.hours, event.address || event.district].filter(Boolean).join(' · ')}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {collections.length > 0 ? (
           <div className="home-collections">

@@ -2481,3 +2481,175 @@ html.display-mode-standalone .pwa-prompt {
   flex-wrap: wrap;
   gap: 10px;
 }
+
+.utility-page {
+  padding-bottom: 6.5rem;
+}
+
+.utility-hero-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.utility-hero-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.utility-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.utility-grid--links,
+.utility-grid--channels,
+.utility-grid--emergency,
+.event-highlight-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.utility-link-card,
+.utility-channel-card,
+.utility-emergency-card,
+.event-highlight-card {
+  display: grid;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.utility-link-card span:last-child,
+.utility-emergency-card span,
+.utility-channel-card__value,
+.event-highlight-card small {
+  color: var(--text-secondary);
+}
+
+.utility-link-card strong,
+.utility-channel-card strong,
+.utility-emergency-card strong,
+.event-highlight-card strong {
+  font-size: 1rem;
+}
+
+.utility-channel-card__badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.utility-section-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.utility-faq-stack {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 700;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item p {
+  margin: 0.85rem 0 0;
+  color: var(--text-secondary);
+}
+
+.pwa-status-banner {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: calc(5.8rem + env(safe-area-inset-bottom));
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+}
+
+.pwa-status-banner strong {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.pwa-status-banner span {
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 0.92rem;
+}
+
+.pwa-status-banner--offline {
+  background: rgba(39, 59, 92, 0.92);
+  border: 1px solid rgba(125, 165, 255, 0.25);
+}
+
+.pwa-status-banner--update {
+  background: rgba(8, 19, 31, 0.96);
+  border: 1px solid rgba(255, 214, 118, 0.28);
+}
+
+.pwa-status-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.event-highlights-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.event-highlight-card {
+  min-height: 148px;
+  padding: 1rem;
+  border-radius: 1.15rem;
+  background: linear-gradient(180deg, rgba(255, 159, 64, 0.2), rgba(11, 25, 38, 0.9));
+  border: 1px solid rgba(255, 190, 92, 0.16);
+}
+
+.event-highlight-card span {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.detail-helper-note {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 720px) {
+  .pwa-status-banner {
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pwa-status-banner__actions {
+    width: 100%;
+  }
+
+  .utility-grid--links,
+  .utility-grid--channels,
+  .utility-grid--emergency,
+  .event-highlight-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,4 +1,7 @@
 const SW_URL = '/sw.js';
+export const PWA_UPDATE_READY_EVENT = 'dg:pwa-update-ready';
+
+let pendingRegistration: ServiceWorkerRegistration | null = null;
 
 export function applyStandaloneModeClass() {
   if (typeof window === 'undefined' || typeof document === 'undefined') {
@@ -12,16 +15,21 @@ export function applyStandaloneModeClass() {
   document.documentElement.classList.toggle('display-mode-standalone', standalone);
 }
 
+export function activatePendingUpdate() {
+  pendingRegistration?.waiting?.postMessage({ type: 'SKIP_WAITING' });
+}
+
+function dispatchUpdateReady(registration: ServiceWorkerRegistration) {
+  pendingRegistration = registration;
+  window.dispatchEvent(new Event(PWA_UPDATE_READY_EVENT));
+}
+
 export function registerServiceWorker() {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
     return;
   }
 
   let refreshing = false;
-
-  const activateUpdate = (worker?: ServiceWorker | null) => {
-    worker?.postMessage({ type: 'SKIP_WAITING' });
-  };
 
   const handleControllerChange = () => {
     if (refreshing) {
@@ -39,7 +47,7 @@ export function registerServiceWorker() {
       navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
 
       if (registration.waiting) {
-        activateUpdate(registration.waiting);
+        dispatchUpdateReady(registration);
       }
 
       registration.addEventListener('updatefound', () => {
@@ -50,7 +58,7 @@ export function registerServiceWorker() {
 
         installingWorker.addEventListener('statechange', () => {
           if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            activateUpdate(installingWorker);
+            dispatchUpdateReady(registration);
           }
         });
       });
@@ -64,7 +72,7 @@ export function registerServiceWorker() {
       document.addEventListener('visibilitychange', refreshWorker);
       window.addEventListener('focus', refreshWorker);
 
-      setInterval(() => {
+      window.setInterval(() => {
         registration.update().catch(() => undefined);
       }, 60 * 60 * 1000);
     } catch (error) {

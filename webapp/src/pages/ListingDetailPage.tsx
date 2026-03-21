@@ -21,6 +21,87 @@ import {
 } from '../utils/places';
 import type { Category, Listing } from '../types';
 
+function padDatePart(value: number) {
+  return String(value).padStart(2, '0');
+}
+
+function toCalendarUtc(value: Date) {
+  return `${value.getUTCFullYear()}${padDatePart(value.getUTCMonth() + 1)}${padDatePart(value.getUTCDate())}T${padDatePart(value.getUTCHours())}${padDatePart(value.getUTCMinutes())}${padDatePart(value.getUTCSeconds())}Z`;
+}
+
+function parseEventDateRange(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const normalized = trimmed.replace(' ', 'T');
+  const start = new Date(normalized);
+  if (Number.isNaN(start.getTime())) {
+    return null;
+  }
+
+  const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+  return { start, end };
+}
+
+function formatEventDateLabel(value: string) {
+  const parsed = parseEventDateRange(value);
+  if (!parsed) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('ru-RU', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(parsed.start);
+}
+
+function createGoogleCalendarLink(listing: Listing) {
+  const parsed = parseEventDateRange(listing.hours || '');
+  if (!parsed) {
+    return '';
+  }
+
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: listing.title,
+    details: listing.description || listing.shortDescription || '',
+    location: listing.address || listing.mapQuery || listing.title,
+    dates: `${toCalendarUtc(parsed.start)}/${toCalendarUtc(parsed.end)}`
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function createCalendarDataUrl(listing: Listing) {
+  const parsed = parseEventDateRange(listing.hours || '');
+  if (!parsed) {
+    return '';
+  }
+
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Danang Guide//Afisha//RU',
+    'BEGIN:VEVENT',
+    `UID:${listing.id}@danangguide.app`,
+    `DTSTAMP:${toCalendarUtc(new Date())}`,
+    `DTSTART:${toCalendarUtc(parsed.start)}`,
+    `DTEND:${toCalendarUtc(parsed.end)}`,
+    `SUMMARY:${listing.title}`,
+    `DESCRIPTION:${(listing.description || '').replace(/\n/g, ' ')}`,
+    `LOCATION:${(listing.address || listing.mapQuery || '').replace(/\n/g, ' ')}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  return `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
+}
+
 export function ListingDetailPage() {
   const { slug = '' } = useParams();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -51,7 +132,10 @@ export function ListingDetailPage() {
     };
   }, [slug]);
 
-  const gallery = useMemo(() => listing?.imageUrls?.length ? listing.imageUrls : listing?.coverImageUrl ? [listing.coverImageUrl] : [], [listing]);
+  const gallery = useMemo(
+    () => (listing?.imageUrls?.length ? listing.imageUrls : listing?.coverImageUrl ? [listing.coverImageUrl] : []),
+    [listing]
+  );
   const activeImage = gallery[activeImageIndex] || gallery[0] || '/danang-clean-poster.png';
 
   const mapUrl = useMemo(() => (listing ? createGoogleMapsUrl(listing) : '#'), [listing]);
@@ -72,6 +156,11 @@ export function ListingDetailPage() {
 
     return haversineDistanceKm(userLocation, { lat: listing.lat!, lng: listing.lng! });
   }, [listing, userLocation]);
+
+  const isEvent = category?.id === 'events';
+  const eventDateLabel = useMemo(() => (listing && isEvent ? formatEventDateLabel(listing.hours || '') : ''), [isEvent, listing]);
+  const googleCalendarUrl = useMemo(() => (listing && isEvent ? createGoogleCalendarLink(listing) : ''), [isEvent, listing]);
+  const calendarDataUrl = useMemo(() => (listing && isEvent ? createCalendarDataUrl(listing) : ''), [isEvent, listing]);
 
   if (loading) {
     return <div className="panel page-loader">Загружаю карточку места…</div>;
@@ -211,6 +300,29 @@ export function ListingDetailPage() {
           </div>
         </div>
       </section>
+
+      {isEvent ? (
+        <section className="detail-grid detail-grid--event">
+          <article className="panel info-card">
+            <strong>Афиша</strong>
+            <ul className="info-list">
+              <li><span>Дата и время</span><strong>{eventDateLabel || listing.hours || 'Уточняется'}</strong></li>
+              <li><span>Тип события</span><strong>{listing.listingType || listing.kind || 'Событие'}</strong></li>
+              <li><span>Локация</span><strong>{listing.address || listing.district || 'Уточняется'}</strong></li>
+              <li><span>Стоимость</span><strong>{listing.priceLabel || 'Смотри описание'}</strong></li>
+            </ul>
+          </article>
+          <article className="panel info-card">
+            <strong>Добавить в календарь</strong>
+            <p>Если владелец указал дату в формате YYYY-MM-DD HH:MM, событие можно добавить в календарь одним нажатием.</p>
+            <div className="detail-actions detail-actions--wrap">
+              {googleCalendarUrl ? <a className="button button--primary" href={googleCalendarUrl} target="_blank" rel="noreferrer">Google Calendar</a> : null}
+              {calendarDataUrl ? <a className="button button--ghost" href={calendarDataUrl} download={`${listing.slug || listing.id}.ics`}>Скачать .ics</a> : null}
+              {!googleCalendarUrl && !calendarDataUrl ? <span className="detail-helper-note">Укажи дату события в owner-CMS в поле «Часы работы», например: 2026-03-28 19:00.</span> : null}
+            </div>
+          </article>
+        </section>
+      ) : null}
 
       <section className="detail-grid">
         <article className="panel info-card">

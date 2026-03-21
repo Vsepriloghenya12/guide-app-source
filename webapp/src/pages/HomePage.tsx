@@ -17,6 +17,7 @@ export function HomePage() {
     .filter((place): place is GuidePlace => Boolean(place));
   const fallbackPopularPlaces = sortPlacesByPriority(places.filter((place: GuidePlace) => place.top)).slice(0, 4);
   const popularPlaces = activePopularPlaces.length > 0 ? activePopularPlaces : fallbackPopularPlaces;
+  const upcomingEvents = sortPlacesByPriority(places.filter((place: GuidePlace) => place.categoryId === 'events')).slice(0, 4);
   const featuredCategories = home.featuredCategoryIds
     .map((id) => activeCategories.find((category: GuideCategory) => category.id === id))
     .filter((category): category is GuideCategory => Boolean(category));
@@ -44,6 +45,7 @@ export function HomePage() {
           featuredCategories={featuredCategories}
           tips={visibleTips}
           collections={activeCollections}
+          upcomingEvents={upcomingEvents}
           sectionTitles={home.sectionTitles}
         />
       </section>

@@ -425,6 +425,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
   }
 
   const guideContext = getGuideContext(category.id);
+  const eventHighlights = category.id === 'events' ? sortPlaces(categoryPlaces, 'priority').slice(0, 3) : [];
 
   return (
     <div className="page-stack category-explorer-page">
@@ -460,6 +461,24 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
           </div>
         )}
       </section>
+
+      {category.id === 'events' && eventHighlights.length > 0 ? (
+        <section className="panel event-highlights-panel">
+          <div className="section-headline">
+            <strong>Скоро в афише</strong>
+            <span>Быстрый вход в ближайшие и самые заметные события.</span>
+          </div>
+          <div className="event-highlight-grid">
+            {eventHighlights.map((event) => (
+              <Link key={event.id} to={`/place/${event.slug || `${event.categoryId}-${event.id}`}`} className="event-highlight-card">
+                <strong>{event.title}</strong>
+                <span>{[event.hours, event.address || event.district].filter(Boolean).join(' · ')}</span>
+                <small>{[event.kind, ...(event.tags || []).slice(0, 2)].filter(Boolean).join(' · ')}</small>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {guideContext ? (
         <section className="panel guide-tools-panel">

@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { BottomNav } from './BottomNav';
 import { PwaInstallPrompt } from '../common/PwaInstallPrompt';
+import { PwaUpdatePrompt } from '../common/PwaUpdatePrompt';
 import { getAnalyticsLabelByPath, recordGuideAnalytics } from '../../utils/analytics';
 
 export function AppShell() {
@@ -26,6 +27,7 @@ export function AppShell() {
       <main className="app-main">
         <Outlet />
       </main>
+      <PwaUpdatePrompt />
       <PwaInstallPrompt />
       <BottomNav />
     </div>

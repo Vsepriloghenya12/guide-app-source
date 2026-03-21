@@ -7,7 +7,8 @@ import { HomePage } from './pages/HomePage';
 import { ListingPage } from './pages/ListingPage';
 import { OwnerLoginPage } from './pages/OwnerLoginPage';
 import { OwnerPage } from './pages/OwnerPage';
-import { UtilityPage } from './pages/UtilityPage';
+import { ContactsPage } from './pages/ContactsPage';
+import { HelpPage } from './pages/HelpPage';
 import { SearchPage } from './pages/SearchPage';
 import { FavoritesPage } from './pages/FavoritesPage';
 import { NearbyPage } from './pages/NearbyPage';
@@ -25,8 +26,8 @@ function App() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/nearby" element={<NearbyPage />} />
-        <Route path="/help" element={<UtilityPage type="help" />} />
-        <Route path="/contacts" element={<UtilityPage type="contacts" />} />
+        <Route path="/help" element={<HelpPage />} />
+        <Route path="/contacts" element={<ContactsPage />} />
       </Route>
 
       <Route element={<OwnerShell />}>
