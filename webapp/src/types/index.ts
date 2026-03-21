@@ -22,14 +22,6 @@ export type GuideCategory = {
   description?: string;
   visible: boolean;
   showOnHome: boolean;
-  // backwards-compatible fields for older pages
-  slug?: string;
-  shortTitle?: string;
-  accent?: string;
-  filterSchema?: {
-    quickFilters?: string[];
-    fields?: string[];
-  };
 };
 
 export type GuidePlace = {
@@ -55,24 +47,6 @@ export type GuidePlace = {
   imageLabel: string;
   imageSrc: string;
   imageGallery?: string[];
-  // backwards-compatible fields for older pages
-  slug?: string;
-  categorySlug?: string;
-  featured?: boolean;
-  shortDescription?: string;
-  priceLabel?: string;
-  listingType?: string;
-  childFriendly?: boolean;
-  petFriendly?: boolean;
-  mapQuery?: string;
-  extra?: string[];
-  imageUrls?: string[];
-  coverImageUrl?: string;
-  websiteUrl?: string;
-  phoneNumber?: string;
-  district?: string;
-  location?: string;
-  type?: string;
 };
 
 export type GuideTip = {
@@ -120,40 +94,53 @@ export type HomeContent = {
   sectionTitles: HomeSectionTitles;
 };
 
+export type GuideAnalyticsKind =
+  | 'page-view'
+  | 'banner-click'
+  | 'category-click'
+  | 'tip-click'
+  | 'collection-click'
+  | 'place-click'
+  | 'website-click'
+  | 'phone-click';
+
+export type GuideAnalyticsEvent = {
+  id: string;
+  kind: GuideAnalyticsKind;
+  label: string;
+  path: string;
+  entityId?: string;
+  categoryId?: GuideCategoryId;
+  createdAt: string;
+};
+
+export type GuideAnalyticsStore = {
+  events: GuideAnalyticsEvent[];
+};
+
 export type GuideContentStore = {
-  version: 2;
+  version: 3;
   places: GuidePlace[];
   categories: GuideCategory[];
   tips: GuideTip[];
   banners: HomeBanner[];
   collections: GuideCollection[];
   home: HomeContent;
-  // legacy shape expected by older data helpers
-  restaurants?: GuidePlace[];
-  wellness?: GuidePlace[];
+  analytics: GuideAnalyticsStore;
 };
 
 // Compatibility aliases for older pages/API client
 export type Category = GuideCategory;
 
 export type Listing = GuidePlace & {
-  slug: string;
-  categorySlug: string;
-  imageUrls: string[];
-  coverImageUrl: string;
-  websiteUrl: string;
-  phoneNumber: string;
-  district: string;
-  location: string;
-  type: string;
-  featured: boolean;
-  shortDescription: string;
-  priceLabel: string;
-  listingType: string;
-  childFriendly: boolean;
-  petFriendly: boolean;
-  mapQuery: string;
-  extra: string[];
+  slug?: string;
+  imageUrls?: string[];
+  coverImageUrl?: string;
+  websiteUrl?: string;
+  phoneNumber?: string;
+  district?: string;
+  location?: string;
+  type?: string;
 };
 
 export type Banner = HomeBanner;

@@ -1,5 +1,6 @@
 import { AppLogo } from '../common/AppLogo';
 import type { HomeBanner } from '../../types';
+import { recordGuideAnalytics } from '../../utils/analytics';
 
 type HomeHeroProps = {
   banners: HomeBanner[];
@@ -20,6 +21,14 @@ export function HomeHero({ banners }: HomeHeroProps) {
               href={banner.linkPath}
               className={`home-banner home-banner--${banner.tone}`}
               style={banner.imageSrc ? { backgroundImage: `url(${banner.imageSrc})` } : undefined}
+              onClick={() =>
+                recordGuideAnalytics({
+                  kind: 'banner-click',
+                  label: banner.title,
+                  path: banner.linkPath,
+                  entityId: banner.id
+                })
+              }
             >
               <strong>{banner.title}</strong>
               <span>{banner.subtitle}</span>

@@ -172,6 +172,7 @@ export function ListingPage({ category }: ListingPageProps) {
               website={item.website}
               hours={item.hours}
               top={item.top}
+              analytics={{ placeId: item.id, categoryId: item.categoryId }}
               meta={compactStrings([
                 item.kind,
                 item.cuisine,
@@ -221,6 +222,7 @@ export function ListingPage({ category }: ListingPageProps) {
               website={item.website}
               hours={item.hours}
               top={item.top}
+              analytics={{ placeId: item.id, categoryId: item.categoryId }}
               meta={compactStrings([
                 item.kind,
                 ...item.services,
@@ -258,6 +260,7 @@ export function ListingPage({ category }: ListingPageProps) {
               website={item.website}
               hours={item.hours}
               top={item.top}
+              analytics={{ placeId: item.id, categoryId: item.categoryId }}
               meta={compactStrings([
                 item.kind,
                 item.cuisine,

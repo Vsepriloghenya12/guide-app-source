@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeSectionTitles } from '../../types';
 import { CategoryIcon } from '../common/CategoryIcon';
+import { recordGuideAnalytics } from '../../utils/analytics';
 
 type FeatureGridProps = {
   popularPlaces: GuidePlace[];
@@ -11,6 +12,14 @@ type FeatureGridProps = {
 };
 
 const tones = ['orange', 'blue', 'pink', 'green', 'red', 'teal'] as const;
+
+function getPlacePath(place: GuidePlace) {
+  return place.categoryId === 'restaurants'
+    ? '/restaurants'
+    : place.categoryId === 'wellness'
+      ? '/wellness'
+      : `/section/${place.categoryId}`;
+}
 
 export function FeatureGrid({
   popularPlaces,
@@ -27,9 +36,18 @@ export function FeatureGrid({
           {popularPlaces.map((place, index) => (
             <Link
               key={place.id}
-              to={place.categoryId === 'restaurants' ? '/restaurants' : place.categoryId === 'wellness' ? '/wellness' : `/section/${place.categoryId}`}
+              to={getPlacePath(place)}
               className={`poster-tile poster-tile--${index % 2 === 0 ? 'coast' : 'bridge'}`}
               style={place.imageSrc ? { backgroundImage: `url(${place.imageGallery?.[0] ?? place.imageSrc})` } : undefined}
+              onClick={() =>
+                recordGuideAnalytics({
+                  kind: 'place-click',
+                  label: place.title,
+                  path: getPlacePath(place),
+                  entityId: place.id,
+                  categoryId: place.categoryId
+                })
+              }
             >
               <strong>{place.title}</strong>
               <span>{place.imageLabel}</span>
@@ -42,7 +60,20 @@ export function FeatureGrid({
         <div className="home-section-title">{sectionTitles.categories}</div>
         <div className="tile-grid">
           {featuredCategories.map((category, index) => (
-            <Link key={category.id} to={category.path} className={`menu-tile menu-tile--${tones[index % tones.length]}`}>
+            <Link
+              key={category.id}
+              to={category.path}
+              className={`menu-tile menu-tile--${tones[index % tones.length]}`}
+              onClick={() =>
+                recordGuideAnalytics({
+                  kind: 'category-click',
+                  label: category.title,
+                  path: category.path,
+                  entityId: category.id,
+                  categoryId: category.id
+                })
+              }
+            >
               <span className="menu-tile__icon" aria-hidden="true">
                 <CategoryIcon categoryId={category.id} size="md" />
               </span>
@@ -56,7 +87,19 @@ export function FeatureGrid({
         <div className="home-section-title">{sectionTitles.tips}</div>
         <div className="tips-list">
           {tips.map((tip) => (
-            <Link key={tip.id} to={tip.linkPath} className="tips-list__item">
+            <Link
+              key={tip.id}
+              to={tip.linkPath}
+              className="tips-list__item"
+              onClick={() =>
+                recordGuideAnalytics({
+                  kind: 'tip-click',
+                  label: tip.title,
+                  path: tip.linkPath,
+                  entityId: tip.id
+                })
+              }
+            >
               <strong>{tip.title}</strong>
               <span>{tip.text}</span>
             </Link>
@@ -68,7 +111,19 @@ export function FeatureGrid({
             <div className="home-section-title home-section-title--small">{sectionTitles.collections}</div>
             <div className="tips-list">
               {collections.map((collection) => (
-                <Link key={collection.id} to={collection.linkPath} className="tips-list__item tips-list__item--collection">
+                <Link
+                  key={collection.id}
+                  to={collection.linkPath}
+                  className="tips-list__item tips-list__item--collection"
+                  onClick={() =>
+                    recordGuideAnalytics({
+                      kind: 'collection-click',
+                      label: collection.title,
+                      path: collection.linkPath,
+                      entityId: collection.id
+                    })
+                  }
+                >
                   <strong>{collection.title}</strong>
                   <span>{collection.description}</span>
                 </Link>

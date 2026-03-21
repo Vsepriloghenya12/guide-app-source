@@ -261,7 +261,7 @@ const wellnessPlaces: GuidePlace[] = [
 ];
 
 export const defaultGuideContent: GuideContentStore = {
-  version: 2,
+  version: 3,
   places: [...restaurantPlaces, ...wellnessPlaces],
   categories: defaultCategories,
   tips: [
@@ -340,5 +340,8 @@ export const defaultGuideContent: GuideContentStore = {
       collections: 'Подборки',
       allCategories: 'Все рубрики'
     }
+  },
+  analytics: {
+    events: []
   }
 };

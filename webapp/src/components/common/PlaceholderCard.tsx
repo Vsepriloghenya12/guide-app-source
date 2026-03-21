@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { GuideCategoryId } from '../../types';
+import { recordGuideAnalytics } from '../../utils/analytics';
 
 type PlaceholderCardProps = {
   title: string;
@@ -13,6 +15,10 @@ type PlaceholderCardProps = {
   website?: string;
   hours?: string;
   top?: boolean;
+  analytics?: {
+    placeId: string;
+    categoryId: GuideCategoryId;
+  };
 };
 
 export function PlaceholderCard({
@@ -27,7 +33,8 @@ export function PlaceholderCard({
   phone,
   website,
   hours,
-  top
+  top,
+  analytics
 }: PlaceholderCardProps) {
   const gallery = useMemo(() => {
     const normalized = (imageSources ?? []).filter(Boolean);
@@ -105,11 +112,46 @@ export function PlaceholderCard({
         {phone || website || hours ? (
           <div className="place-card__contacts">
             {hours ? <p>Часы: {hours}</p> : null}
-            {phone ? <p>Телефон: {phone}</p> : null}
+            {phone ? (
+              <p>
+                Телефон:{' '}
+                <a
+                  href={`tel:${phone}`}
+                  onClick={() =>
+                    analytics
+                      ? recordGuideAnalytics({
+                          kind: 'phone-click',
+                          label: `${title} · звонок`,
+                          path: `tel:${phone}`,
+                          entityId: analytics.placeId,
+                          categoryId: analytics.categoryId
+                        })
+                      : undefined
+                  }
+                >
+                  {phone}
+                </a>
+              </p>
+            ) : null}
             {website ? (
               <p>
                 Сайт:{' '}
-                <a href={website} target="_blank" rel="noreferrer">
+                <a
+                  href={website}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() =>
+                    analytics
+                      ? recordGuideAnalytics({
+                          kind: 'website-click',
+                          label: `${title} · сайт`,
+                          path: website,
+                          entityId: analytics.placeId,
+                          categoryId: analytics.categoryId
+                        })
+                      : undefined
+                  }
+                >
                   {website}
                 </a>
               </p>

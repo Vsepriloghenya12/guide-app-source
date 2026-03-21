@@ -2,7 +2,7 @@ import { defaultGuideContent } from './mockData';
 import { defaultCategories } from './categories';
 import type { GuideCategory, GuideContentStore, GuidePlace } from '../types';
 
-const GUIDE_CONTENT_KEY = 'guide-content-store-v3';
+const GUIDE_CONTENT_KEY = 'guide-content-store-v4';
 const LEGACY_GUIDE_CONTENT_KEY = 'guide-content-store-v2';
 
 export const GUIDE_CONTENT_EVENT = 'guide-content-updated';
@@ -116,51 +116,19 @@ function normalizeCategory(category: GuideCategory, fallback: GuideCategory): Gu
 function normalizeStore(parsed: Partial<GuideContentStore>): GuideContentStore {
   const defaults = cloneDefaultStore();
 
-  const places = Array.isArray(parsed.places)
-      ? parsed.places.map((place) => {
-          const gallery = Array.isArray(place.imageGallery)
+  return {
+    version: 3,
+    places: Array.isArray(parsed.places)
+      ? parsed.places.map((place) => ({
+          ...place,
+          imageGallery: Array.isArray(place.imageGallery)
             ? place.imageGallery.filter((image): image is string => Boolean(image))
             : place.imageSrc
               ? [place.imageSrc]
-              : [];
-          const categorySlug = place.categorySlug ?? place.categoryId;
-          const slug = place.slug ?? `${categorySlug}-${place.id}`;
-          const coverImageUrl = place.coverImageUrl ?? place.imageSrc ?? gallery[0] ?? '';
-          const imageUrls = Array.isArray(place.imageUrls)
-            ? place.imageUrls.filter((image): image is string => Boolean(image))
-            : gallery;
-          return {
-            ...place,
-            imageGallery: gallery,
-            imageSrc: place.imageSrc ?? '',
-            slug,
-            categorySlug,
-            featured: place.featured ?? place.top ?? false,
-            shortDescription: place.shortDescription ?? place.description,
-            priceLabel:
-              place.priceLabel ??
-              (typeof place.avgCheck === 'number' ? `от ${place.avgCheck}` : ''),
-            listingType: place.listingType ?? place.kind ?? '',
-            childFriendly: place.childFriendly ?? place.childPrograms ?? false,
-            petFriendly: place.petFriendly ?? place.pets ?? false,
-            mapQuery: place.mapQuery ?? place.address ?? '',
-            extra: Array.isArray(place.extra) ? place.extra : place.services ?? [],
-            imageUrls,
-            coverImageUrl,
-            websiteUrl: place.websiteUrl ?? place.website ?? '',
-            phoneNumber: place.phoneNumber ?? place.phone ?? '',
-            district: place.district ?? '',
-            location: place.location ?? place.address ?? '',
-            type: place.type ?? place.kind ?? ''
-          };
-        })
-      : defaults.places;
-
-  return {
-    version: 2,
-    places,
-    restaurants: places.filter((place) => place.categoryId === 'restaurants'),
-    wellness: places.filter((place) => place.categoryId === 'wellness'),
+              : [],
+          imageSrc: place.imageSrc ?? ''
+        }))
+      : defaults.places,
     categories: Array.isArray(parsed.categories)
       ? defaultCategories.map((fallback) => {
           const found = parsed.categories?.find((category) => category.id === fallback.id);
@@ -185,6 +153,11 @@ function normalizeStore(parsed: Partial<GuideContentStore>): GuideContentStore {
         allCategories:
           parsed.home?.sectionTitles?.allCategories ?? defaults.home.sectionTitles.allCategories
       }
+    },
+    analytics: {
+      events: Array.isArray(parsed.analytics?.events)
+        ? parsed.analytics.events.filter((event): event is NonNullable<typeof event> => Boolean(event)).slice(-400)
+        : defaults.analytics.events
     }
   };
 }
