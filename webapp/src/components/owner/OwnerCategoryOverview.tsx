@@ -1,6 +1,7 @@
 import { categoryStatusMap } from '../../data/categories';
 import { updateGuideContent } from '../../data/guideContent';
 import type { GuideCategory } from '../../types';
+import { CategoryIcon } from '../common/CategoryIcon';
 
 type OwnerCategoryOverviewProps = {
   categories: GuideCategory[];
@@ -34,9 +35,12 @@ export function OwnerCategoryOverview({ categories }: OwnerCategoryOverviewProps
         {categories.map((category) => (
           <article key={category.id} className="owner-category-card owner-category-card--editable">
             <div className="owner-category-card__top owner-category-card__top--stack">
-              <div className="owner-category-card__title-wrap">
-                <h3>{category.title}</h3>
-                <p>{categoryStatusMap[category.id]}</p>
+              <div className="owner-category-card__title-row">
+                <CategoryIcon categoryId={category.id} size="md" className="owner-category-card__icon" />
+                <div className="owner-category-card__title-wrap">
+                  <h3>{category.title}</h3>
+                  <p>{categoryStatusMap[category.id]}</p>
+                </div>
               </div>
             </div>
 

@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
 import { updateGuideContent } from '../../data/guideContent';
 import type { GuideCategory, GuideCategoryId, GuidePlace } from '../../types';
+import { CategoryIcon } from '../common/CategoryIcon';
 
 type OwnerPlacesManagerProps = {
   items: GuidePlace[];
@@ -297,7 +298,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
             <button
               key={category.id}
               type="button"
-              className={`button button--ghost ${activeTab === category.id ? 'is-active' : ''}`}
+              className={`button button--ghost owner-tab-button ${activeTab === category.id ? 'is-active' : ''}`}
               onClick={() => {
                 setActiveTab(category.id);
                 if (!isEditing) {
@@ -305,7 +306,9 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
                 }
               }}
             >
-              {category.title} · {count}
+              <CategoryIcon categoryId={category.id} size="sm" />
+              <span className="owner-tab-button__text">{category.title}</span>
+              <span className="owner-tab-button__count">{count}</span>
             </button>
           );
         })}

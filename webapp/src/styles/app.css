@@ -1560,3 +1560,124 @@ body {
   background: #fff7df;
   transform: scale(1.15);
 }
+
+.category-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px var(--icon-glow);
+}
+
+.category-icon::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 20px;
+  background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.16), transparent 55%);
+  pointer-events: none;
+}
+
+.category-icon--sm {
+  width: 36px;
+  height: 36px;
+}
+
+.category-icon--md {
+  width: 48px;
+  height: 48px;
+}
+
+.category-icon--lg {
+  width: 64px;
+  height: 64px;
+}
+
+.category-icon__svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.category-list__main,
+.owner-category-card__title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.category-list__main {
+  flex: 1;
+}
+
+.category-list__item {
+  gap: 16px;
+}
+
+.category-list__text span {
+  color: rgba(255, 247, 232, 0.7);
+  font-size: 0.88rem;
+  line-height: 1.22;
+}
+
+.menu-tile__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0;
+  line-height: 0;
+}
+
+.menu-tile .category-icon {
+  box-shadow: 0 14px 30px rgba(9, 15, 24, 0.22);
+}
+
+.owner-tab-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding-right: 12px;
+}
+
+.owner-tab-button__text {
+  max-width: 210px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.owner-tab-button__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.owner-category-card__icon {
+  margin-top: 2px;
+}
+
+@media (max-width: 700px) {
+  .owner-tab-button {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .owner-tab-button__text {
+    max-width: none;
+    white-space: normal;
+  }
+
+  .category-list__item {
+    align-items: flex-start;
+  }
+}

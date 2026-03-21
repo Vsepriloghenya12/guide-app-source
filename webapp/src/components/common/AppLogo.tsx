@@ -5,9 +5,16 @@ type AppLogoProps = {
   alt?: string;
 };
 
-const LOGO_CANDIDATES = ['/logo.svg', '/logo.png', '/logo.jpg', '/logo.jpeg', '/logo-placeholder.svg'];
+const LOGO_CANDIDATES = [
+  '/danang-guide-logo.png',
+  '/logo.png',
+  '/logo.svg',
+  '/logo.jpg',
+  '/logo.jpeg',
+  '/logo-placeholder.svg'
+];
 
-export function AppLogo({ className, alt = 'Логотип Guide' }: AppLogoProps) {
+export function AppLogo({ className, alt = 'Логотип Danang Guide' }: AppLogoProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const currentSrc = useMemo(() => {

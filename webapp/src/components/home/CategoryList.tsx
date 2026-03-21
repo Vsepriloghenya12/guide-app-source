@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { GuideCategory } from '../../types';
+import { CategoryIcon } from '../common/CategoryIcon';
 
 type CategoryListProps = {
   categories: GuideCategory[];
@@ -19,9 +20,12 @@ export function CategoryList({ categories, title }: CategoryListProps) {
       <div className="category-list category-list--grid">
         {categories.map((category) => (
           <Link key={category.id} to={category.path} className="category-list__item">
-            <div className="category-list__text">
-              <strong>{category.title}</strong>
-              {category.description ? <span>{category.description}</span> : null}
+            <div className="category-list__main">
+              <CategoryIcon categoryId={category.id} size="md" />
+              <div className="category-list__text">
+                <strong>{category.title}</strong>
+                {category.description ? <span>{category.description}</span> : null}
+              </div>
             </div>
             {category.badge ? (
               <div className="category-list__meta">

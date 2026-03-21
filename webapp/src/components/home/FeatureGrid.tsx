@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeSectionTitles } from '../../types';
+import { CategoryIcon } from '../common/CategoryIcon';
 
 type FeatureGridProps = {
   popularPlaces: GuidePlace[];
@@ -43,7 +44,7 @@ export function FeatureGrid({
           {featuredCategories.map((category, index) => (
             <Link key={category.id} to={category.path} className={`menu-tile menu-tile--${tones[index % tones.length]}`}>
               <span className="menu-tile__icon" aria-hidden="true">
-                {index + 1}
+                <CategoryIcon categoryId={category.id} size="md" />
               </span>
               <span className="menu-tile__label">{category.title}</span>
             </Link>
