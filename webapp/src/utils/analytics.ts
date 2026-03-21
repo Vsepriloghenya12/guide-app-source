@@ -82,5 +82,6 @@ export function getAnalyticsLabelByPath(pathname: string) {
   if (pathname === '/help') return 'Помощь';
   if (pathname === '/contacts') return 'Контакты';
   if (pathname.startsWith('/section/')) return `Раздел ${pathname.replace('/section/', '')}`;
+  if (pathname.startsWith('/place/')) return 'Карточка места';
   return pathname;
 }

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Listing } from '../../types';
+import { recordGuideAnalytics } from '../../utils/analytics';
 
 type ListingCardProps = {
   listing: Listing;
@@ -10,10 +11,23 @@ type ListingCardProps = {
 
 export function ListingCard({ listing, accent = 'orange', isFavorite, onToggleFavorite }: ListingCardProps) {
   const image = listing.imageUrls[0] || '/danang-clean-poster.png';
+  const detailPath = `/place/${listing.slug}`;
 
   return (
     <article className={`listing-card ${accent ? `listing-card--${accent}` : ''}`}>
-      <Link className="listing-card__link" to={`/place/${listing.slug}`}>
+      <Link
+        className="listing-card__link"
+        to={detailPath}
+        onClick={() =>
+          recordGuideAnalytics({
+            kind: 'place-click',
+            label: listing.title,
+            path: detailPath,
+            entityId: listing.id,
+            categoryId: listing.categoryId
+          })
+        }
+      >
         <div className="listing-card__media">
           <img src={image} alt={listing.title} loading="lazy" />
           {listing.featured ? <span className="listing-card__badge">Топ</span> : null}

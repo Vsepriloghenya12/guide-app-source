@@ -8,6 +8,10 @@ import { ListingPage } from './pages/ListingPage';
 import { OwnerLoginPage } from './pages/OwnerLoginPage';
 import { OwnerPage } from './pages/OwnerPage';
 import { UtilityPage } from './pages/UtilityPage';
+import { SearchPage } from './pages/SearchPage';
+import { FavoritesPage } from './pages/FavoritesPage';
+import { NearbyPage } from './pages/NearbyPage';
+import { ListingDetailPage } from './pages/ListingDetailPage';
 
 function App() {
   return (
@@ -17,9 +21,10 @@ function App() {
         <Route path="/restaurants" element={<ListingPage category="restaurants" />} />
         <Route path="/wellness" element={<ListingPage category="wellness" />} />
         <Route path="/section/:slug" element={<CategoryPlaceholderPage />} />
-        <Route path="/search" element={<UtilityPage type="search" />} />
-        <Route path="/favorites" element={<UtilityPage type="favorites" />} />
-        <Route path="/nearby" element={<UtilityPage type="nearby" />} />
+        <Route path="/place/:slug" element={<ListingDetailPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/nearby" element={<NearbyPage />} />
         <Route path="/help" element={<UtilityPage type="help" />} />
         <Route path="/contacts" element={<UtilityPage type="contacts" />} />
       </Route>

@@ -175,6 +175,7 @@ export function ListingPage({ category }: ListingPageProps) {
               website={item.website}
               hours={item.hours}
               top={item.top}
+              detailPath={`/place/${item.slug || `${item.categoryId}-${item.id}`}`}
               analytics={{ placeId: item.id, categoryId: item.categoryId }}
               meta={compactStrings([
                 item.kind,
@@ -228,6 +229,7 @@ export function ListingPage({ category }: ListingPageProps) {
               website={item.website}
               hours={item.hours}
               top={item.top}
+              detailPath={`/place/${item.slug || `${item.categoryId}-${item.id}`}`}
               analytics={{ placeId: item.id, categoryId: item.categoryId }}
               meta={compactStrings([
                 item.kind,
@@ -266,6 +268,7 @@ export function ListingPage({ category }: ListingPageProps) {
               website={item.website}
               hours={item.hours}
               top={item.top}
+              detailPath={`/place/${item.slug || `${item.categoryId}-${item.id}`}`}
               analytics={{ placeId: item.id, categoryId: item.categoryId }}
               meta={compactStrings([
                 item.kind,

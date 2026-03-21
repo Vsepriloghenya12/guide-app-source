@@ -59,6 +59,7 @@ export function CategoryPlaceholderPage() {
               website={item.website}
               hours={item.hours}
               top={item.top}
+              detailPath={`/place/${item.slug || `${item.categoryId}-${item.id}`}`}
               analytics={{ placeId: item.id, categoryId: item.categoryId }}
               meta={compactStrings([
                 item.kind,

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import type { GuideCategoryId } from '../../types';
 import { recordGuideAnalytics } from '../../utils/analytics';
@@ -15,6 +16,7 @@ type PlaceholderCardProps = {
   website?: string;
   hours?: string;
   top?: boolean;
+  detailPath?: string;
   analytics?: {
     placeId: string;
     categoryId: GuideCategoryId;
@@ -34,6 +36,7 @@ export function PlaceholderCard({
   website,
   hours,
   top,
+  detailPath,
   analytics
 }: PlaceholderCardProps) {
   const gallery = useMemo(() => {
@@ -65,6 +68,20 @@ export function PlaceholderCard({
       return;
     }
     setActiveImageIndex((current) => (current + 1) % gallery.length);
+  };
+
+  const recordPlaceClick = () => {
+    if (!analytics || !detailPath) {
+      return;
+    }
+
+    recordGuideAnalytics({
+      kind: 'place-click',
+      label: title,
+      path: detailPath,
+      entityId: analytics.placeId,
+      categoryId: analytics.categoryId
+    });
   };
 
   return (
@@ -166,6 +183,14 @@ export function PlaceholderCard({
             </span>
           ))}
         </div>
+
+        {detailPath ? (
+          <div className="place-card__actions">
+            <Link className="button button--ghost button--small" to={detailPath} onClick={recordPlaceClick}>
+              Подробнее
+            </Link>
+          </div>
+        ) : null}
       </div>
     </article>
   );
