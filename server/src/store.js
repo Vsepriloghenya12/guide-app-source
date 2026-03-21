@@ -1,12 +1,21 @@
 const {
+  deleteCategory,
+  deletePlace,
   getCategories,
+  getCategoryById,
+  getCategoryBySlug,
   getContentStore,
   getPlaceById,
   getPlaceBySlug,
   getPlaces,
+  saveBanners,
+  saveCollections,
   saveContentStore,
-  upsertPlace,
-  deletePlace
+  saveHomeContent,
+  saveTips,
+  updateCollectionItems,
+  upsertCategory,
+  upsertPlace
 } = require('./db');
 
 class GuideStore {
@@ -20,6 +29,22 @@ class GuideStore {
 
   async getCategories() {
     return getCategories();
+  }
+
+  async getCategoryById(id) {
+    return getCategoryById(id);
+  }
+
+  async getCategoryBySlug(slug) {
+    return getCategoryBySlug(slug);
+  }
+
+  async saveCategory(category) {
+    return upsertCategory(category);
+  }
+
+  async deleteCategory(id) {
+    return deleteCategory(id);
   }
 
   async getPlaces(options) {
@@ -44,6 +69,26 @@ class GuideStore {
 
   async deletePlace(id) {
     return deletePlace(id);
+  }
+
+  async saveTips(items) {
+    return saveTips(items);
+  }
+
+  async saveBanners(items) {
+    return saveBanners(items);
+  }
+
+  async saveCollections(items) {
+    return saveCollections(items);
+  }
+
+  async saveCollectionItems(collectionIdOrSlug, itemIds) {
+    return updateCollectionItems(collectionIdOrSlug, itemIds);
+  }
+
+  async saveHome(home) {
+    return saveHomeContent(home);
   }
 }
 

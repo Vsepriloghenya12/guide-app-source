@@ -942,9 +942,19 @@ async function appendAnalyticsEvent(event) {
   return event;
 }
 
+
 async function getCategories() {
-  const store = await getContentStore();
-  return store.categories;
+  return readCategories();
+}
+
+async function getCategoryById(id) {
+  const categories = await readCategories();
+  return categories.find((category) => category.id === id) || null;
+}
+
+async function getCategoryBySlug(slug) {
+  const categories = await readCategories();
+  return categories.find((category) => category.slug === slug || category.id === slug) || null;
 }
 
 async function getPlaces(options = {}) {
@@ -956,7 +966,7 @@ async function getPlaces(options = {}) {
     if (categoryId && place.categoryId !== categoryId && place.categorySlug !== categoryId) {
       return false;
     }
-    if (!includeHidden && place.status === 'hidden') {
+    if (!includeHidden && place.status !== 'published') {
       return false;
     }
     if (!normalizedSearch) {
@@ -978,51 +988,466 @@ async function getPlaces(options = {}) {
 }
 
 async function getPlaceById(id) {
-  const places = await getPlaces({ includeHidden: true });
+  const places = await readPlaces();
   return places.find((place) => place.id === id) || null;
 }
 
 async function getPlaceBySlug(slug) {
-  const places = await getPlaces({ includeHidden: true });
+  const places = await readPlaces();
   return places.find((place) => place.slug === slug || place.id === slug) || null;
 }
 
-async function upsertPlace(incomingPlace) {
-  const store = await getContentStore();
-  const current = store.places.find((place) => place.id === incomingPlace?.id) || undefined;
-  const normalizedPlace = normalizePlace(incomingPlace, store.places.length, current);
+async function saveHomeContent(homeInput) {
+  const normalizedHome = normalizeContentStore({ home: homeInput }).home;
+  const db = getSql();
+  if (!db) {
+    const store = getMemoryStore();
+    return setMemoryStore({ ...store, home: normalizedHome }).home;
+  }
 
-  const nextStore = await saveContentStore({
-    ...store,
-    places: [normalizedPlace, ...store.places.filter((place) => place.id !== normalizedPlace.id)]
+  await ensureDatabase();
+  await db.unsafe(
+    `
+      insert into home_content (id, payload, updated_at)
+      values ('main', $1::jsonb, now())
+      on conflict (id) do update set payload = excluded.payload, updated_at = now()
+    `,
+    [JSON.stringify(normalizedHome)]
+  );
+
+  return readHomeContent();
+}
+
+async function upsertCategory(incomingCategory) {
+  const categories = await readCategories();
+  const fallbackMap = new Map(cloneDefaultContent().categories.map((item) => [item.id, item]));
+  const current = categories.find((category) => category.id === incomingCategory?.id || category.slug === incomingCategory?.slug) || undefined;
+  const normalizedCategory = normalizeCategory(
+    {
+      ...current,
+      ...incomingCategory,
+      id: String(incomingCategory?.id || current?.id || slugify(incomingCategory?.slug || incomingCategory?.title || 'category')).trim(),
+      slug: String(incomingCategory?.slug || incomingCategory?.id || current?.slug || slugify(incomingCategory?.title || 'category')).trim(),
+      path: String(incomingCategory?.path || current?.path || `/section/${incomingCategory?.slug || incomingCategory?.id || slugify(incomingCategory?.title || 'category')}`).trim(),
+      visible: incomingCategory?.visible ?? current?.visible ?? true,
+      showOnHome: incomingCategory?.showOnHome ?? current?.showOnHome ?? false,
+      filterSchema: {
+        quickFilters: normalizeStringArray(incomingCategory?.filterSchema?.quickFilters ?? current?.filterSchema?.quickFilters),
+        fields: normalizeStringArray(incomingCategory?.filterSchema?.fields ?? current?.filterSchema?.fields)
+      }
+    },
+    categories.length,
+    fallbackMap
+  );
+
+  const db = getSql();
+  if (!db) {
+    const store = getMemoryStore();
+    const nextStore = setMemoryStore({
+      ...store,
+      categories: [normalizedCategory, ...store.categories.filter((item) => item.id !== normalizedCategory.id)]
+    });
+    return nextStore.categories.find((item) => item.id === normalizedCategory.id) || normalizedCategory;
+  }
+
+  await ensureDatabase();
+  await db.unsafe(
+    `
+      insert into categories (
+        id, title, path, badge, description, visible, show_on_home, slug, short_title, accent, filter_schema, sort_order, updated_at
+      ) values (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, now()
+      )
+      on conflict (id) do update set
+        title = excluded.title,
+        path = excluded.path,
+        badge = excluded.badge,
+        description = excluded.description,
+        visible = excluded.visible,
+        show_on_home = excluded.show_on_home,
+        slug = excluded.slug,
+        short_title = excluded.short_title,
+        accent = excluded.accent,
+        filter_schema = excluded.filter_schema,
+        sort_order = excluded.sort_order,
+        updated_at = now()
+    `,
+    [
+      normalizedCategory.id,
+      normalizedCategory.title,
+      normalizedCategory.path,
+      normalizedCategory.badge || '',
+      normalizedCategory.description || '',
+      normalizedCategory.visible,
+      normalizedCategory.showOnHome,
+      normalizedCategory.slug,
+      normalizedCategory.shortTitle,
+      normalizedCategory.accent,
+      JSON.stringify(normalizedCategory.filterSchema || {}),
+      Number(normalizedCategory.sortOrder || 100)
+    ]
+  );
+
+  return getCategoryById(normalizedCategory.id);
+}
+
+async function deleteCategory(categoryId) {
+  const db = getSql();
+  if (!db) {
+    const store = getMemoryStore();
+    const removedPlaceIds = store.places.filter((place) => place.categoryId === categoryId).map((place) => place.id);
+    return setMemoryStore({
+      ...store,
+      categories: store.categories.filter((category) => category.id !== categoryId),
+      places: store.places.filter((place) => place.categoryId !== categoryId),
+      collections: store.collections.map((collection) => ({
+        ...collection,
+        itemIds: collection.itemIds.filter((itemId) => !removedPlaceIds.includes(itemId))
+      })),
+      home: {
+        ...store.home,
+        featuredCategoryIds: store.home.featuredCategoryIds.filter((itemId) => itemId !== categoryId),
+        popularPlaceIds: store.home.popularPlaceIds.filter((itemId) => !removedPlaceIds.includes(itemId))
+      }
+    });
+  }
+
+  await ensureDatabase();
+  const placeRows = await db.unsafe('select id from places where category_id = $1', [categoryId]);
+  const removedPlaceIds = placeRows.map((row) => row.id);
+  await db.begin(async (tx) => {
+    await tx.unsafe('delete from categories where id = $1', [categoryId]);
+
+    const homeRows = await tx.unsafe('select payload from home_content where id = $1 limit 1', ['main']);
+    const currentHome = normalizeContentStore({ home: homeRows[0]?.payload || cloneDefaultContent().home }).home;
+    const nextHome = {
+      ...currentHome,
+      featuredCategoryIds: currentHome.featuredCategoryIds.filter((itemId) => itemId !== categoryId),
+      popularPlaceIds: currentHome.popularPlaceIds.filter((itemId) => !removedPlaceIds.includes(itemId))
+    };
+    await tx.unsafe(
+      `
+        insert into home_content (id, payload, updated_at)
+        values ('main', $1::jsonb, now())
+        on conflict (id) do update set payload = excluded.payload, updated_at = now()
+      `,
+      [JSON.stringify(nextHome)]
+    );
   });
 
-  return nextStore.places.find((place) => place.id === normalizedPlace.id) || normalizedPlace;
+  return getCategories();
+}
+
+async function saveTips(items) {
+  const normalizedItems = (Array.isArray(items) ? items : []).map((item, index) => normalizeTip(item, index));
+  const db = getSql();
+  if (!db) {
+    const store = getMemoryStore();
+    return setMemoryStore({ ...store, tips: normalizedItems }).tips;
+  }
+
+  await ensureDatabase();
+  await db.begin(async (tx) => {
+    if (normalizedItems.length === 0) {
+      await tx.unsafe('delete from tips');
+      return;
+    }
+
+    for (const tip of normalizedItems) {
+      await tx.unsafe(
+        `
+          insert into tips (id, title, text, link_path, active, sort_order, updated_at)
+          values ($1, $2, $3, $4, $5, $6, now())
+          on conflict (id) do update set
+            title = excluded.title,
+            text = excluded.text,
+            link_path = excluded.link_path,
+            active = excluded.active,
+            sort_order = excluded.sort_order,
+            updated_at = now()
+        `,
+        [tip.id, tip.title, tip.text || '', tip.linkPath || '', tip.active, Number(tip.sortOrder || 100)]
+      );
+    }
+
+    await tx.unsafe('delete from tips where id <> all($1::text[])', [normalizedItems.map((item) => item.id)]);
+  });
+
+  return readTips();
+}
+
+async function saveBanners(items) {
+  const normalizedItems = (Array.isArray(items) ? items : []).map((item, index) => normalizeBanner(item, index));
+  const db = getSql();
+  if (!db) {
+    const store = getMemoryStore();
+    return setMemoryStore({ ...store, banners: normalizedItems }).banners;
+  }
+
+  await ensureDatabase();
+  await db.begin(async (tx) => {
+    if (normalizedItems.length === 0) {
+      await tx.unsafe('delete from banners');
+      return;
+    }
+
+    for (const banner of normalizedItems) {
+      await tx.unsafe(
+        `
+          insert into banners (id, title, subtitle, link_path, tone, image_src, active, sort_order, updated_at)
+          values ($1, $2, $3, $4, $5, $6, $7, $8, now())
+          on conflict (id) do update set
+            title = excluded.title,
+            subtitle = excluded.subtitle,
+            link_path = excluded.link_path,
+            tone = excluded.tone,
+            image_src = excluded.image_src,
+            active = excluded.active,
+            sort_order = excluded.sort_order,
+            updated_at = now()
+        `,
+        [banner.id, banner.title, banner.subtitle || '', banner.linkPath || '', banner.tone || 'coast', banner.imageSrc || '', banner.active, Number(banner.sortOrder || 100)]
+      );
+    }
+
+    await tx.unsafe('delete from banners where id <> all($1::text[])', [normalizedItems.map((item) => item.id)]);
+  });
+
+  return readBanners();
+}
+
+async function saveCollections(items) {
+  const normalizedItems = (Array.isArray(items) ? items : []).map((item, index) => normalizeCollection(item, index));
+  const db = getSql();
+  if (!db) {
+    const store = getMemoryStore();
+    return setMemoryStore({ ...store, collections: normalizedItems }).collections;
+  }
+
+  await ensureDatabase();
+  await db.begin(async (tx) => {
+    if (normalizedItems.length === 0) {
+      await tx.unsafe('delete from collection_items');
+      await tx.unsafe('delete from collections');
+      return;
+    }
+
+    for (const collection of normalizedItems) {
+      await tx.unsafe(
+        `
+          insert into collections (id, title, description, link_path, image_src, active, sort_order, updated_at)
+          values ($1, $2, $3, $4, $5, $6, $7, now())
+          on conflict (id) do update set
+            title = excluded.title,
+            description = excluded.description,
+            link_path = excluded.link_path,
+            image_src = excluded.image_src,
+            active = excluded.active,
+            sort_order = excluded.sort_order,
+            updated_at = now()
+        `,
+        [collection.id, collection.title, collection.description || '', collection.linkPath || '', collection.imageSrc || '', collection.active, Number(collection.sortOrder || 100)]
+      );
+
+      await tx.unsafe('delete from collection_items where collection_id = $1', [collection.id]);
+      for (const [itemIndex, placeId] of collection.itemIds.entries()) {
+        await tx.unsafe(
+          `
+            insert into collection_items (collection_id, place_id, sort_order)
+            values ($1, $2, $3)
+            on conflict (collection_id, place_id) do update set sort_order = excluded.sort_order
+          `,
+          [collection.id, placeId, itemIndex * 10 + 10]
+        );
+      }
+    }
+
+    await tx.unsafe('delete from collections where id <> all($1::text[])', [normalizedItems.map((item) => item.id)]);
+  });
+
+  return readCollections();
+}
+
+async function updateCollectionItems(collectionIdOrSlug, itemIds) {
+  const collections = await readCollections();
+  const current = collections.find((collection) => collection.id === collectionIdOrSlug || collection.linkPath === collectionIdOrSlug);
+  if (!current) {
+    return null;
+  }
+
+  const nextCollections = collections.map((collection) =>
+    collection.id === current.id
+      ? { ...collection, itemIds: normalizeStringArray(itemIds) }
+      : collection
+  );
+
+  await saveCollections(nextCollections);
+  return (await readCollections()).find((collection) => collection.id === current.id) || null;
+}
+
+async function upsertPlace(incomingPlace) {
+  const current = incomingPlace?.id ? await getPlaceById(incomingPlace.id) : null;
+  const normalizedPlace = normalizePlace(incomingPlace, 0, current || undefined);
+  const db = getSql();
+  if (!db) {
+    const store = getMemoryStore();
+    const nextStore = setMemoryStore({
+      ...store,
+      places: [normalizedPlace, ...store.places.filter((place) => place.id !== normalizedPlace.id)]
+    });
+    return nextStore.places.find((place) => place.id === normalizedPlace.id) || normalizedPlace;
+  }
+
+  await ensureDatabase();
+  await db.begin(async (tx) => {
+    await tx.unsafe(
+      `
+        insert into places (
+          id, category_id, slug, title, description, address, phone, website, hours, avg_check, kind, cuisine,
+          services, tags, breakfast, vegan, pets, child_programs, top, rating, image_label, image_src,
+          status, sort_order, lat, lng, map_query, district, updated_at
+        ) values (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+          $13::jsonb, $14::jsonb, $15, $16, $17, $18, $19, $20, $21, $22,
+          $23, $24, $25, $26, $27, $28, now()
+        )
+        on conflict (id) do update set
+          category_id = excluded.category_id,
+          slug = excluded.slug,
+          title = excluded.title,
+          description = excluded.description,
+          address = excluded.address,
+          phone = excluded.phone,
+          website = excluded.website,
+          hours = excluded.hours,
+          avg_check = excluded.avg_check,
+          kind = excluded.kind,
+          cuisine = excluded.cuisine,
+          services = excluded.services,
+          tags = excluded.tags,
+          breakfast = excluded.breakfast,
+          vegan = excluded.vegan,
+          pets = excluded.pets,
+          child_programs = excluded.child_programs,
+          top = excluded.top,
+          rating = excluded.rating,
+          image_label = excluded.image_label,
+          image_src = excluded.image_src,
+          status = excluded.status,
+          sort_order = excluded.sort_order,
+          lat = excluded.lat,
+          lng = excluded.lng,
+          map_query = excluded.map_query,
+          district = excluded.district,
+          updated_at = now()
+      `,
+      [
+        normalizedPlace.id,
+        normalizedPlace.categoryId,
+        normalizedPlace.slug,
+        normalizedPlace.title,
+        normalizedPlace.description,
+        normalizedPlace.address,
+        normalizedPlace.phone,
+        normalizedPlace.website,
+        normalizedPlace.hours,
+        normalizedPlace.avgCheck,
+        normalizedPlace.kind,
+        normalizedPlace.cuisine,
+        JSON.stringify(normalizedPlace.services || []),
+        JSON.stringify(normalizedPlace.tags || []),
+        normalizedPlace.breakfast,
+        normalizedPlace.vegan,
+        normalizedPlace.pets,
+        normalizedPlace.childPrograms,
+        normalizedPlace.top,
+        normalizedPlace.rating || 0,
+        normalizedPlace.imageLabel || '',
+        normalizedPlace.imageSrc || '',
+        coerceStatus(normalizedPlace.status),
+        Number(normalizedPlace.sortOrder || 100),
+        toNullableNumber(normalizedPlace.lat),
+        toNullableNumber(normalizedPlace.lng),
+        normalizedPlace.mapQuery || normalizedPlace.address || '',
+        normalizedPlace.district || ''
+      ]
+    );
+
+    await tx.unsafe('delete from place_images where place_id = $1', [normalizedPlace.id]);
+
+    const gallery = normalizeStringArray(normalizedPlace.imageGallery || normalizedPlace.imageUrls);
+    const finalGallery = gallery.length ? gallery : normalizedPlace.imageSrc ? [normalizedPlace.imageSrc] : [];
+    for (const [imageIndex, imageUrl] of finalGallery.entries()) {
+      await tx.unsafe(
+        `
+          insert into place_images (id, place_id, image_url, sort_order, is_cover)
+          values ($1, $2, $3, $4, $5)
+          on conflict (id) do update set
+            place_id = excluded.place_id,
+            image_url = excluded.image_url,
+            sort_order = excluded.sort_order,
+            is_cover = excluded.is_cover
+        `,
+        [`${normalizedPlace.id}:${imageIndex + 1}`, normalizedPlace.id, imageUrl, imageIndex * 10 + 10, imageIndex === 0]
+      );
+    }
+  });
+
+  return getPlaceById(normalizedPlace.id);
 }
 
 async function deletePlace(id) {
-  const store = await getContentStore();
-  const nextStore = await saveContentStore({
-    ...store,
-    places: store.places.filter((place) => place.id !== id),
-    home: {
-      ...store.home,
-      popularPlaceIds: store.home.popularPlaceIds.filter((itemId) => itemId !== id)
-    },
-    collections: store.collections.map((collection) => ({
-      ...collection,
-      itemIds: collection.itemIds.filter((itemId) => itemId !== id)
-    }))
+  const db = getSql();
+  if (!db) {
+    const store = getMemoryStore();
+    return setMemoryStore({
+      ...store,
+      places: store.places.filter((place) => place.id !== id),
+      home: {
+        ...store.home,
+        popularPlaceIds: store.home.popularPlaceIds.filter((itemId) => itemId !== id)
+      },
+      collections: store.collections.map((collection) => ({
+        ...collection,
+        itemIds: collection.itemIds.filter((itemId) => itemId !== id)
+      }))
+    });
+  }
+
+  await ensureDatabase();
+  await db.begin(async (tx) => {
+    await tx.unsafe('delete from places where id = $1', [id]);
+    await tx.unsafe('delete from collection_items where place_id = $1', [id]);
+
+    const homeRows = await tx.unsafe('select payload from home_content where id = $1 limit 1', ['main']);
+    const currentHome = normalizeContentStore({ home: homeRows[0]?.payload || cloneDefaultContent().home }).home;
+    const nextHome = {
+      ...currentHome,
+      popularPlaceIds: currentHome.popularPlaceIds.filter((itemId) => itemId !== id)
+    };
+
+    await tx.unsafe(
+      `
+        insert into home_content (id, payload, updated_at)
+        values ('main', $1::jsonb, now())
+        on conflict (id) do update set payload = excluded.payload, updated_at = now()
+      `,
+      [JSON.stringify(nextHome)]
+    );
   });
 
-  return nextStore;
+  return getContentStore();
 }
 
 module.exports = {
   appendAnalyticsEvent,
   cloneDefaultContent,
+  deleteCategory,
+  deletePlace,
   ensureDatabase,
   getCategories,
+  getCategoryById,
+  getCategoryBySlug,
   getContentStore,
   getPlaceById,
   getPlaceBySlug,
@@ -1032,7 +1457,12 @@ module.exports = {
   normalizeContentStore,
   normalizePlace,
   resetContentStore,
+  saveBanners,
+  saveCollections,
   saveContentStore,
-  upsertPlace,
-  deletePlace
+  saveHomeContent,
+  saveTips,
+  updateCollectionItems,
+  upsertCategory,
+  upsertPlace
 };

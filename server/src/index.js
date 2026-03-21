@@ -3,9 +3,12 @@ const express = require('express');
 const path = require('path');
 const {
   appendAnalyticsEvent,
+  deleteCategory,
   deletePlace,
   ensureDatabase,
   getCategories,
+  getCategoryById,
+  getCategoryBySlug,
   getContentStore,
   getPlaceById,
   getPlaceBySlug,
@@ -13,7 +16,13 @@ const {
   hasDatabase,
   normalizePlace,
   resetContentStore,
+  saveBanners,
+  saveCollections,
   saveContentStore,
+  saveHomeContent,
+  saveTips,
+  updateCollectionItems,
+  upsertCategory,
   upsertPlace
 } = require('./db');
 
@@ -213,6 +222,32 @@ function mergeCategoryPlaces(store, categoryId, incomingPlaces) {
   return {
     ...store,
     places: [...store.places.filter((place) => place.categoryId !== categoryId), ...normalizedIncoming]
+  };
+}
+
+
+function normalizeIncomingCategory(incoming, currentCategory = null) {
+  const id = String(incoming?.id || currentCategory?.id || incoming?.slug || incoming?.title || 'category').trim();
+  const slug = String(incoming?.slug || currentCategory?.slug || id).trim();
+
+  return {
+    ...currentCategory,
+    ...incoming,
+    id,
+    slug,
+    path: String(incoming?.path || currentCategory?.path || `/section/${slug}`).trim(),
+    title: String(incoming?.title || currentCategory?.title || id).trim(),
+    shortTitle: String(incoming?.shortTitle || currentCategory?.shortTitle || incoming?.title || currentCategory?.title || id).trim(),
+    badge: String(incoming?.badge || currentCategory?.badge || '').trim(),
+    description: String(incoming?.description || currentCategory?.description || '').trim(),
+    accent: String(incoming?.accent || currentCategory?.accent || 'coast').trim(),
+    visible: incoming?.visible ?? currentCategory?.visible ?? true,
+    showOnHome: incoming?.showOnHome ?? currentCategory?.showOnHome ?? false,
+    filterSchema: {
+      quickFilters: normalizeStringArray(incoming?.filterSchema?.quickFilters ?? currentCategory?.filterSchema?.quickFilters),
+      fields: normalizeStringArray(incoming?.filterSchema?.fields ?? currentCategory?.filterSchema?.fields)
+    },
+    sortOrder: Number.isFinite(Number(incoming?.sortOrder)) ? Number(incoming.sortOrder) : Number.isFinite(Number(currentCategory?.sortOrder)) ? Number(currentCategory.sortOrder) : 100
   };
 }
 
@@ -477,6 +512,45 @@ app.get('/api/owner/categories', requireOwner, async (_req, res) => {
   }
 });
 
+app.post('/api/owner/categories', requireOwner, async (req, res) => {
+  try {
+    const category = await upsertCategory(normalizeIncomingCategory(req.body ?? {}));
+    res.json({ ok: true, category });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to create category' });
+  }
+});
+
+app.put('/api/owner/categories/:id', requireOwner, async (req, res) => {
+  try {
+    const currentCategory = (await getCategoryById(req.params.id)) || (await getCategoryBySlug(req.params.id));
+    if (!currentCategory) {
+      res.status(404).json({ ok: false, message: 'Category not found' });
+      return;
+    }
+
+    const category = await upsertCategory(normalizeIncomingCategory(req.body ?? {}, currentCategory));
+    res.json({ ok: true, category });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to update category' });
+  }
+});
+
+app.delete('/api/owner/categories/:id', requireOwner, async (req, res) => {
+  try {
+    const currentCategory = (await getCategoryById(req.params.id)) || (await getCategoryBySlug(req.params.id));
+    if (!currentCategory) {
+      res.status(404).json({ ok: false, message: 'Category not found' });
+      return;
+    }
+
+    const categories = await deleteCategory(currentCategory.id);
+    res.json({ ok: true, categories });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to delete category' });
+  }
+});
+
 app.get('/api/owner/places', requireOwner, async (req, res) => {
   try {
     const categoryId = typeof req.query.category === 'string' ? req.query.category : '';
@@ -556,19 +630,27 @@ app.delete('/api/owner/places/:id', requireOwner, async (req, res) => {
   }
 });
 
+
+app.put('/api/owner/collections', requireOwner, async (req, res) => {
+  try {
+    const items = Array.isArray(req.body?.items) ? req.body.items : [];
+    const collections = await saveCollections(items);
+    res.json({ ok: true, collections });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save collections' });
+  }
+});
+
 app.put('/api/owner/collections/:slug/items', requireOwner, async (req, res) => {
   try {
-    const store = await getContentStore();
     const items = Array.isArray(req.body?.items) ? req.body.items : [];
-    const nextStore = await saveContentStore({
-      ...store,
-      collections: store.collections.map((collection) =>
-        collection.id === req.params.slug || collection.linkPath === req.params.slug
-          ? { ...collection, itemIds: items.filter((item) => typeof item === 'string') }
-          : collection
-      )
-    });
-    res.json({ ok: true, collections: nextStore.collections });
+    const collection = await updateCollectionItems(req.params.slug, items);
+    if (!collection) {
+      res.status(404).json({ ok: false, message: 'Collection not found' });
+      return;
+    }
+    const store = await getContentStore();
+    res.json({ ok: true, collection, collections: store.collections });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save collection items' });
   }
@@ -576,13 +658,9 @@ app.put('/api/owner/collections/:slug/items', requireOwner, async (req, res) => 
 
 app.put('/api/owner/banners', requireOwner, async (req, res) => {
   try {
-    const store = await getContentStore();
     const items = Array.isArray(req.body?.items) ? req.body.items : [];
-    const nextStore = await saveContentStore({
-      ...store,
-      banners: items
-    });
-    res.json({ ok: true, banners: nextStore.banners });
+    const banners = await saveBanners(items);
+    res.json({ ok: true, banners });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save banners' });
   }
@@ -590,13 +668,9 @@ app.put('/api/owner/banners', requireOwner, async (req, res) => {
 
 app.put('/api/owner/tips', requireOwner, async (req, res) => {
   try {
-    const store = await getContentStore();
     const items = Array.isArray(req.body?.items) ? req.body.items : [];
-    const nextStore = await saveContentStore({
-      ...store,
-      tips: items
-    });
-    res.json({ ok: true, tips: nextStore.tips });
+    const tips = await saveTips(items);
+    res.json({ ok: true, tips });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save tips' });
   }
@@ -604,12 +678,9 @@ app.put('/api/owner/tips', requireOwner, async (req, res) => {
 
 app.put('/api/owner/home', requireOwner, async (req, res) => {
   try {
-    const store = await getContentStore();
-    const nextStore = await saveContentStore({
-      ...store,
-      home: req.body?.home && typeof req.body.home === 'object' ? req.body.home : store.home
-    });
-    res.json({ ok: true, home: nextStore.home });
+    const currentStore = await getContentStore();
+    const home = await saveHomeContent(req.body?.home && typeof req.body.home === 'object' ? req.body.home : currentStore.home);
+    res.json({ ok: true, home });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save home' });
   }
