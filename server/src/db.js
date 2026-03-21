@@ -346,6 +346,23 @@ async function ensureDatabase() {
       `);
 
       await db.unsafe(`
+        create table if not exists media_files (
+          id text primary key,
+          kind text not null default 'general',
+          file_name text not null default '',
+          mime_type text not null default '',
+          size_bytes integer not null default 0,
+          storage_path text not null,
+          public_url text not null,
+          created_at timestamptz not null default now()
+        )
+      `);
+
+      await db.unsafe(`
+        create index if not exists media_files_created_at_idx on media_files (created_at desc)
+      `);
+
+      await db.unsafe(`
         create table if not exists tips (
           id text primary key,
           title text not null,
@@ -1439,6 +1456,50 @@ async function deletePlace(id) {
   return getContentStore();
 }
 
+async function saveMediaFileRecord(input) {
+  const db = getSql();
+  const record = {
+    id: String(input?.id || crypto.randomUUID()),
+    kind: String(input?.kind || 'general'),
+    fileName: String(input?.fileName || ''),
+    mimeType: String(input?.mimeType || ''),
+    sizeBytes: Number(input?.sizeBytes || 0) || 0,
+    storagePath: String(input?.storagePath || ''),
+    publicUrl: String(input?.publicUrl || '')
+  };
+
+  if (!db) {
+    return record;
+  }
+
+  await ensureDatabase();
+  await db.unsafe(
+    `
+      insert into media_files (id, kind, file_name, mime_type, size_bytes, storage_path, public_url)
+      values ($1, $2, $3, $4, $5, $6, $7)
+      on conflict (id) do update set
+        kind = excluded.kind,
+        file_name = excluded.file_name,
+        mime_type = excluded.mime_type,
+        size_bytes = excluded.size_bytes,
+        storage_path = excluded.storage_path,
+        public_url = excluded.public_url
+    `,
+    [
+      record.id,
+      record.kind,
+      record.fileName,
+      record.mimeType,
+      record.sizeBytes,
+      record.storagePath,
+      record.publicUrl
+    ]
+  );
+
+  return record;
+}
+
+
 module.exports = {
   appendAnalyticsEvent,
   cloneDefaultContent,
@@ -1463,6 +1524,7 @@ module.exports = {
   saveHomeContent,
   saveTips,
   updateCollectionItems,
+  saveMediaFileRecord,
   upsertCategory,
   upsertPlace
 };

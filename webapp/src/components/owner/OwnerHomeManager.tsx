@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { updateGuideContent } from '../../data/guideContent';
 import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeBanner, HomeContent } from '../../types';
+import { uploadImageAsset } from '../../utils/imageUpload';
 
 type OwnerHomeManagerProps = {
   home: HomeContent;
@@ -76,6 +77,8 @@ export function OwnerHomeManager({
   const [bannerDraft, setBannerDraft] = useState<BannerDraft>(initialBannerDraft);
   const [collectionDraft, setCollectionDraft] = useState<CollectionDraft>(initialCollectionDraft);
   const [status, setStatus] = useState('');
+  const [isBannerUploading, setIsBannerUploading] = useState(false);
+  const [isCollectionUploading, setIsCollectionUploading] = useState(false);
 
   const updateHome = (updater: (homeState: HomeContent) => HomeContent) => {
     updateGuideContent((current) => ({
@@ -94,36 +97,54 @@ export function OwnerHomeManager({
     }));
   };
 
-  const handleBannerImage = (event: ChangeEvent<HTMLInputElement>) => {
+
+
+  const handleBannerImage = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
+    setIsBannerUploading(true);
+    setStatus('Загружаю баннер...');
+
+    try {
+      const imageSrc = await uploadImageAsset(file, 'banner', { maxWidth: 1800, maxHeight: 1200, quality: 0.84 });
       setBannerDraft((current) => ({
         ...current,
-        imageSrc: typeof reader.result === 'string' ? reader.result : current.imageSrc
+        imageSrc
       }));
-    };
-    reader.readAsDataURL(file);
+      setStatus('Баннер загружен.');
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Не удалось загрузить баннер.');
+    } finally {
+      setIsBannerUploading(false);
+      event.target.value = '';
+    }
   };
 
-  const handleCollectionImage = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleCollectionImage = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
+    setIsCollectionUploading(true);
+    setStatus('Загружаю изображение подборки...');
+
+    try {
+      const imageSrc = await uploadImageAsset(file, 'collection', { maxWidth: 1800, maxHeight: 1200, quality: 0.84 });
       setCollectionDraft((current) => ({
         ...current,
-        imageSrc: typeof reader.result === 'string' ? reader.result : current.imageSrc
+        imageSrc
       }));
-    };
-    reader.readAsDataURL(file);
+      setStatus('Изображение подборки загружено.');
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Не удалось загрузить изображение подборки.');
+    } finally {
+      setIsCollectionUploading(false);
+      event.target.value = '';
+    }
   };
 
   const handleBannerSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -389,8 +410,8 @@ export function OwnerHomeManager({
               </label>
             </div>
             <label className="field field--file">
-              <span>Фото баннера</span>
-              <input type="file" accept="image/*" onChange={handleBannerImage} />
+              <span>{isBannerUploading ? 'Загрузка баннера...' : 'Фото баннера'}</span>
+              <input type="file" accept="image/*" onChange={handleBannerImage} disabled={isBannerUploading} />
             </label>
             <label className="checkbox-pill checkbox-pill--owner checkbox-pill--owner-wide">
               <input
@@ -401,7 +422,7 @@ export function OwnerHomeManager({
               <span>Показывать баннер</span>
             </label>
             <div className="owner-editor-form__actions">
-              <button className="button button--primary" type="submit">
+              <button className="button button--primary" type="submit" disabled={isBannerUploading}>
                 {bannerDraft.id ? 'Сохранить баннер' : 'Добавить баннер'}
               </button>
               <button className="button button--ghost" type="button" onClick={() => setBannerDraft(initialBannerDraft)}>
@@ -470,7 +491,7 @@ export function OwnerHomeManager({
             </label>
             <label className="field field--file">
               <span>Фото подборки</span>
-              <input type="file" accept="image/*" onChange={handleCollectionImage} />
+              <input type="file" accept="image/*" onChange={handleCollectionImage} disabled={isCollectionUploading} />
             </label>
             <fieldset className="field fieldset">
               <legend>Карточки в подборке</legend>
@@ -501,7 +522,7 @@ export function OwnerHomeManager({
               <span>Показывать подборку</span>
             </label>
             <div className="owner-editor-form__actions">
-              <button className="button button--primary" type="submit">
+              <button className="button button--primary" type="submit" disabled={isCollectionUploading}>
                 {collectionDraft.id ? 'Сохранить подборку' : 'Добавить подборку'}
               </button>
               <button className="button button--ghost" type="button" onClick={() => setCollectionDraft(initialCollectionDraft)}>

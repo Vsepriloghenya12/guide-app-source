@@ -19,6 +19,21 @@ async function apiFetch<T>(input: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
+async function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+        return;
+      }
+      reject(new Error('Не удалось прочитать изображение.'));
+    };
+    reader.onerror = () => reject(reader.error ?? new Error('Ошибка чтения изображения.'));
+    reader.readAsDataURL(file);
+  });
+}
+
 export const api = {
   bootstrap: () => apiFetch<{ ok: true } & BootstrapPayload>('/api/bootstrap'),
   categories: () => apiFetch<{ ok: true; categories: Category[] }>('/api/categories'),
@@ -68,13 +83,16 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ items })
     }),
-  uploadImage: async (file: File) => {
-    const formData = new FormData();
-    formData.append('image', file);
-    return apiFetch<{ ok: true; url: string }>('/api/owner/upload', {
+  uploadImage: async (file: File, options?: { kind?: 'place' | 'banner' | 'collection' | 'category' | 'general' }) => {
+    const dataUrl = await fileToDataUrl(file);
+    return apiFetch<{ ok: true; url: string; fileName: string; mimeType: string; sizeBytes: number }>('/api/owner/upload', {
       method: 'POST',
-      body: formData,
-      headers: {}
+      body: JSON.stringify({
+        fileName: file.name,
+        contentType: file.type,
+        kind: options?.kind ?? 'general',
+        dataUrl
+      })
     });
   }
 };

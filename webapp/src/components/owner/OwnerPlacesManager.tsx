@@ -2,6 +2,7 @@ import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
 import { updateGuideContent } from '../../data/guideContent';
 import type { GuideCategory, GuideCategoryId, GuidePlace } from '../../types';
 import { CategoryIcon } from '../common/CategoryIcon';
+import { uploadImageAsset } from '../../utils/imageUpload';
 
 type OwnerPlacesManagerProps = {
   items: GuidePlace[];
@@ -108,26 +109,13 @@ function toDraft(item: GuidePlace): PlaceDraft {
   };
 }
 
-function readFileAsDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        resolve(reader.result);
-        return;
-      }
-      reject(new Error('Не удалось прочитать файл.'));
-    };
-    reader.onerror = () => reject(reader.error ?? new Error('Ошибка чтения файла.'));
-    reader.readAsDataURL(file);
-  });
-}
 
 export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProps) {
   const [draft, setDraft] = useState<PlaceDraft>(initialDraft);
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState('');
   const [activeTab, setActiveTab] = useState<GuideCategoryId>('restaurants');
+  const [isUploading, setIsUploading] = useState(false);
 
   const visibleCategories = useMemo(
     () => categories.filter((category) => category.visible || items.some((item) => item.categoryId === category.id)),
@@ -238,14 +226,24 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
       return;
     }
 
-    const uploadedImages = await Promise.all(files.map((file) => readFileAsDataUrl(file)));
-    setDraft((current) => ({
-      ...current,
-      imageGallery: [...current.imageGallery, ...uploadedImages],
-      imageSrc: current.imageSrc || uploadedImages[0] || '',
-      imageLabel: current.imageLabel || files[0]?.name || current.imageLabel
-    }));
-    event.target.value = '';
+    setIsUploading(true);
+    setStatus(`Загружаю ${files.length} фото...`);
+
+    try {
+      const uploadedImages = await Promise.all(files.map((file) => uploadImageAsset(file, 'place')));
+      setDraft((current) => ({
+        ...current,
+        imageGallery: [...current.imageGallery, ...uploadedImages],
+        imageSrc: current.imageSrc || uploadedImages[0] || '',
+        imageLabel: current.imageLabel || files[0]?.name || current.imageLabel
+      }));
+      setStatus(`Загружено: ${uploadedImages.length} фото.`);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Не удалось загрузить изображения.');
+    } finally {
+      setIsUploading(false);
+      event.target.value = '';
+    }
   };
 
   const removeImage = (imageIndex: number) => {
@@ -286,7 +284,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
             редактировать и удалять карточки, а также загружать несколько фото для карусели.
           </p>
         </div>
-        <button className="button button--ghost" type="button" onClick={resetForm}>
+        <button className="button button--ghost" type="button" onClick={resetForm} disabled={isUploading}>
           Новая карточка
         </button>
       </div>
@@ -464,8 +462,8 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
           </div>
 
           <label className="field field--file">
-            <span>Фото карточки</span>
-            <input type="file" accept="image/*" multiple onChange={handleImageChange} />
+            <span>{isUploading ? 'Загрузка фото...' : 'Фото карточки'}</span>
+            <input type="file" accept="image/*" multiple onChange={handleImageChange} disabled={isUploading} />
           </label>
 
           {draft.imageGallery.length > 0 ? (
@@ -538,10 +536,10 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
           {status ? <div className="owner-editor-status">{status}</div> : null}
 
           <div className="owner-editor-form__actions">
-            <button className="button button--primary" type="submit">
+            <button className="button button--primary" type="submit" disabled={isUploading}>
               {isEditing ? 'Сохранить изменения' : 'Добавить карточку'}
             </button>
-            <button className="button button--ghost" type="button" onClick={resetForm}>
+            <button className="button button--ghost" type="button" onClick={resetForm} disabled={isUploading}>
               Очистить форму
             </button>
           </div>

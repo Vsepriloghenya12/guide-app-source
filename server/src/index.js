@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const fs = require('fs');
 const express = require('express');
 const path = require('path');
 const {
@@ -20,6 +21,7 @@ const {
   saveCollections,
   saveContentStore,
   saveHomeContent,
+  saveMediaFileRecord,
   saveTips,
   updateCollectionItems,
   upsertCategory,
@@ -29,6 +31,8 @@ const {
 const app = express();
 const PORT = process.env.PORT || 8080;
 const webDistPath = path.resolve(__dirname, '../../webapp/dist');
+const uploadsRoot = process.env.UPLOADS_DIR ? path.resolve(process.env.UPLOADS_DIR) : path.resolve(__dirname, '../../storage/uploads');
+const uploadsPublicBasePath = '/uploads';
 const OWNER_PASSWORD = process.env.OWNER_PASSWORD || 'guide2026';
 const OWNER_SESSION_SECRET = process.env.OWNER_SESSION_SECRET || 'guide-owner-secret-change-me';
 const OWNER_COOKIE_NAME = 'guide_owner_session';
@@ -36,6 +40,90 @@ const OWNER_SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+
+
+function ensureUploadsDirectory() {
+  fs.mkdirSync(uploadsRoot, { recursive: true });
+}
+
+function sanitizeSegment(value, fallback = 'file') {
+  return String(value || fallback)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9-_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '') || fallback;
+}
+
+function extensionForMimeType(mimeType) {
+  switch (mimeType) {
+    case 'image/jpeg':
+      return 'jpg';
+    case 'image/png':
+      return 'png';
+    case 'image/webp':
+      return 'webp';
+    default:
+      return null;
+  }
+}
+
+function parseImageDataUrl(dataUrl) {
+  const match = /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/s.exec(String(dataUrl || ''));
+  if (!match) {
+    throw new Error('Поддерживаются только JPG, PNG и WEBP изображения.');
+  }
+
+  return {
+    mimeType: match[1],
+    buffer: Buffer.from(match[2], 'base64')
+  };
+}
+
+async function storeUploadedImage({ fileName, dataUrl, kind = 'general' }) {
+  ensureUploadsDirectory();
+  const { mimeType, buffer } = parseImageDataUrl(dataUrl);
+  const extension = extensionForMimeType(mimeType);
+
+  if (!extension) {
+    throw new Error('Неподдерживаемый формат изображения.');
+  }
+
+  if (buffer.length > 8 * 1024 * 1024) {
+    throw new Error('Файл слишком большой после сжатия. Максимум 8 MB.');
+  }
+
+  const safeKind = sanitizeSegment(kind, 'general');
+  const monthSegment = new Date().toISOString().slice(0, 7);
+  const relativeDir = path.join(safeKind, monthSegment);
+  const absoluteDir = path.join(uploadsRoot, relativeDir);
+  fs.mkdirSync(absoluteDir, { recursive: true });
+
+  const finalName = `${Date.now()}-${crypto.randomUUID()}.${extension}`;
+  const absolutePath = path.join(absoluteDir, finalName);
+  fs.writeFileSync(absolutePath, buffer);
+
+  const relativePath = path.posix.join(relativeDir.split(path.sep).join('/'), finalName);
+  const publicUrl = `${uploadsPublicBasePath}/${relativePath}`;
+
+  await saveMediaFileRecord({
+    id: crypto.randomUUID(),
+    kind: safeKind,
+    fileName: String(fileName || finalName),
+    mimeType,
+    sizeBytes: buffer.length,
+    storagePath: absolutePath,
+    publicUrl
+  });
+
+  return {
+    url: publicUrl,
+    fileName: finalName,
+    mimeType,
+    sizeBytes: buffer.length
+  };
+}
+
 
 function parseCookies(cookieHeader = '') {
   return cookieHeader
@@ -734,10 +822,25 @@ app.put('/api/owner/home', requireOwner, async (req, res) => {
   }
 });
 
-app.post('/api/owner/upload', requireOwner, (_req, res) => {
-  res.status(501).json({ ok: false, message: 'Image upload endpoint is not enabled in this build. Use client-side image upload in Owner CMS.' });
+app.post('/api/owner/upload', requireOwner, async (req, res) => {
+  try {
+    const dataUrl = typeof req.body?.dataUrl === 'string' ? req.body.dataUrl : '';
+    const fileName = typeof req.body?.fileName === 'string' ? req.body.fileName : 'image';
+    const kind = typeof req.body?.kind === 'string' ? req.body.kind : 'general';
+
+    if (!dataUrl) {
+      res.status(400).json({ ok: false, message: 'Нет данных изображения для загрузки.' });
+      return;
+    }
+
+    const uploaded = await storeUploadedImage({ fileName, dataUrl, kind });
+    res.json({ ok: true, ...uploaded });
+  } catch (error) {
+    res.status(400).json({ ok: false, message: error instanceof Error ? error.message : 'Не удалось загрузить изображение.' });
+  }
 });
 
+app.use(uploadsPublicBasePath, express.static(uploadsRoot, { maxAge: '7d' }));
 app.use(express.static(webDistPath));
 
 app.get('*', (_req, res) => {
@@ -746,6 +849,7 @@ app.get('*', (_req, res) => {
 
 app.listen(PORT, async () => {
   try {
+    ensureUploadsDirectory();
     if (hasDatabase()) {
       await ensureDatabase();
       console.log('Guide app server started on port %s with PostgreSQL', PORT);
