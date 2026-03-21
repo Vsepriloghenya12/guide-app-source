@@ -9,7 +9,7 @@ import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeBanner }
 export function HomePage() {
   usePageMeta({
     title: 'Danang Guide',
-    description: 'Главная витрина guide-приложения: места, категории, советы, подборки и события в Дананге.'
+    description: 'Главная страница с местами, категориями, советами, подборками и событиями в Дананге.'
   });
   const { places, categories, tips, banners, collections, home, loading, error } = useGuideContent();
 

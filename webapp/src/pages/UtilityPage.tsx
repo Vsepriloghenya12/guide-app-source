@@ -8,23 +8,23 @@ type UtilityPageProps = {
 const contentMap: Record<UtilityPageProps['type'], { title: string; description: string }> = {
   search: {
     title: 'Поиск',
-    description: 'Здесь позже можно сделать глобальный поиск по всем карточкам и категориям.'
+    description: 'Здесь можно искать места по категориям, тегам и названиям.'
   },
   favorites: {
     title: 'Избранное',
-    description: 'Сюда можно добавить сохранённые места, маршруты и подборки пользователя.'
+    description: 'Здесь собраны места, которые ты сохранил для себя.'
   },
   nearby: {
     title: 'Рядом',
-    description: 'Этот раздел можно связать с геолокацией и выводить места рядом с пользователем.'
+    description: 'Этот раздел помогает быстро найти места рядом с тобой.'
   },
   help: {
     title: 'Помощь',
-    description: 'Подготовлено место под FAQ, чат поддержки, полезные инструкции и подсказки.'
+    description: 'Здесь собраны ответы на частые вопросы и полезные подсказки.'
   },
   contacts: {
     title: 'Контакты',
-    description: 'Здесь можно вывести телефоны, соцсети, мессенджеры и форму обратной связи.'
+    description: 'Здесь собраны телефоны, мессенджеры и другие способы связи.'
   }
 };
 
@@ -37,11 +37,10 @@ export function UtilityPage({ type }: UtilityPageProps) {
 
       <section className="card card--placeholder">
         <div className="placeholder-state">
-          <span className="placeholder-state__badge">Технический раздел</span>
+          <span className="placeholder-state__badge">Полезный раздел</span>
           <h2>{content.title}</h2>
           <p>
-            Страница уже создана в структуре приложения, поэтому её можно дорабатывать отдельно,
-            не ломая основную архитектуру.
+            Раздел помогает быстро перейти к нужным сценариям и важной информации.
           </p>
           <div className="placeholder-state__actions">
             <Link className="button button--primary" to="/">

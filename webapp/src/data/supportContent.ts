@@ -25,7 +25,7 @@ export const contactChannels: ContactChannel[] = [
   {
     id: 'telegram',
     title: 'Telegram',
-    subtitle: 'Быстрые вопросы, рекомендации и поддержка по разделам guide.',
+    subtitle: 'Быстрые вопросы, рекомендации и помощь по приложению.',
     value: '@danangguide_support',
     href: 'https://t.me/danangguide_support',
     kind: 'telegram'
@@ -49,7 +49,7 @@ export const contactChannels: ContactChannel[] = [
   {
     id: 'email',
     title: 'Email',
-    subtitle: 'Для партнёрств, размещения в guide и длинных запросов.',
+    subtitle: 'Для партнёрств, размещения и подробных запросов.',
     value: 'hello@danangguide.app',
     href: 'mailto:hello@danangguide.app',
     kind: 'email'
@@ -98,7 +98,7 @@ export const emergencyContacts: EmergencyContact[] = [
 export const helpFaq: FaqItem[] = [
   {
     id: 'how-to-use',
-    question: 'Как пользоваться guide-приложением эффективнее всего?',
+    question: 'Как пользоваться приложением удобнее всего?',
     answer:
       'Начни с категорий на главной, добавляй понравившиеся места в избранное и включай геолокацию для блока «Рядом». Так приложение начнёт подсказывать, что ближе к тебе именно сейчас.'
   },
@@ -106,7 +106,7 @@ export const helpFaq: FaqItem[] = [
     id: 'owner-updates',
     question: 'Как быстро обновляется информация в приложении?',
     answer:
-      'Новые карточки, баннеры и советы появляются в приложении после обновления данных. Обычно это происходит быстро.'
+      'Новые карточки, баннеры и советы обычно появляются в приложении довольно быстро.'
   },
   {
     id: 'favorites',
@@ -116,7 +116,7 @@ export const helpFaq: FaqItem[] = [
   },
   {
     id: 'nearby',
-    question: 'Почему раздел «Рядом» пустой или показывает мало мест?',
+    question: 'Почему раздел «Рядом» показывает не все места?',
     answer:
       'Для раздела «Рядом» нужны геолокация устройства и данные о местоположении самих мест. Поэтому часть точек может появляться не сразу.'
   },
@@ -124,20 +124,20 @@ export const helpFaq: FaqItem[] = [
     id: 'offline',
     question: 'Что будет, если пропадёт интернет?',
     answer:
-      'PWA умеет кэшировать оболочку приложения и показывает офлайн-страницу. Последние открытые разделы могут открываться быстрее, но живые данные и поиск всё равно требуют сети.'
+      'Приложение сохраняет часть данных для быстрого открытия и показывает офлайн-страницу. Но актуальные данные и поиск всё равно требуют подключения к сети.'
   },
   {
     id: 'maps',
     question: 'Как открыть маршрут в удобных картах?',
     answer:
-      'В карточке места есть быстрые кнопки Google Maps, Apple Maps и 2GIS. Если у тебя включена геолокация, там же сразу покажется примерное расстояние и время пути.'
+      'В карточке места есть быстрые кнопки Google Maps, Apple Maps и 2GIS. Если включена геолокация, там же сразу появится примерное расстояние и время пути.'
   }
 ];
 
 export const supportQuickLinks = [
   {
     id: 'search',
-    title: 'Поиск по guide',
+    title: 'Поиск по приложению',
     description: 'Найти место по тегам, кухне, услугам и названию.',
     path: '/search'
   },
@@ -156,7 +156,7 @@ export const supportQuickLinks = [
   {
     id: 'contacts',
     title: 'Связаться с нами',
-    description: 'Telegram, WhatsApp, телефон и emergency contacts.',
+    description: 'Telegram, WhatsApp, телефон и важные номера.',
     path: '/contacts'
   }
 ];

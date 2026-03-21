@@ -6,23 +6,23 @@ import { usePageMeta } from '../hooks/usePageMeta';
 export function HelpPage() {
   usePageMeta({
     title: 'Помощь',
-    description: 'FAQ, подсказки по nearby, офлайн-режиму, избранному и картам внутри Danang Guide.'
+    description: 'FAQ, подсказки по разделу «Рядом», офлайн-режиму, избранному и картам.'
   });
   return (
     <div className="page-stack utility-page utility-page--help">
       <PageHeader
         title="Помощь"
-        subtitle="FAQ, быстрые подсказки по использованию guide и понятные переходы в важные разделы приложения."
-        badgeLabel="Support"
+        subtitle="FAQ, простые подсказки по использованию приложения и быстрые переходы в важные разделы."
+        badgeLabel="Помощь"
       />
 
       <section className="panel utility-hero-card">
         <div>
-          <span className="eyebrow">Guide help</span>
-          <h2>Как пользоваться приложением без лишних поисков</h2>
+          <span className="eyebrow">Помощь</span>
+          <h2>Как быстро разобраться в приложении</h2>
           <p>
-            Здесь собраны короткие ответы по избранному, nearby, карточкам мест, офлайн-режиму
-            и маршрутам. Это уже не пустая техническая страница, а живой help-раздел.
+            Здесь собраны короткие ответы по избранному, разделу «Рядом», карточкам мест, офлайн-режиму
+            и маршрутам. Здесь можно быстро найти нужную подсказку без долгих поисков по приложению.
           </p>
         </div>
         <div className="utility-hero-card__actions">

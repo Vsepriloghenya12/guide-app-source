@@ -34,7 +34,7 @@ function createSearchText(place: GuidePlace, category?: GuideCategory) {
 export function SearchPage() {
   usePageMeta({
     title: 'Поиск',
-    description: 'Глобальный поиск по категориям, тегам, услугам и названиям мест внутри Danang Guide.'
+    description: 'Поиск по категориям, тегам, услугам и названиям мест в городе.'
   });
   const { isFavorite, toggleFavorite } = useFavorites();
   const { places, categories, loading, error } = useGuideContent();

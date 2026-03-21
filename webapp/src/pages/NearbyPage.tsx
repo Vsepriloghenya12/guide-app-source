@@ -77,7 +77,7 @@ export function NearbyPage() {
     <div className="page-stack">
       <PageHeader
         title="Рядом"
-        subtitle="Геолокация уже работает: можно сортировать места по расстоянию, быстро фильтровать transport/ATM/routes и сразу строить маршрут."
+        subtitle="Выбирай места рядом с собой, сравнивай расстояние и сразу открывай маршрут."
         showBack
       />
 
@@ -120,11 +120,11 @@ export function NearbyPage() {
           </label>
           <div className="nearby-panel__stat">
             <strong>{filteredCoordsCount}</strong>
-            <span>точек с координатами в текущем разделе</span>
+            <span>мест на карте в текущем разделе</span>
           </div>
           <div className="nearby-panel__stat">
             <strong>{withCoordinatesCount}</strong>
-            <span>всего карточек уже геопривязано</span>
+            <span>всего мест можно открыть на карте</span>
           </div>
         </div>
 
@@ -192,9 +192,9 @@ export function NearbyPage() {
 
       {!loading && nearbyListings.length === 0 ? (
         <div className="panel empty-state empty-state--left">
-          <strong>Пока нечего показать рядом</strong>
+          <strong>Пока рядом ничего не найдено</strong>
           <p>
-            В выбранном разделе и радиусе пока нет подходящих мест. Попробуй изменить радиус или открыть все места в поиске.
+            В выбранном разделе и радиусе пока нет подходящих мест. Попробуй изменить радиус или посмотреть все места в поиске.
           </p>
           <div className="placeholder-state__actions">
             <Link className="button button--ghost" to="/search">

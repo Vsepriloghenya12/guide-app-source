@@ -24,24 +24,22 @@ function getChannelBadge(kind: string) {
 export function ContactsPage() {
   usePageMeta({
     title: 'Контакты',
-    description: 'Связь с guide-командой, мессенджеры и экстренные контакты для поездки.'
+    description: 'Мессенджеры, телефон и важные контакты для поездки.'
   });
   return (
     <div className="page-stack utility-page utility-page--contacts">
       <PageHeader
         title="Контакты"
-        subtitle="Основные каналы связи, мессенджеры, телефон и emergency contacts для туристической ситуации."
+        subtitle="Основные каналы связи, мессенджеры, телефон и важные номера, которые могут пригодиться в поездке."
         badgeLabel="Contacts"
       />
 
       <section className="panel utility-hero-card">
         <div>
           <span className="eyebrow">На связи</span>
-          <h2>Связаться с guide-командой и открыть быстрые контакты</h2>
+          <h2>Все важные контакты в одном месте</h2>
           <p>
-            Здесь собраны основные каналы связи, чтобы пользователь не искал телефон, Telegram
-            или WhatsApp по всему приложению. Для критичных ситуаций ниже есть отдельный блок
-            emergency contacts.
+            Здесь собраны основные каналы связи, чтобы телефон, Telegram и WhatsApp всегда были под рукой. Ниже также есть важные номера для экстренных ситуаций.
           </p>
         </div>
         <div className="utility-hero-card__actions">

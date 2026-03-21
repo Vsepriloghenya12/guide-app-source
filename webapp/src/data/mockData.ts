@@ -586,7 +586,7 @@ export const defaultGuideContent: GuideContentStore = {
     {
       id: 'banner-1',
       title: 'Топ рестораны и кафе Дананга',
-      subtitle: 'Подборка популярных мест, которые легко обновлять прямо из owner-CMS.',
+      subtitle: 'Подборка популярных мест для вдохновения и быстрого выбора.',
       linkPath: '/restaurants',
       tone: 'coast',
       imageSrc: '',

@@ -178,7 +178,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     restaurants: {
       title: 'Быстрый вход в гастрогид',
       description: 'Ищи места поблизости, сохраняй понравившиеся и открывай маршрут в пару нажатий.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
       secondaryPath: '/search'
@@ -186,7 +186,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     wellness: {
       title: 'Рядом и восстановиться',
       description: 'Найди место для отдыха рядом с собой и быстро открой маршрут.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
       secondaryPath: '/search'
@@ -194,7 +194,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     'active-rest': {
       title: 'Ближайшие активности',
       description: 'Выбирай активности рядом, сравнивай места и открывай маршрут на карте.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
       secondaryPath: '/search'
@@ -202,7 +202,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     routes: {
       title: 'Маршруты и точки старта',
       description: 'Смотри маршруты, точки старта и полезные места по пути.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Все места на карте',
       secondaryPath: '/search'
@@ -210,7 +210,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     hotels: {
       title: 'Отели вокруг тебя',
       description: 'Выбирай жильё рядом с собой и быстро открывай маршрут.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
       secondaryPath: '/search'
@@ -218,7 +218,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     events: {
       title: 'События поблизости',
       description: 'Смотри ближайшие события, сохраняй планы и открывай место на карте.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
       secondaryPath: '/search'
@@ -226,7 +226,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     transport: {
       title: 'Транспорт рядом',
       description: 'Найди ближайший транспорт или трансфер и сразу построй маршрут.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Открыть банкоматы',
       secondaryPath: '/section/atm'
@@ -234,7 +234,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     atm: {
       title: 'Банкоматы и банки рядом',
       description: 'Покажем ближайшие банки и банкоматы с быстрым переходом в карты.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Открыть транспорт',
       secondaryPath: '/section/transport'
@@ -242,7 +242,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     shops: {
       title: 'Шопинг-подсказки',
       description: 'Ищи магазины и сувениры рядом с собой.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
       secondaryPath: '/search'
@@ -250,7 +250,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     culture: {
       title: 'Культура рядом',
       description: 'Открывай достопримечательности рядом и строй маршрут в карты.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Открыть фото-споты',
       secondaryPath: '/section/photo-spots'
@@ -258,7 +258,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     kids: {
       title: 'Семейные места рядом',
       description: 'Подбирай семейные места рядом и сохраняй удобные варианты.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
       secondaryPath: '/search'
@@ -266,7 +266,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     medicine: {
       title: 'Полезные точки рядом',
       description: 'Быстро находи клиники и аптеки рядом.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
       secondaryPath: '/search'
@@ -274,7 +274,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     'photo-spots': {
       title: 'Фото-споты вокруг тебя',
       description: 'Смотри красивые локации рядом и открывай маршрут.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Открыть маршруты',
       secondaryPath: '/section/routes'
@@ -282,7 +282,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     'car-rental': {
       title: 'Транспорт и аренда',
       description: 'Находи аренду авто поблизости и строй маршрут.',
-      primaryLabel: 'Открыть nearby',
+      primaryLabel: 'Что рядом',
       primaryPath: '/nearby',
       secondaryLabel: 'Открыть транспорт',
       secondaryPath: '/section/transport'
@@ -312,7 +312,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
 
   usePageMeta({
     title: category ? category.title : 'Раздел не найден',
-    description: category?.description || 'Категория guide с фильтрами, карточками мест и быстрыми переходами по разделу.'
+    description: category?.description || 'Раздел с местами, фильтрами и полезными подсказками.'
   });
 
   const categoryPlaces = useMemo(() => {
@@ -437,7 +437,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
     <div className="page-stack category-explorer-page">
       <PageHeader
         title={category.title}
-        subtitle={category.description || 'Раздел наполнен карточками, фильтрами и быстрыми переходами.'}
+        subtitle={category.description || 'Раздел с карточками мест, фильтрами и полезными подсказками.'}
         showBack
         badgeLabel={category.shortTitle}
       />
@@ -449,13 +449,13 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
             {category.badge ? <span className="chip chip--soft">{category.badge}</span> : null}
             <span className="chip chip--soft">{categoryPlaces.length} мест</span>
             {topCount > 0 ? <span className="chip chip--soft">{topCount} в топе</span> : null}
-            {withCoordsCount > 0 ? <span className="chip chip--soft">{withCoordsCount} с координатами</span> : null}
+            {withCoordsCount > 0 ? <span className="chip chip--soft">{withCoordsCount} на карте</span> : null}
           </div>
           <h2>{category.title}</h2>
           <p>
             {categoryPlaces.length > 0
               ? 'Выбирай места, используй фильтры, сохраняй понравившееся и открывай маршрут.'
-              : 'Скоро здесь появятся места, советы и полезные подборки по этому разделу.'}
+              : 'Скоро здесь появятся новые места, советы и полезные подборки.'}
           </p>
         </div>
 
@@ -471,8 +471,8 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
       {category.id === 'events' && eventHighlights.length > 0 ? (
         <section className="panel event-highlights-panel">
           <div className="section-headline">
-            <strong>Скоро в афише</strong>
-            <span>Быстрый вход в ближайшие и самые заметные события.</span>
+            <strong>Скоро в городе</strong>
+            <span>Ближайшие и самые заметные события этого раздела.</span>
           </div>
           <div className="event-highlight-grid">
             {eventHighlights.map((event) => (
@@ -490,7 +490,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
         <section className="panel guide-tools-panel">
           <div className="section-headline section-headline--muted">
             <strong>{guideContext.title}</strong>
-            <span>Быстрые действия</span>
+            <span>Полезные ссылки</span>
           </div>
           <p>{guideContext.description}</p>
           <div className="guide-tools-panel__actions">
@@ -522,7 +522,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
           ) : (
             <div className="guide-tools-panel__hint">
               <strong>{withCoordsCount > 0 ? 'Включи геолокацию, чтобы увидеть ближайшие места.' : 'Поблизости пока не найдено подходящих мест.'}</strong>
-              <span>Попробуй открыть карту или посмотреть все места в этом разделе.</span>
+              <span>Попробуй открыть карту или посмотреть другие места в этом разделе.</span>
             </div>
           )}
         </section>
@@ -714,11 +714,11 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
 
       {!loading && filteredPlaces.length === 0 ? (
         <section className="panel empty-state empty-state--left">
-          <strong>{categoryPlaces.length > 0 ? 'По фильтрам ничего не найдено' : 'Раздел готов к наполнению'}</strong>
+          <strong>{categoryPlaces.length > 0 ? 'По фильтрам ничего не найдено' : 'Скоро здесь появятся новые места'}</strong>
           <p>
             {categoryPlaces.length > 0
               ? 'Попробуй убрать часть фильтров или сменить сортировку — карточки уже есть, но они не попали под текущий набор условий.'
-              : 'Скоро здесь появятся места и полезные подборки.'}
+              : 'Скоро здесь появятся новые места и полезные подборки.'}
           </p>
         </section>
       ) : null}
@@ -726,7 +726,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
       {relatedCollections.length > 0 || relatedTips.length > 0 ? (
         <section className="panel related-content-panel">
           <div className="section-headline">
-            <strong>Полезное по разделу</strong>
+            <strong>Полезное в этом разделе</strong>
           </div>
           <div className="related-content-grid">
             {relatedCollections.map((collection) => (

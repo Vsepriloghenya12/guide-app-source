@@ -127,7 +127,7 @@ export function useUserLocation(): UseUserLocationResult {
   const clearLocation = useCallback(() => {
     setLocation(null);
     setState('idle');
-    setMessage('Геопозиция очищена. Можно запросить её снова, когда понадобится nearby и маршрут.');
+    setMessage('Геопозиция очищена. Когда понадобится, можно снова включить раздел «Рядом» и маршрут.');
   }, []);
 
   return {
