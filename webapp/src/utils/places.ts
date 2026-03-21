@@ -16,6 +16,42 @@ export function create2GisUrl(place: Pick<Listing, 'mapQuery' | 'address' | 'tit
   return `https://2gis.com/?query=${encodeURIComponent(getPlaceMapQuery(place))}`;
 }
 
+export function createGoogleDirectionsUrl(
+  place: Pick<Listing, 'mapQuery' | 'address' | 'title'>,
+  origin?: { lat: number; lng: number } | null
+) {
+  const destination = encodeURIComponent(getPlaceMapQuery(place));
+  if (!origin) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
+  }
+
+  return `https://www.google.com/maps/dir/?api=1&origin=${origin.lat},${origin.lng}&destination=${destination}&travelmode=driving`;
+}
+
+export function createAppleDirectionsUrl(
+  place: Pick<Listing, 'mapQuery' | 'address' | 'title'>,
+  origin?: { lat: number; lng: number } | null
+) {
+  const destination = encodeURIComponent(getPlaceMapQuery(place));
+  if (!origin) {
+    return `https://maps.apple.com/?daddr=${destination}&dirflg=d`;
+  }
+
+  return `https://maps.apple.com/?saddr=${origin.lat},${origin.lng}&daddr=${destination}&dirflg=d`;
+}
+
+export function create2GisDirectionsUrl(
+  place: Pick<Listing, 'mapQuery' | 'address' | 'title'>,
+  origin?: { lat: number; lng: number } | null
+) {
+  const destination = encodeURIComponent(getPlaceMapQuery(place));
+  if (!origin) {
+    return `https://2gis.com/routeSearch/rsType/car/to/${destination}`;
+  }
+
+  return `https://2gis.com/routeSearch/rsType/car/from/${origin.lng},${origin.lat}/to/${destination}`;
+}
+
 export function formatDistance(distanceKm: number | null) {
   if (distanceKm === null || !Number.isFinite(distanceKm)) {
     return 'Без расстояния';
@@ -26,6 +62,23 @@ export function formatDistance(distanceKm: number | null) {
   }
 
   return `${distanceKm.toFixed(distanceKm < 10 ? 1 : 0)} км`;
+}
+
+export function estimateTravelTime(distanceKm: number | null, mode: 'walk' | 'drive' = 'drive') {
+  if (distanceKm === null || !Number.isFinite(distanceKm)) {
+    return '';
+  }
+
+  const speed = mode === 'walk' ? 4.5 : 28;
+  const totalMinutes = Math.max(1, Math.round((distanceKm / speed) * 60));
+
+  if (totalMinutes < 60) {
+    return `${totalMinutes} мин`;
+  }
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return minutes > 0 ? `${hours} ч ${minutes} мин` : `${hours} ч`;
 }
 
 export function haversineDistanceKm(
@@ -47,8 +100,6 @@ export function haversineDistanceKm(
 export function hasCoordinates(place: Partial<Listing>) {
   return typeof place.lat === 'number' && typeof place.lng === 'number';
 }
-
-
 
 export function comparePlacesByPriority(left: Partial<Listing>, right: Partial<Listing>) {
   const leftOrder = Number(left.sortOrder ?? 1000);

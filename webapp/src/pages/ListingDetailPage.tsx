@@ -4,13 +4,27 @@ import { api } from '../api/client';
 import { ListingCard } from '../components/listing/ListingCard';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useFavorites } from '../hooks/useFavorites';
+import { useUserLocation } from '../hooks/useUserLocation';
 import { recordGuideAnalytics } from '../utils/analytics';
-import { create2GisUrl, createAppleMapsUrl, createGoogleMapsUrl, sortPlacesByPriority } from '../utils/places';
+import {
+  create2GisDirectionsUrl,
+  create2GisUrl,
+  createAppleDirectionsUrl,
+  createAppleMapsUrl,
+  createGoogleDirectionsUrl,
+  createGoogleMapsUrl,
+  estimateTravelTime,
+  formatDistance,
+  hasCoordinates,
+  haversineDistanceKm,
+  sortPlacesByPriority
+} from '../utils/places';
 import type { Category, Listing } from '../types';
 
 export function ListingDetailPage() {
   const { slug = '' } = useParams();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { location: userLocation, state: geoState, requestLocation } = useUserLocation();
   const [listing, setListing] = useState<Listing | null>(null);
   const [similar, setSimilar] = useState<Listing[]>([]);
   const [category, setCategory] = useState<Category | null>(null);
@@ -43,10 +57,21 @@ export function ListingDetailPage() {
   const mapUrl = useMemo(() => (listing ? createGoogleMapsUrl(listing) : '#'), [listing]);
   const appleMapsUrl = useMemo(() => (listing ? createAppleMapsUrl(listing) : '#'), [listing]);
   const gisUrl = useMemo(() => (listing ? create2GisUrl(listing) : '#'), [listing]);
+  const googleDirectionsUrl = useMemo(() => (listing ? createGoogleDirectionsUrl(listing, userLocation) : '#'), [listing, userLocation]);
+  const appleDirectionsUrl = useMemo(() => (listing ? createAppleDirectionsUrl(listing, userLocation) : '#'), [listing, userLocation]);
+  const gisDirectionsUrl = useMemo(() => (listing ? create2GisDirectionsUrl(listing, userLocation) : '#'), [listing, userLocation]);
   const embedUrl = useMemo(() => {
     if (!listing) return '';
     return `https://www.google.com/maps?q=${encodeURIComponent(listing.mapQuery || listing.address || listing.title)}&output=embed`;
   }, [listing]);
+
+  const distanceKm = useMemo(() => {
+    if (!listing || !userLocation || !hasCoordinates(listing)) {
+      return null;
+    }
+
+    return haversineDistanceKm(userLocation, { lat: listing.lat!, lng: listing.lng! });
+  }, [listing, userLocation]);
 
   if (loading) {
     return <div className="panel page-loader">Загружаю карточку места…</div>;
@@ -84,6 +109,7 @@ export function ListingDetailPage() {
               <span className="rating-pill">★ {listing.rating.toFixed(1)}</span>
               {listing.featured ? <span className="chip">Топ</span> : null}
               {listing.priceLabel ? <span className="chip">{listing.priceLabel}</span> : null}
+              {distanceKm !== null ? <span className="chip chip--soft">{formatDistance(distanceKm)}</span> : null}
             </div>
           </div>
 
@@ -108,9 +134,27 @@ export function ListingDetailPage() {
             <span className="chip">{category.title}</span>
             {listing.listingType ? <span className="chip chip--soft">{listing.listingType}</span> : null}
             {listing.cuisine ? <span className="chip chip--soft">{listing.cuisine}</span> : null}
+            {listing.district ? <span className="chip chip--soft">{listing.district}</span> : null}
           </div>
 
           <p>{listing.description}</p>
+
+          {distanceKm !== null ? (
+            <div className="detail-distance-banner">
+              <strong>{formatDistance(distanceKm)} от тебя</strong>
+              <span>{estimateTravelTime(distanceKm, 'walk')} пешком · {estimateTravelTime(distanceKm, 'drive')} на машине</span>
+            </div>
+          ) : null}
+
+          {!userLocation ? (
+            <div className="panel panel--soft detail-location-panel">
+              <strong>Маршрут от текущей точки</strong>
+              <p>Разреши геолокацию, и карточка сразу покажет расстояние и быстрые кнопки маршрута.</p>
+              <button className="button button--primary button--small" type="button" onClick={requestLocation} disabled={geoState === 'loading'}>
+                {geoState === 'loading' ? 'Определяю…' : 'Включить геолокацию'}
+              </button>
+            </div>
+          ) : null}
 
           <div className="detail-actions detail-actions--wrap">
             {listing.phone ? (
@@ -155,7 +199,13 @@ export function ListingDetailPage() {
           </div>
 
           <div className="detail-actions detail-actions--wrap detail-actions--maps">
-            <a className="button button--ghost" href={mapUrl} target="_blank" rel="noreferrer">Google Maps</a>
+            <a className="button button--primary" href={googleDirectionsUrl} target="_blank" rel="noreferrer">Маршрут · Google</a>
+            <a className="button button--ghost" href={appleDirectionsUrl} target="_blank" rel="noreferrer">Apple Maps</a>
+            <a className="button button--ghost" href={gisDirectionsUrl} target="_blank" rel="noreferrer">2GIS</a>
+          </div>
+
+          <div className="detail-actions detail-actions--wrap detail-actions--maps">
+            <a className="button button--ghost" href={mapUrl} target="_blank" rel="noreferrer">Открыть точку · Google</a>
             <a className="button button--ghost" href={appleMapsUrl} target="_blank" rel="noreferrer">Apple Maps</a>
             <a className="button button--ghost" href={gisUrl} target="_blank" rel="noreferrer">2GIS</a>
           </div>
@@ -202,7 +252,7 @@ export function ListingDetailPage() {
       <section className="panel">
         <div className="section-headline">
           <strong>Карта</strong>
-          <a href={mapUrl} target="_blank" rel="noreferrer">Открыть маршрут</a>
+          <a href={googleDirectionsUrl} target="_blank" rel="noreferrer">Открыть маршрут</a>
         </div>
         <div className="map-frame-wrap">
           <iframe title={`Карта ${listing.title}`} src={embedUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />

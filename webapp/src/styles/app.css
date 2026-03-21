@@ -2378,3 +2378,106 @@ html.display-mode-standalone .pwa-prompt {
     align-items: stretch;
   }
 }
+
+.panel-helper {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: rgba(248, 244, 236, 0.58);
+}
+
+.guide-tools-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.guide-tools-panel p {
+  margin: 0;
+  color: rgba(248, 244, 236, 0.74);
+}
+
+.guide-tools-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.guide-tools-panel__hint {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.guide-tools-panel__hint strong {
+  color: #fff2d7;
+}
+
+.guide-tools-panel__hint span {
+  color: rgba(248, 244, 236, 0.7);
+}
+
+.guide-nearest-grid,
+.nearby-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.guide-nearest-card,
+.nearby-mini-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.guide-nearest-card strong,
+.nearby-mini-card strong {
+  color: #fff2d7;
+}
+
+.guide-nearest-card span,
+.nearby-mini-card span,
+.guide-nearest-card small,
+.nearby-mini-card small {
+  color: rgba(248, 244, 236, 0.72);
+}
+
+.detail-distance-banner {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 4px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 219, 157, 0.16), rgba(255, 255, 255, 0.04));
+}
+
+.detail-distance-banner strong {
+  color: #fff2d7;
+}
+
+.detail-distance-banner span {
+  color: rgba(248, 244, 236, 0.74);
+}
+
+.detail-location-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.detail-location-panel p {
+  margin: 0;
+  color: rgba(248, 244, 236, 0.74);
+}
+
+.nearby-grid__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

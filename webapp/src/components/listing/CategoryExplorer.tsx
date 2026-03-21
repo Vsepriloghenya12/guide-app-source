@@ -5,7 +5,16 @@ import { PlaceholderCard } from '../common/PlaceholderCard';
 import { PageHeader } from '../layout/PageHeader';
 import { defaultCategories } from '../../data/categories';
 import { useGuideContent } from '../../hooks/useGuideContent';
-import { comparePlacesByPriority } from '../../utils/places';
+import { useUserLocation } from '../../hooks/useUserLocation';
+import {
+  comparePlacesByPriority,
+  createGoogleDirectionsUrl,
+  estimateTravelTime,
+  formatDistance,
+  hasCoordinates,
+  haversineDistanceKm,
+  toListingLike
+} from '../../utils/places';
 import type { GuideCategory, GuideCategoryId, GuidePlace, GuideTip, GuideCollection } from '../../types';
 
 type CategoryExplorerProps = {
@@ -159,9 +168,133 @@ function hasMeaningfulCoords(place: GuidePlace) {
   return typeof place.lat === 'number' && typeof place.lng === 'number';
 }
 
+function isNonEmptyString(value: string | undefined | null): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function getGuideContext(categoryId: GuideCategoryId) {
+  const map: Record<GuideCategoryId, { title: string; description: string; primaryLabel: string; primaryPath: string; secondaryLabel: string; secondaryPath: string }> = {
+    restaurants: {
+      title: 'Быстрый вход в гастрогид',
+      description: 'Собирай nearby-выдачу, сохраняй места в избранное и открывай маршрут прямо из карточек.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Поиск по всем местам',
+      secondaryPath: '/search'
+    },
+    wellness: {
+      title: 'Рядом и восстановиться',
+      description: 'У СПА и wellness удобнее всего работает nearby-сценарий: можно быстро выбрать место рядом и сразу построить маршрут.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Поиск по всем местам',
+      secondaryPath: '/search'
+    },
+    'active-rest': {
+      title: 'Ближайшие активности',
+      description: 'Для active rest уже подготовлен сценарий выбора nearby и открытия маршрута в карты.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Поиск по всем местам',
+      secondaryPath: '/search'
+    },
+    routes: {
+      title: 'Маршруты и точки старта',
+      description: 'Этот раздел уже можно использовать как мини-гид: выбери маршрут, посмотри ближайшие точки и открой навигацию от текущего местоположения.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Все места на карте',
+      secondaryPath: '/search'
+    },
+    hotels: {
+      title: 'Отели вокруг тебя',
+      description: 'Когда owner заполнит координаты, nearby будет показывать ближайшие варианты проживания и быстрые переходы в карты.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Поиск по всем местам',
+      secondaryPath: '/search'
+    },
+    events: {
+      title: 'События поблизости',
+      description: 'Афишный модуль ещё впереди, но nearby и маршруты уже готовы под события и локации.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Поиск по всем местам',
+      secondaryPath: '/search'
+    },
+    transport: {
+      title: 'Транспорт рядом',
+      description: 'Подходит для трансферов, шаттлов и точек старта. Можно быстро найти ближайший сервис и открыть маршрут в карты.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Открыть банкоматы',
+      secondaryPath: '/section/atm'
+    },
+    atm: {
+      title: 'Банкоматы и банки рядом',
+      description: 'Этот раздел уже может работать как util-блок: найди ближайшую точку, оцени расстояние и сразу открой маршрут.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Открыть транспорт',
+      secondaryPath: '/section/transport'
+    },
+    shops: {
+      title: 'Шопинг-подсказки',
+      description: 'Когда owner добавит координаты, раздел сможет показывать магазины и сувениры рядом с пользователем.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Поиск по всем местам',
+      secondaryPath: '/search'
+    },
+    culture: {
+      title: 'Культура рядом',
+      description: 'Достопримечательности особенно удобно смотреть через nearby и быстрые карты-ссылки.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Открыть фото-споты',
+      secondaryPath: '/section/photo-spots'
+    },
+    kids: {
+      title: 'Семейные места рядом',
+      description: 'Nearby и быстрые маршруты уже подходят для семейного раздела и удобны в поездке.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Поиск по всем местам',
+      secondaryPath: '/search'
+    },
+    medicine: {
+      title: 'Полезные точки рядом',
+      description: 'Клиники и аптеки — как раз тот сценарий, где nearby и маршрут особенно важны.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Поиск по всем местам',
+      secondaryPath: '/search'
+    },
+    'photo-spots': {
+      title: 'Фото-споты вокруг тебя',
+      description: 'Раздел уже умеет работать как карта вдохновения: можно быстро посмотреть ближайшие точки и сразу уехать на место.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Открыть маршруты',
+      secondaryPath: '/section/routes'
+    },
+    'car-rental': {
+      title: 'Транспорт и аренда',
+      description: 'Автопрокат логично связать с nearby и маршрутами: сначала находишь точку, потом строишь маршрут.',
+      primaryLabel: 'Открыть nearby',
+      primaryPath: '/nearby',
+      secondaryLabel: 'Открыть транспорт',
+      secondaryPath: '/section/transport'
+    }
+  };
+
+  return map[categoryId];
+}
+
 export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerProps) {
   const [filters, setFilters] = useState<FiltersState>(initialFilters);
   const { categories, places, tips, collections, loading, error } = useGuideContent();
+  const { location: userLocation, requestLocation, state: geoState } = useUserLocation();
 
   const rawCategory = useMemo(
     () =>
@@ -187,29 +320,26 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
   const filterFields = category?.filterSchema?.fields || [];
   const quickFilters = category?.filterSchema?.quickFilters || [];
 
-  const isNonEmptyString = (value: string | undefined | null): value is string =>
-  typeof value === 'string' && value.trim().length > 0;
-
-const kindOptions = useMemo(
-  () => Array.from(new Set(categoryPlaces.map((item) => item.kind).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
-  [categoryPlaces]
-);
-const cuisineOptions = useMemo(
-  () => Array.from(new Set(categoryPlaces.map((item) => item.cuisine).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
-  [categoryPlaces]
-);
-const districtOptions = useMemo(
-  () => Array.from(new Set(categoryPlaces.map((item) => item.district).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
-  [categoryPlaces]
-);
-const serviceOptions = useMemo(
-  () => Array.from(new Set(categoryPlaces.flatMap((item) => item.services || []).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
-  [categoryPlaces]
-);
-const tagOptions = useMemo(
-  () => Array.from(new Set(categoryPlaces.flatMap((item) => item.tags || []).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
-  [categoryPlaces]
-);
+  const kindOptions = useMemo(
+    () => Array.from(new Set(categoryPlaces.map((item) => item.kind).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+    [categoryPlaces]
+  );
+  const cuisineOptions = useMemo(
+    () => Array.from(new Set(categoryPlaces.map((item) => item.cuisine).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+    [categoryPlaces]
+  );
+  const districtOptions = useMemo(
+    () => Array.from(new Set(categoryPlaces.map((item) => item.district).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+    [categoryPlaces]
+  );
+  const serviceOptions = useMemo(
+    () => Array.from(new Set(categoryPlaces.flatMap((item) => item.services || []).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+    [categoryPlaces]
+  );
+  const tagOptions = useMemo(
+    () => Array.from(new Set(categoryPlaces.flatMap((item) => item.tags || []).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+    [categoryPlaces]
+  );
 
   const filteredPlaces = useMemo(() => {
     const nextPlaces = categoryPlaces.filter((place) => {
@@ -256,6 +386,24 @@ const tagOptions = useMemo(
   const topCount = useMemo(() => categoryPlaces.filter((place) => place.top).length, [categoryPlaces]);
   const activeQuickFiltersCount = filters.quickFilters.length + filters.selectedServices.length + filters.selectedTags.length + Number(filters.kind !== 'all') + Number(filters.cuisine !== 'all') + Number(filters.district !== 'all') + Number(Boolean(filters.minCheck)) + Number(Boolean(filters.maxCheck));
 
+  const geoReadyPlaces = useMemo(() => {
+    if (!userLocation) {
+      return [] as Array<GuidePlace & { distanceKm: number }>;
+    }
+
+    return sortPlaces(
+      categoryPlaces
+        .filter(hasMeaningfulCoords)
+        .map((place) => ({
+          ...place,
+          distanceKm: haversineDistanceKm(userLocation, { lat: place.lat!, lng: place.lng! })
+        })),
+      'priority'
+    )
+      .sort((left, right) => left.distanceKm - right.distanceKm)
+      .slice(0, 3);
+  }, [categoryPlaces, userLocation]);
+
   const relatedTips = useMemo(
     () =>
       tips.filter((tip: GuideTip) => tip.active && category && (tip.linkPath === category.path || tip.linkPath.endsWith(`/${category.slug}`) || tip.linkPath.endsWith(`/${category.id}`))).slice(0, 2),
@@ -268,7 +416,6 @@ const tagOptions = useMemo(
     [collections, category]
   );
 
-
   if (!category) {
     return (
       <div className="page-stack">
@@ -276,6 +423,8 @@ const tagOptions = useMemo(
       </div>
     );
   }
+
+  const guideContext = getGuideContext(category.id);
 
   return (
     <div className="page-stack category-explorer-page">
@@ -311,6 +460,48 @@ const tagOptions = useMemo(
           </div>
         )}
       </section>
+
+      {guideContext ? (
+        <section className="panel guide-tools-panel">
+          <div className="section-headline section-headline--muted">
+            <strong>{guideContext.title}</strong>
+            <span>Guide tools</span>
+          </div>
+          <p>{guideContext.description}</p>
+          <div className="guide-tools-panel__actions">
+            <Link className="button button--primary" to={guideContext.primaryPath}>{guideContext.primaryLabel}</Link>
+            <Link className="button button--ghost" to={guideContext.secondaryPath}>{guideContext.secondaryLabel}</Link>
+            {!userLocation ? (
+              <button className="button button--ghost" type="button" onClick={requestLocation} disabled={geoState === 'loading'}>
+                {geoState === 'loading' ? 'Определяю…' : 'Включить геолокацию'}
+              </button>
+            ) : null}
+          </div>
+
+          {geoReadyPlaces.length > 0 ? (
+            <div className="guide-nearest-grid">
+              {geoReadyPlaces.map((place) => (
+                <a
+                  key={`near-${place.id}`}
+                  className="guide-nearest-card"
+                  href={createGoogleDirectionsUrl(toListingLike(place), userLocation)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <strong>{place.title}</strong>
+                  <span>{formatDistance(place.distanceKm)}</span>
+                  <small>{estimateTravelTime(place.distanceKm, 'drive')} на машине</small>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="guide-tools-panel__hint">
+              <strong>{withCoordsCount > 0 ? 'Включи геолокацию, чтобы увидеть ближайшие точки.' : 'Когда у карточек появятся координаты, здесь будет блок ближайших точек.'}</strong>
+              <span>Сейчас nearby уже готов для transport, ATM, routes и остальных guide-разделов.</span>
+            </div>
+          )}
+        </section>
+      ) : null}
 
       {quickFilters.length > 0 ? (
         <section className="panel quick-filter-strip">
