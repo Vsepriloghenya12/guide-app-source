@@ -150,7 +150,7 @@ export function NearbyPage() {
       {loading ? <div className="panel page-loader">Загружаю места…</div> : null}
       {error ? (
         <div className="panel empty-state empty-state--left">
-          <strong>Не удалось загрузить nearby</strong>
+          <strong>Не удалось загрузить раздел</strong>
           <p>{error}</p>
         </div>
       ) : null}
@@ -194,7 +194,7 @@ export function NearbyPage() {
         <div className="panel empty-state empty-state--left">
           <strong>Пока нечего показать рядом</strong>
           <p>
-            Либо в карточках ещё нет координат, либо в выбранном разделе и радиусе нет мест. Уже сейчас owner может добавить lat/lng в CMS, и nearby сразу станет полезнее.
+            В выбранном разделе и радиусе пока нет подходящих мест. Попробуй изменить радиус или открыть все места в поиске.
           </p>
           <div className="placeholder-state__actions">
             <Link className="button button--ghost" to="/search">

@@ -319,11 +319,11 @@ export function ListingDetailPage() {
           </article>
           <article className="panel info-card">
             <strong>Добавить в календарь</strong>
-            <p>Если владелец указал дату в формате YYYY-MM-DD HH:MM, событие можно добавить в календарь одним нажатием.</p>
+            <p>Если дата и время события указаны полностью, его можно добавить в календарь одним нажатием.</p>
             <div className="detail-actions detail-actions--wrap">
               {googleCalendarUrl ? <a className="button button--primary" href={googleCalendarUrl} target="_blank" rel="noreferrer">Google Calendar</a> : null}
               {calendarDataUrl ? <a className="button button--ghost" href={calendarDataUrl} download={`${listing.slug || listing.id}.ics`}>Скачать .ics</a> : null}
-              {!googleCalendarUrl && !calendarDataUrl ? <span className="detail-helper-note">Укажи дату события в owner-CMS в поле «Часы работы», например: 2026-03-28 19:00.</span> : null}
+              {!googleCalendarUrl && !calendarDataUrl ? <span className="detail-helper-note">Добавление в календарь станет доступно, когда для события будут указаны дата и время.</span> : null}
             </div>
           </article>
         </section>

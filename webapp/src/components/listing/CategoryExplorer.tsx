@@ -177,7 +177,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
   const map: Record<GuideCategoryId, { title: string; description: string; primaryLabel: string; primaryPath: string; secondaryLabel: string; secondaryPath: string }> = {
     restaurants: {
       title: 'Быстрый вход в гастрогид',
-      description: 'Собирай nearby-выдачу, сохраняй места в избранное и открывай маршрут прямо из карточек.',
+      description: 'Ищи места поблизости, сохраняй понравившиеся и открывай маршрут в пару нажатий.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
@@ -185,7 +185,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     wellness: {
       title: 'Рядом и восстановиться',
-      description: 'У СПА и wellness удобнее всего работает nearby-сценарий: можно быстро выбрать место рядом и сразу построить маршрут.',
+      description: 'Найди место для отдыха рядом с собой и быстро открой маршрут.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
@@ -193,7 +193,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     'active-rest': {
       title: 'Ближайшие активности',
-      description: 'Для active rest уже подготовлен сценарий выбора nearby и открытия маршрута в карты.',
+      description: 'Выбирай активности рядом, сравнивай места и открывай маршрут на карте.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
@@ -201,7 +201,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     routes: {
       title: 'Маршруты и точки старта',
-      description: 'Этот раздел уже можно использовать как мини-гид: выбери маршрут, посмотри ближайшие точки и открой навигацию от текущего местоположения.',
+      description: 'Смотри маршруты, точки старта и полезные места по пути.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Все места на карте',
@@ -209,7 +209,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     hotels: {
       title: 'Отели вокруг тебя',
-      description: 'Когда owner заполнит координаты, nearby будет показывать ближайшие варианты проживания и быстрые переходы в карты.',
+      description: 'Выбирай жильё рядом с собой и быстро открывай маршрут.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
@@ -217,7 +217,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     events: {
       title: 'События поблизости',
-      description: 'Афишный модуль ещё впереди, но nearby и маршруты уже готовы под события и локации.',
+      description: 'Смотри ближайшие события, сохраняй планы и открывай место на карте.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
@@ -225,7 +225,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     transport: {
       title: 'Транспорт рядом',
-      description: 'Подходит для трансферов, шаттлов и точек старта. Можно быстро найти ближайший сервис и открыть маршрут в карты.',
+      description: 'Найди ближайший транспорт или трансфер и сразу построй маршрут.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Открыть банкоматы',
@@ -233,7 +233,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     atm: {
       title: 'Банкоматы и банки рядом',
-      description: 'Этот раздел уже может работать как util-блок: найди ближайшую точку, оцени расстояние и сразу открой маршрут.',
+      description: 'Покажем ближайшие банки и банкоматы с быстрым переходом в карты.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Открыть транспорт',
@@ -241,7 +241,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     shops: {
       title: 'Шопинг-подсказки',
-      description: 'Когда owner добавит координаты, раздел сможет показывать магазины и сувениры рядом с пользователем.',
+      description: 'Ищи магазины и сувениры рядом с собой.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
@@ -249,7 +249,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     culture: {
       title: 'Культура рядом',
-      description: 'Достопримечательности особенно удобно смотреть через nearby и быстрые карты-ссылки.',
+      description: 'Открывай достопримечательности рядом и строй маршрут в карты.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Открыть фото-споты',
@@ -257,7 +257,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     kids: {
       title: 'Семейные места рядом',
-      description: 'Nearby и быстрые маршруты уже подходят для семейного раздела и удобны в поездке.',
+      description: 'Подбирай семейные места рядом и сохраняй удобные варианты.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
@@ -265,7 +265,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     medicine: {
       title: 'Полезные точки рядом',
-      description: 'Клиники и аптеки — как раз тот сценарий, где nearby и маршрут особенно важны.',
+      description: 'Быстро находи клиники и аптеки рядом.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Поиск по всем местам',
@@ -273,7 +273,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     'photo-spots': {
       title: 'Фото-споты вокруг тебя',
-      description: 'Раздел уже умеет работать как карта вдохновения: можно быстро посмотреть ближайшие точки и сразу уехать на место.',
+      description: 'Смотри красивые локации рядом и открывай маршрут.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Открыть маршруты',
@@ -281,7 +281,7 @@ function getGuideContext(categoryId: GuideCategoryId) {
     },
     'car-rental': {
       title: 'Транспорт и аренда',
-      description: 'Автопрокат логично связать с nearby и маршрутами: сначала находишь точку, потом строишь маршрут.',
+      description: 'Находи аренду авто поблизости и строй маршрут.',
       primaryLabel: 'Открыть nearby',
       primaryPath: '/nearby',
       secondaryLabel: 'Открыть транспорт',
@@ -454,8 +454,8 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
           <h2>{category.title}</h2>
           <p>
             {categoryPlaces.length > 0
-              ? 'Раздел уже можно использовать как полноценную витрину: фильтруй, сортируй, открывай карточки мест и строй маршрут.'
-              : 'Раздел уже готов по структуре. Как только владелец добавит карточки, здесь сразу появятся фильтры, сетка мест и детальные страницы.'}
+              ? 'Выбирай места, используй фильтры, сохраняй понравившееся и открывай маршрут.'
+              : 'Скоро здесь появятся места, советы и полезные подборки по этому разделу.'}
           </p>
         </div>
 
@@ -490,7 +490,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
         <section className="panel guide-tools-panel">
           <div className="section-headline section-headline--muted">
             <strong>{guideContext.title}</strong>
-            <span>Guide tools</span>
+            <span>Быстрые действия</span>
           </div>
           <p>{guideContext.description}</p>
           <div className="guide-tools-panel__actions">
@@ -521,8 +521,8 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
             </div>
           ) : (
             <div className="guide-tools-panel__hint">
-              <strong>{withCoordsCount > 0 ? 'Включи геолокацию, чтобы увидеть ближайшие точки.' : 'Когда у карточек появятся координаты, здесь будет блок ближайших точек.'}</strong>
-              <span>Сейчас nearby уже готов для transport, ATM, routes и остальных guide-разделов.</span>
+              <strong>{withCoordsCount > 0 ? 'Включи геолокацию, чтобы увидеть ближайшие места.' : 'Поблизости пока не найдено подходящих мест.'}</strong>
+              <span>Попробуй открыть карту или посмотреть все места в этом разделе.</span>
             </div>
           )}
         </section>
@@ -718,7 +718,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
           <p>
             {categoryPlaces.length > 0
               ? 'Попробуй убрать часть фильтров или сменить сортировку — карточки уже есть, но они не попали под текущий набор условий.'
-              : 'Когда владелец добавит первые карточки, здесь автоматически появятся места, фильтры и переходы в детальные страницы.'}
+              : 'Скоро здесь появятся места и полезные подборки.'}
           </p>
         </section>
       ) : null}
