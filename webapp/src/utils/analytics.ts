@@ -17,21 +17,6 @@ function createAnalyticsId() {
   return `analytics-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-async function sendAnalyticsEventToServer(event: GuideAnalyticsEvent) {
-  try {
-    await fetch('/api/analytics', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(event)
-    });
-  } catch {
-    // analytics should never break UI
-  }
-}
-
 export function recordGuideAnalytics(input: AnalyticsInput) {
   if (typeof window === 'undefined') {
     return;
@@ -47,29 +32,21 @@ export function recordGuideAnalytics(input: AnalyticsInput) {
     createdAt: new Date().toISOString()
   };
 
-  updateGuideContent(
-    (current) => ({
-      ...current,
-      analytics: {
-        events: [...current.analytics.events, nextEvent].slice(-400)
-      }
-    }),
-    { persist: false }
-  );
-
-  void sendAnalyticsEventToServer(nextEvent);
+  updateGuideContent((current) => ({
+    ...current,
+    analytics: {
+      events: [...current.analytics.events, nextEvent].slice(-400)
+    }
+  }));
 }
 
 export function resetGuideAnalytics() {
-  updateGuideContent(
-    (current) => ({
-      ...current,
-      analytics: {
-        events: []
-      }
-    }),
-    { persist: false }
-  );
+  updateGuideContent((current) => ({
+    ...current,
+    analytics: {
+      events: []
+    }
+  }));
 }
 
 export function getAnalyticsLabelByPath(pathname: string) {

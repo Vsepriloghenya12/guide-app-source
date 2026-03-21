@@ -1,17 +1,11 @@
 import { defaultGuideContent } from './mockData';
 import { defaultCategories } from './categories';
 import type { GuideCategory, GuideContentStore, GuidePlace } from '../types';
-import { notifyOwnerAuthRequired } from '../utils/ownerEvents';
 
 const GUIDE_CONTENT_KEY = 'guide-content-store-v4';
 const LEGACY_GUIDE_CONTENT_KEY = 'guide-content-store-v2';
-const GUIDE_CONTENT_ENDPOINT = '/api/content';
-const GUIDE_CONTENT_RESET_ENDPOINT = '/api/content/reset';
 
 export const GUIDE_CONTENT_EVENT = 'guide-content-updated';
-
-let persistQueue: Promise<unknown> = Promise.resolve();
-let serverSyncPromise: Promise<GuideContentStore> | null = null;
 
 function cloneRawDefaultStore(): GuideContentStore {
   return JSON.parse(JSON.stringify(defaultGuideContent)) as GuideContentStore;
@@ -120,7 +114,8 @@ function normalizeCategory(category: Partial<GuideCategory>, fallback: GuideCate
     shortTitle: category.shortTitle ?? fallback.shortTitle ?? fallback.title,
     accent: category.accent ?? fallback.accent ?? 'coast',
     filterSchema: {
-      quickFilters: category.filterSchema?.quickFilters ?? fallback.filterSchema?.quickFilters ?? [],
+      quickFilters:
+        category.filterSchema?.quickFilters ?? fallback.filterSchema?.quickFilters ?? [],
       fields: category.filterSchema?.fields ?? fallback.filterSchema?.fields ?? []
     }
   };
@@ -170,7 +165,9 @@ function normalizeStore(parsed: Partial<GuideContentStore>): GuideContentStore {
   const normalizedDefaultCategories = defaultCategories.map((fallback) => normalizeCategory(fallback, fallback));
   const normalizedDefaultPlaces = (Array.isArray(rawDefaults.places) ? rawDefaults.places : []).map(normalizePlace);
 
-  const places = Array.isArray(parsed.places) ? parsed.places.map(normalizePlace) : normalizedDefaultPlaces;
+  const places = Array.isArray(parsed.places)
+    ? parsed.places.map(normalizePlace)
+    : normalizedDefaultPlaces;
 
   const categories = Array.isArray(parsed.categories)
     ? defaultCategories.map((fallback) => {
@@ -204,7 +201,9 @@ function normalizeStore(parsed: Partial<GuideContentStore>): GuideContentStore {
     },
     analytics: {
       events: Array.isArray(parsed.analytics?.events)
-        ? parsed.analytics.events.filter((event): event is NonNullable<typeof event> => Boolean(event)).slice(-400)
+        ? parsed.analytics.events
+            .filter((event): event is NonNullable<typeof event> => Boolean(event))
+            .slice(-400)
         : rawDefaults.analytics?.events ?? []
     }
   };
@@ -212,62 +211,6 @@ function normalizeStore(parsed: Partial<GuideContentStore>): GuideContentStore {
 
 function cloneDefaultStore(): GuideContentStore {
   return normalizeStore(cloneRawDefaultStore());
-}
-
-function emitGuideContentUpdate() {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  window.dispatchEvent(new CustomEvent(GUIDE_CONTENT_EVENT));
-}
-
-async function fetchContentFromServer(): Promise<GuideContentStore> {
-  const response = await fetch(GUIDE_CONTENT_ENDPOINT, {
-    credentials: 'include'
-  });
-
-  const payload = (await response.json().catch(() => ({}))) as { ok?: boolean; content?: GuideContentStore; message?: string };
-
-  if (!response.ok || !payload.content) {
-    throw new Error(payload.message || 'Не удалось загрузить контент с сервера.');
-  }
-
-  return normalizeStore(payload.content);
-}
-
-async function pushContentToServer(store: GuideContentStore) {
-  const response = await fetch(GUIDE_CONTENT_ENDPOINT, {
-    method: 'PUT',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ content: store })
-  });
-
-  const payload = (await response.json().catch(() => ({}))) as { ok?: boolean; content?: GuideContentStore; message?: string };
-
-  if (!response.ok || !payload.content) {
-    if (response.status === 401) {
-      notifyOwnerAuthRequired();
-    }
-    throw new Error(payload.message || 'Не удалось сохранить контент в PostgreSQL.');
-  }
-
-  return normalizeStore(payload.content);
-}
-
-function queuePersist(store: GuideContentStore) {
-  persistQueue = persistQueue
-    .catch(() => undefined)
-    .then(async () => {
-      const remoteStore = await pushContentToServer(store);
-      writeGuideContent(remoteStore, { persist: false, emit: true });
-      return remoteStore;
-    });
-
-  return persistQueue;
 }
 
 export function readGuideContent(): GuideContentStore {
@@ -286,7 +229,7 @@ export function readGuideContent(): GuideContentStore {
     if (legacyRaw) {
       const migrated = migrateLegacyStore(legacyRaw);
       if (migrated) {
-        writeGuideContent(migrated, { persist: false, emit: true });
+        writeGuideContent(migrated);
         return migrated;
       }
     }
@@ -297,78 +240,30 @@ export function readGuideContent(): GuideContentStore {
   }
 }
 
-export function writeGuideContent(
-  store: GuideContentStore,
-  options: {
-    persist?: boolean;
-    emit?: boolean;
-  } = {}
-) {
-  const nextStore = normalizeStore(store);
-
-  if (canUseStorage()) {
-    window.localStorage.setItem(GUIDE_CONTENT_KEY, JSON.stringify(nextStore));
-  }
-
-  if (options.emit !== false) {
-    emitGuideContentUpdate();
-  }
-
-  if (options.persist) {
-    void queuePersist(nextStore);
-  }
-
-  return nextStore;
-}
-
-export function updateGuideContent(
-  updater: (current: GuideContentStore) => GuideContentStore,
-  options: {
-    persist?: boolean;
-  } = {}
-) {
-  const current = readGuideContent();
-  return writeGuideContent(updater(current), {
-    persist: options.persist ?? true,
-    emit: true
-  });
-}
-
-export async function syncGuideContentFromServer() {
+function emitGuideContentUpdate() {
   if (typeof window === 'undefined') {
-    return cloneDefaultStore();
+    return;
   }
 
-  if (!serverSyncPromise) {
-    serverSyncPromise = fetchContentFromServer()
-      .then((remoteStore) => writeGuideContent(remoteStore, { persist: false, emit: true }))
-      .catch(() => readGuideContent())
-      .finally(() => {
-        serverSyncPromise = null;
-      }) as Promise<GuideContentStore>;
-  }
-
-  return serverSyncPromise;
+  window.dispatchEvent(new CustomEvent(GUIDE_CONTENT_EVENT));
 }
 
-export async function resetGuideContent() {
-  const localReset = writeGuideContent(cloneDefaultStore(), { persist: false, emit: true });
-
-  try {
-    const response = await fetch(GUIDE_CONTENT_RESET_ENDPOINT, {
-      method: 'POST',
-      credentials: 'include'
-    });
-    const payload = (await response.json().catch(() => ({}))) as { ok?: boolean; content?: GuideContentStore };
-
-    if (response.ok && payload.content) {
-      return writeGuideContent(payload.content, { persist: false, emit: true });
-    }
-  } catch {
-    // ignore network errors and keep local reset state
+export function writeGuideContent(store: GuideContentStore) {
+  if (!canUseStorage()) {
+    return;
   }
 
-  return localReset;
+  window.localStorage.setItem(GUIDE_CONTENT_KEY, JSON.stringify(normalizeStore(store)));
+  emitGuideContentUpdate();
+}
+
+export function updateGuideContent(updater: (current: GuideContentStore) => GuideContentStore) {
+  const current = readGuideContent();
+  writeGuideContent(updater(current));
+}
+
+export function resetGuideContent() {
+  writeGuideContent(cloneDefaultStore());
 }
 
 export type { GuideContentStore } from '../types';
