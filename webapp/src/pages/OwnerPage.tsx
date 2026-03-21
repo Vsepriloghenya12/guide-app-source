@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { OwnerAnalyticsPanel } from '../components/owner/OwnerAnalyticsPanel';
 import { OwnerCategoryOverview } from '../components/owner/OwnerCategoryOverview';
@@ -9,6 +9,7 @@ import { OwnerTipsManager } from '../components/owner/OwnerTipsManager';
 import { resetGuideContent } from '../data/guideContent';
 import { useGuideContent } from '../hooks/useGuideContent';
 import { logoutOwner } from '../utils/ownerAuth';
+import { OWNER_AUTH_REQUIRED_EVENT } from '../utils/ownerEvents';
 
 type OwnerTabId = 'overview' | 'places' | 'categories' | 'tips' | 'home' | 'analytics';
 
@@ -50,14 +51,26 @@ export function OwnerPage() {
   const { places, categories, tips, banners, collections, home, analytics } = useGuideContent();
   const [activeTab, setActiveTab] = useState<OwnerTabId>('overview');
 
-  const handleLogout = () => {
-    logoutOwner();
-    navigate('/owner-login', { replace: true });
+  const handleLogout = async () => {
+    try {
+      await logoutOwner();
+    } finally {
+      navigate('/owner-login', { replace: true });
+    }
   };
 
-  const handleReset = () => {
-    resetGuideContent();
+  const handleReset = async () => {
+    await resetGuideContent();
   };
+
+  useEffect(() => {
+    const handleAuthRequired = () => {
+      navigate('/owner-login', { replace: true, state: { from: '/owner' } });
+    };
+
+    window.addEventListener(OWNER_AUTH_REQUIRED_EVENT, handleAuthRequired);
+    return () => window.removeEventListener(OWNER_AUTH_REQUIRED_EVENT, handleAuthRequired);
+  }, [navigate]);
 
   const topPlacesCount = places.filter((place: { top: boolean }) => place.top).length;
 
