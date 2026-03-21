@@ -187,26 +187,29 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
   const filterFields = category?.filterSchema?.fields || [];
   const quickFilters = category?.filterSchema?.quickFilters || [];
 
-  const kindOptions = useMemo(
-    () => Array.from(new Set(categoryPlaces.map((item) => item.kind).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ru')),
-    [categoryPlaces]
-  );
-  const cuisineOptions = useMemo(
-    () => Array.from(new Set(categoryPlaces.map((item) => item.cuisine).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ru')),
-    [categoryPlaces]
-  );
-  const districtOptions = useMemo(
-    () => Array.from(new Set(categoryPlaces.map((item) => item.district).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ru')),
-    [categoryPlaces]
-  );
-  const serviceOptions = useMemo(
-    () => Array.from(new Set(categoryPlaces.flatMap((item) => item.services || []).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ru')),
-    [categoryPlaces]
-  );
-  const tagOptions = useMemo(
-    () => Array.from(new Set(categoryPlaces.flatMap((item) => item.tags || []).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ru')),
-    [categoryPlaces]
-  );
+  const isNonEmptyString = (value: string | undefined | null): value is string =>
+  typeof value === 'string' && value.trim().length > 0;
+
+const kindOptions = useMemo(
+  () => Array.from(new Set(categoryPlaces.map((item) => item.kind).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+  [categoryPlaces]
+);
+const cuisineOptions = useMemo(
+  () => Array.from(new Set(categoryPlaces.map((item) => item.cuisine).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+  [categoryPlaces]
+);
+const districtOptions = useMemo(
+  () => Array.from(new Set(categoryPlaces.map((item) => item.district).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+  [categoryPlaces]
+);
+const serviceOptions = useMemo(
+  () => Array.from(new Set(categoryPlaces.flatMap((item) => item.services || []).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+  [categoryPlaces]
+);
+const tagOptions = useMemo(
+  () => Array.from(new Set(categoryPlaces.flatMap((item) => item.tags || []).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+  [categoryPlaces]
+);
 
   const filteredPlaces = useMemo(() => {
     const nextPlaces = categoryPlaces.filter((place) => {
