@@ -1,24 +1,47 @@
-import {
-  restaurants as defaultRestaurants,
-  wellnessItems as defaultWellnessItems,
-  homeContent as defaultHomeContent
-} from './mockData';
-import {
-  fetchGuideContent,
-  resetGuideContentRequest,
-  saveHomeContentRequest,
-  saveRestaurantsRequest,
-  saveWellnessRequest
-} from './api';
-import type { HomeContent, RestaurantItem, WellnessItem } from '../types';
+import { restaurants as defaultRestaurants, wellnessItems as defaultWellnessItems } from './mockData';
+import type { RestaurantItem, WellnessItem } from '../types';
 
 export type GuideContentStore = {
   restaurants: RestaurantItem[];
   wellness: WellnessItem[];
-  home: HomeContent;
 };
 
+const GUIDE_CONTENT_KEY = 'guide-content-store-v1';
 export const GUIDE_CONTENT_EVENT = 'guide-content-updated';
+
+function getDefaultStore(): GuideContentStore {
+  return {
+    restaurants: defaultRestaurants,
+    wellness: defaultWellnessItems
+  };
+}
+
+function canUseStorage() {
+  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+}
+
+export function readGuideContent(): GuideContentStore {
+  if (!canUseStorage()) {
+    return getDefaultStore();
+  }
+
+  try {
+    const raw = window.localStorage.getItem(GUIDE_CONTENT_KEY);
+
+    if (!raw) {
+      return getDefaultStore();
+    }
+
+    const parsed = JSON.parse(raw) as Partial<GuideContentStore>;
+
+    return {
+      restaurants: Array.isArray(parsed.restaurants) ? parsed.restaurants : defaultRestaurants,
+      wellness: Array.isArray(parsed.wellness) ? parsed.wellness : defaultWellnessItems
+    };
+  } catch {
+    return getDefaultStore();
+  }
+}
 
 function emitGuideContentUpdate() {
   if (typeof window === 'undefined') {
@@ -28,43 +51,31 @@ function emitGuideContentUpdate() {
   window.dispatchEvent(new CustomEvent(GUIDE_CONTENT_EVENT));
 }
 
-export function getDefaultGuideContent(): GuideContentStore {
-  return {
-    restaurants: defaultRestaurants,
-    wellness: defaultWellnessItems,
-    home: defaultHomeContent
-  };
-}
-
-export async function readGuideContent(): Promise<GuideContentStore> {
-  try {
-    return await fetchGuideContent();
-  } catch (error) {
-    console.error('readGuideContent fallback to defaults', error);
-    return getDefaultGuideContent();
+export function writeGuideContent(store: GuideContentStore) {
+  if (!canUseStorage()) {
+    return;
   }
+
+  window.localStorage.setItem(GUIDE_CONTENT_KEY, JSON.stringify(store));
+  emitGuideContentUpdate();
 }
 
-export async function saveRestaurants(restaurants: RestaurantItem[]) {
-  const store = await saveRestaurantsRequest(restaurants);
-  emitGuideContentUpdate();
-  return store;
+export function saveRestaurants(restaurants: RestaurantItem[]) {
+  const current = readGuideContent();
+  writeGuideContent({
+    ...current,
+    restaurants
+  });
 }
 
-export async function saveWellnessItems(wellness: WellnessItem[]) {
-  const store = await saveWellnessRequest(wellness);
-  emitGuideContentUpdate();
-  return store;
+export function saveWellnessItems(wellness: WellnessItem[]) {
+  const current = readGuideContent();
+  writeGuideContent({
+    ...current,
+    wellness
+  });
 }
 
-export async function saveHomeContent(home: HomeContent) {
-  const store = await saveHomeContentRequest(home);
-  emitGuideContentUpdate();
-  return store;
-}
-
-export async function resetGuideContent() {
-  const store = await resetGuideContentRequest();
-  emitGuideContentUpdate();
-  return store;
+export function resetGuideContent() {
+  writeGuideContent(getDefaultStore());
 }

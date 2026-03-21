@@ -9,7 +9,6 @@ import { WellnessFilters, WellnessFiltersState } from '../components/filters/Wel
 import { PageHeader } from '../components/layout/PageHeader';
 import { useGuideContent } from '../hooks/useGuideContent';
 
-
 type ListingPageProps = {
   category: 'restaurants' | 'wellness';
 };
@@ -29,41 +28,16 @@ const initialWellnessFilters: WellnessFiltersState = {
   childPrograms: 'all'
 };
 
-function sortListings<T extends { featured: boolean; sortOrder: number; rating: number; title: string }>(items: T[]) {
-  return [...items].sort((left, right) => {
-    if (left.featured !== right.featured) {
-      return left.featured ? -1 : 1;
-    }
-    if (left.sortOrder !== right.sortOrder) {
-      return left.sortOrder - right.sortOrder;
-    }
-    if (left.rating !== right.rating) {
-      return right.rating - left.rating;
-    }
-    return left.title.localeCompare(right.title, 'ru');
-  });
-}
-
 export function ListingPage({ category }: ListingPageProps) {
   const [restaurantFilters, setRestaurantFilters] = useState<RestaurantFiltersState>(
     initialRestaurantFilters
   );
   const [wellnessFiltersState, setWellnessFiltersState] =
     useState<WellnessFiltersState>(initialWellnessFilters);
-  const { restaurants, wellness, isLoading } = useGuideContent();
-
-  const publicRestaurants = useMemo(
-    () => restaurants.filter((item) => item.status === 'published'),
-    [restaurants]
-  );
-
-  const publicWellness = useMemo(
-    () => wellness.filter((item) => item.status === 'published'),
-    [wellness]
-  );
+  const { restaurants, wellness } = useGuideContent();
 
   const filteredRestaurants = useMemo(() => {
-    const filtered = publicRestaurants.filter((item) => {
+    return restaurants.filter((item) => {
       const minCheck = Number(restaurantFilters.minCheck || 0);
       const maxCheck = Number(restaurantFilters.maxCheck || 0);
 
@@ -106,12 +80,10 @@ export function ListingPage({ category }: ListingPageProps) {
 
       return true;
     });
-
-    return sortListings(filtered);
-  }, [restaurantFilters, publicRestaurants]);
+  }, [restaurantFilters, restaurants]);
 
   const filteredWellness = useMemo(() => {
-    const filtered = publicWellness.filter((item) => {
+    return wellness.filter((item) => {
       if (
         wellnessFiltersState.service.length > 0 &&
         !wellnessFiltersState.service.some((service) => item.services.includes(service as never))
@@ -128,24 +100,20 @@ export function ListingPage({ category }: ListingPageProps) {
 
       return true;
     });
-
-    return sortListings(filtered);
-  }, [wellnessFiltersState, publicWellness]);
+  }, [wellnessFiltersState, wellness]);
 
   if (category === 'restaurants') {
     return (
       <div className="page-stack">
         <PageHeader
           title="Рестораны, кафе и столовые"
-          subtitle="Раздел подключён к owner-CMS и серверному хранилищу: на витрину попадают только опубликованные карточки, а сортировка и топ-показ управляются владельцем."
+          subtitle="Раздел уже подключён к owner-CMS: новые карточки из закрытой страницы владельца появляются здесь автоматически."
           showBack
         />
 
         <FilterPanel title="Фильтр ресторанов">
           <RestaurantFilters value={restaurantFilters} onChange={setRestaurantFilters} />
         </FilterPanel>
-
-        {isLoading ? <p className="loading-inline">Загружаем карточки…</p> : null}
 
         <section className="grid-listing">
           {filteredRestaurants.map((item) => (
@@ -157,7 +125,6 @@ export function ListingPage({ category }: ListingPageProps) {
               rating={item.rating}
               imageLabel={item.imageLabel}
               meta={[
-                item.featured ? 'Топ-показ' : 'Стандартный показ',
                 item.kind === 'restaurant'
                   ? 'Ресторан'
                   : item.kind === 'club'
@@ -173,11 +140,9 @@ export function ListingPage({ category }: ListingPageProps) {
                       ? 'Тайская'
                       : 'Вьетнамская',
                 `Средний чек ${item.avgCheck}`,
-                item.hours || 'Часы работы не указаны',
                 item.breakfast ? 'Есть завтраки' : 'Без завтраков',
                 item.vegan ? 'Веган меню' : 'Без веган меню',
-                item.pets ? 'Можно с животными' : 'Без животных',
-                ...item.tags.map((tag) => `#${tag}`)
+                item.pets ? 'Можно с животными' : 'Без животных'
               ]}
             />
           ))}
@@ -190,15 +155,13 @@ export function ListingPage({ category }: ListingPageProps) {
     <div className="page-stack">
       <PageHeader
         title="СПА и оздоровление"
-        subtitle="Этот раздел тоже связан с owner-CMS: на витрину попадают только опубликованные карточки, а порядок показа и блок «топ» управляются владельцем."
+        subtitle="Этот раздел тоже связан с owner-CMS: карточки из закрытой страницы владельца сразу выводятся здесь."
         showBack
       />
 
       <FilterPanel title="Фильтр СПА и оздоровления">
         <WellnessFilters value={wellnessFiltersState} onChange={setWellnessFiltersState} />
       </FilterPanel>
-
-      {isLoading ? <p className="loading-inline">Загружаем карточки…</p> : null}
 
       <section className="grid-listing">
         {filteredWellness.map((item) => (
@@ -210,7 +173,6 @@ export function ListingPage({ category }: ListingPageProps) {
             rating={item.rating}
             imageLabel={item.imageLabel}
             meta={[
-              item.featured ? 'Топ-показ' : 'Стандартный показ',
               ...item.services.map((service) => {
                 const serviceLabelMap: Record<string, string> = {
                   massage: 'Массаж',
@@ -224,9 +186,7 @@ export function ListingPage({ category }: ListingPageProps) {
 
                 return serviceLabelMap[service];
               }),
-              item.hours || 'Часы работы не указаны',
-              item.childPrograms ? 'Есть детские программы' : 'Без детских программ',
-              ...item.tags.map((tag) => `#${tag}`)
+              item.childPrograms ? 'Есть детские программы' : 'Без детских программ'
             ]}
           />
         ))}

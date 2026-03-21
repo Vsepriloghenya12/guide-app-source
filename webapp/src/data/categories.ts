@@ -5,25 +5,37 @@ export const homeFeatures: HomeFeature[] = [
     id: 'top-restaurants',
     title: 'Топ 5 ресторанов',
     description: 'Подборка лучших мест с красивой подачей и атмосферой.',
-    path: '/restaurants',
-    tone: 'coast'
+    path: '/restaurants'
   },
   {
-    id: 'spa-selection',
-    title: 'Лучшие SPA-программы',
-    description: 'Где расслабиться, восстановиться и провести красивый slow day.',
-    path: '/wellness',
-    tone: 'sunset'
+    id: 'best-excursions',
+    title: 'Лучшие экскурсии',
+    description: 'Скоро здесь появятся проверенные экскурсии и подборки.',
+    path: '/section/excursions'
+  },
+  {
+    id: 'weekend-routes',
+    title: 'Маршруты выходного дня',
+    description: 'Готовые идеи коротких путешествий на 1–2 дня.',
+    path: '/section/weekend-routes'
   }
 ];
 
 export const homeCategories: HomeCategory[] = [
-  { id: 'food', title: 'Еда', subtitle: 'рестораны, завтраки и локальные места', path: '/restaurants', badge: 'Популярно', tone: 'orange' },
-  { id: 'wellness', title: 'СПА', subtitle: 'ритуалы, массаж и отдых', path: '/wellness', tone: 'green' },
-  { id: 'events', title: 'Афиша', subtitle: 'события, бары и городская жизнь', path: '/section/events', tone: 'blue' },
-  { id: 'culture', title: 'Культура', subtitle: 'музеи, достопримечательности и прогулки', path: '/section/culture', tone: 'pink' },
-  { id: 'shops', title: 'Шопинг', subtitle: 'магазины, рынки и сувениры', path: '/section/shops', tone: 'red' },
-  { id: 'nature', title: 'Природа', subtitle: 'маршруты, виды и короткие выезды', path: '/section/routes', badge: 'Маршруты', tone: 'teal' }
+  { id: 'restaurants', title: 'Рестораны, кафе и столовые', path: '/restaurants', badge: 'Популярно' },
+  { id: 'wellness', title: 'СПА и оздоровление', path: '/wellness' },
+  { id: 'active-rest', title: 'Активный отдых и экстрим', path: '/section/active-rest' },
+  { id: 'routes', title: 'Маршруты и тропы', path: '/section/routes' },
+  { id: 'hotels', title: 'Отели и проживание', path: '/section/hotels' },
+  { id: 'events', title: 'Афиша', path: '/section/events' },
+  { id: 'transport', title: 'Транспорт', path: '/section/transport' },
+  { id: 'atm', title: 'Банкоматы', path: '/section/atm' },
+  { id: 'shops', title: 'Магазины и сувениры', path: '/section/shops' },
+  { id: 'culture', title: 'Культура и достопримечательности', path: '/section/culture' },
+  { id: 'kids', title: 'Детский отдых', path: '/section/kids' },
+  { id: 'medicine', title: 'Медицина', path: '/section/medicine' },
+  { id: 'photo-spots', title: 'Фото зоны / смотровые', path: '/section/photo-spots' },
+  { id: 'car-rental', title: 'Авто прокат', path: '/section/car-rental' }
 ];
 
 export const sectionTitles: Record<string, string> = {

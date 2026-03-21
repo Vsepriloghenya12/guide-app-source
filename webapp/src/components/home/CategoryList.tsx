@@ -16,7 +16,6 @@ export function CategoryList() {
           <Link key={category.id} to={category.path} className="category-list__item">
             <div className="category-list__text">
               <strong>{category.title}</strong>
-              <span>{category.subtitle}</span>
             </div>
             {category.badge ? (
               <div className="category-list__meta">

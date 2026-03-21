@@ -1,43 +1,22 @@
 import { useEffect, useState } from 'react';
-import {
-  GUIDE_CONTENT_EVENT,
-  getDefaultGuideContent,
-  readGuideContent,
-  type GuideContentStore
-} from '../data/guideContent';
+import { GUIDE_CONTENT_EVENT, readGuideContent, type GuideContentStore } from '../data/guideContent';
 
 export function useGuideContent() {
-  const [content, setContent] = useState<GuideContentStore>(getDefaultGuideContent);
-  const [isLoading, setIsLoading] = useState(true);
+  const [content, setContent] = useState<GuideContentStore>(() => readGuideContent());
 
   useEffect(() => {
-    let isMounted = true;
-
-    const sync = async () => {
-      const nextContent = await readGuideContent();
-      if (!isMounted) {
-        return;
-      }
-      setContent(nextContent);
-      setIsLoading(false);
+    const sync = () => {
+      setContent(readGuideContent());
     };
 
-    sync();
-
-    const handleUpdate = () => {
-      void sync();
-    };
-
-    window.addEventListener(GUIDE_CONTENT_EVENT, handleUpdate);
+    window.addEventListener(GUIDE_CONTENT_EVENT, sync);
+    window.addEventListener('storage', sync);
 
     return () => {
-      isMounted = false;
-      window.removeEventListener(GUIDE_CONTENT_EVENT, handleUpdate);
+      window.removeEventListener(GUIDE_CONTENT_EVENT, sync);
+      window.removeEventListener('storage', sync);
     };
   }, []);
 
-  return {
-    ...content,
-    isLoading
-  };
+  return content;
 }
