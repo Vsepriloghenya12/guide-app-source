@@ -46,6 +46,7 @@ body {
   font-family: var(--body-font);
   background: linear-gradient(180deg, #060910 0%, #04070c 100%);
   color: var(--text);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 a {

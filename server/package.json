@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "express": "^4.21.2",
-    "postgres": "^3.4.8"
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

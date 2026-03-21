@@ -1763,3 +1763,62 @@ body {
     align-items: flex-start;
   }
 }
+
+
+.pwa-prompt {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px) + 14px);
+  transform: translateX(-50%);
+  z-index: 30;
+  width: min(calc(100% - 24px), 520px);
+  display: grid;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 248, 235, 0.14);
+  background: rgba(8, 18, 30, 0.9);
+  box-shadow: 0 22px 52px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px);
+}
+
+.pwa-prompt__content {
+  display: grid;
+  gap: 8px;
+}
+
+.pwa-prompt__eyebrow {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+}
+
+.pwa-prompt__title {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.pwa-prompt__text {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.94rem;
+  line-height: 1.5;
+}
+
+.pwa-prompt__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pwa-prompt__button {
+  min-width: 132px;
+}
+
+html.display-mode-standalone .pwa-prompt {
+  display: none;
+}

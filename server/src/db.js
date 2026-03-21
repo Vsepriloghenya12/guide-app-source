@@ -1,17 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 
-let postgres = null;
+let Pool = null;
 try {
-  postgres = require('postgres');
+  ({ Pool } = require('pg'));
 } catch {
-  postgres = null;
+  Pool = null;
 }
 
 const seedPath = path.resolve(__dirname, '../../shared/default-guide-content.json');
 const defaultContent = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
 
-let sql = null;
+let pool = null;
 let dbReadyPromise = null;
 
 function getSslConfig() {
@@ -19,26 +19,25 @@ function getSslConfig() {
   const explicit = String(process.env.DATABASE_SSL || '').toLowerCase();
 
   if (explicit === 'true' || mode === 'require') {
-    return 'require';
+    return { rejectUnauthorized: false };
   }
 
   return undefined;
 }
 
-function getSql() {
-  if (!process.env.DATABASE_URL || !postgres) {
+function getPool() {
+  if (!process.env.DATABASE_URL || !Pool) {
     return null;
   }
 
-  if (!sql) {
-    sql = postgres(process.env.DATABASE_URL, {
-      ssl: getSslConfig(),
-      max: 5,
-      prepare: false
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: getSslConfig()
     });
   }
 
-  return sql;
+  return pool;
 }
 
 function hasDatabase() {
@@ -47,6 +46,59 @@ function hasDatabase() {
 
 function cloneDefaultContent() {
   return JSON.parse(JSON.stringify(defaultContent));
+}
+
+async function ensureDatabase() {
+  const currentPool = getPool();
+
+  if (!currentPool) {
+    return false;
+  }
+
+  if (!dbReadyPromise) {
+    dbReadyPromise = (async () => {
+      await currentPool.query(`
+        create table if not exists app_content (
+          key text primary key,
+          data jsonb not null,
+          updated_at timestamptz not null default now()
+        )
+      `);
+
+      await currentPool.query(`
+        create table if not exists analytics_events (
+          id text primary key,
+          kind text not null,
+          label text not null,
+          path text not null,
+          entity_id text,
+          category_id text,
+          created_at timestamptz not null
+        )
+      `);
+
+      await currentPool.query(
+        `create index if not exists analytics_events_created_at_idx on analytics_events (created_at desc)`
+      );
+
+      const existing = await currentPool.query('select key from app_content where key = $1', ['guide-content']);
+      if (existing.rowCount === 0) {
+        const seed = cloneDefaultContent();
+        delete seed.analytics;
+        await currentPool.query(
+          `insert into app_content (key, data, updated_at) values ($1, $2::jsonb, now())`,
+          ['guide-content', JSON.stringify(seed)]
+        );
+      }
+
+      return true;
+    })().catch((error) => {
+      dbReadyPromise = null;
+      throw error;
+    });
+  }
+
+  return dbReadyPromise;
 }
 
 function normalizeContentStore(input) {
@@ -70,83 +122,17 @@ function normalizeContentStore(input) {
   };
 }
 
-async function ensureDatabase() {
-  const db = getSql();
-
-  if (!db) {
-    return false;
-  }
-
-  if (!dbReadyPromise) {
-    dbReadyPromise = (async () => {
-      await db.unsafe(`
-        create table if not exists app_content (
-          key text primary key,
-          data jsonb not null,
-          updated_at timestamptz not null default now()
-        )
-      `);
-
-      await db.unsafe(`
-        create table if not exists analytics_events (
-          id text primary key,
-          kind text not null,
-          label text not null,
-          path text not null,
-          entity_id text,
-          category_id text,
-          created_at timestamptz not null
-        )
-      `);
-
-      await db.unsafe(`
-        create index if not exists analytics_events_created_at_idx
-        on analytics_events (created_at desc)
-      `);
-
-      const existing = await db.unsafe(
-        'select key from app_content where key = $1',
-        ['guide-content']
-      );
-
-      if (existing.length === 0) {
-        const seed = cloneDefaultContent();
-        delete seed.analytics;
-
-        await db.unsafe(
-          'insert into app_content (key, data, updated_at) values ($1, $2::jsonb, now())',
-          ['guide-content', JSON.stringify(seed)]
-        );
-      }
-
-      return true;
-    })().catch((error) => {
-      dbReadyPromise = null;
-      throw error;
-    });
-  }
-
-  return dbReadyPromise;
-}
-
 async function getAnalyticsEvents(limit = 400) {
-  const db = getSql();
-  if (!db) {
+  const currentPool = getPool();
+  if (!currentPool) {
     return [];
   }
 
   await ensureDatabase();
 
-  const rows = await db.unsafe(
+  const result = await currentPool.query(
     `
-      select
-        id,
-        kind,
-        label,
-        path,
-        entity_id as "entityId",
-        category_id as "categoryId",
-        created_at as "createdAt"
+      select id, kind, label, path, entity_id as "entityId", category_id as "categoryId", created_at as "createdAt"
       from analytics_events
       order by created_at desc
       limit $1
@@ -154,23 +140,19 @@ async function getAnalyticsEvents(limit = 400) {
     [limit]
   );
 
-  return rows.reverse();
+  return result.rows.reverse();
 }
 
 async function getContentStore() {
-  const db = getSql();
-  if (!db) {
+  const currentPool = getPool();
+  if (!currentPool) {
     return normalizeContentStore(cloneDefaultContent());
   }
 
   await ensureDatabase();
 
-  const contentRows = await db.unsafe(
-    'select data from app_content where key = $1 limit 1',
-    ['guide-content']
-  );
-
-  const data = contentRows[0]?.data || cloneDefaultContent();
+  const contentResult = await currentPool.query('select data from app_content where key = $1 limit 1', ['guide-content']);
+  const data = contentResult.rows[0]?.data || cloneDefaultContent();
   const analyticsEvents = await getAnalyticsEvents(400);
 
   return normalizeContentStore({
@@ -182,8 +164,8 @@ async function getContentStore() {
 }
 
 async function saveContentStore(store) {
-  const db = getSql();
-  if (!db) {
+  const currentPool = getPool();
+  if (!currentPool) {
     return normalizeContentStore(store);
   }
 
@@ -195,7 +177,7 @@ async function saveContentStore(store) {
   delete dataToSave.restaurants;
   delete dataToSave.wellness;
 
-  await db.unsafe(
+  await currentPool.query(
     `
       insert into app_content (key, data, updated_at)
       values ($1, $2::jsonb, now())
@@ -206,7 +188,6 @@ async function saveContentStore(store) {
   );
 
   const analyticsEvents = await getAnalyticsEvents(400);
-
   return normalizeContentStore({
     ...dataToSave,
     analytics: {
@@ -219,26 +200,25 @@ async function resetContentStore() {
   const seed = cloneDefaultContent();
   seed.analytics = { events: [] };
 
-  const db = getSql();
-  if (!db) {
+  const currentPool = getPool();
+  if (!currentPool) {
     return normalizeContentStore(seed);
   }
 
   await ensureDatabase();
-  await db.unsafe('delete from analytics_events');
-
+  await currentPool.query('delete from analytics_events');
   return saveContentStore(seed);
 }
 
 async function appendAnalyticsEvent(event) {
-  const db = getSql();
-  if (!db) {
+  const currentPool = getPool();
+  if (!currentPool) {
     return event;
   }
 
   await ensureDatabase();
 
-  await db.unsafe(
+  await currentPool.query(
     `
       insert into analytics_events (id, kind, label, path, entity_id, category_id, created_at)
       values ($1, $2, $3, $4, $5, $6, $7)
@@ -260,9 +240,12 @@ async function appendAnalyticsEvent(event) {
 
 module.exports = {
   appendAnalyticsEvent,
+  cloneDefaultContent,
   ensureDatabase,
   getContentStore,
+  getPool,
   hasDatabase,
+  normalizeContentStore,
   resetContentStore,
   saveContentStore
 };
