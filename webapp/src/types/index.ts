@@ -42,7 +42,7 @@ export type GuidePlace = {
   phone: string;
   website: string;
   hours: string;
-  avgCheck?: number;
+  avgCheck?: number | null;
   kind: string;
   cuisine: string;
   services: string[];
@@ -73,6 +73,11 @@ export type GuidePlace = {
   district?: string;
   location?: string;
   type?: string;
+  status?: 'draft' | 'hidden' | 'published';
+  sortOrder?: number;
+  lat?: number | null;
+  lng?: number | null;
+  visible?: boolean;
 };
 
 export type GuideTip = {

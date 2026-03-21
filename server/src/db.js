@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 let postgres = null;
 try {
@@ -13,6 +14,7 @@ const defaultContent = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
 
 let sql = null;
 let dbReadyPromise = null;
+let memoryStore = null;
 
 function getSslConfig() {
   const mode = String(process.env.PGSSLMODE || '').toLowerCase();
@@ -49,19 +51,215 @@ function cloneDefaultContent() {
   return JSON.parse(JSON.stringify(defaultContent));
 }
 
+function getMemoryStore() {
+  if (!memoryStore) {
+    memoryStore = normalizeContentStore(cloneDefaultContent());
+  }
+  return JSON.parse(JSON.stringify(memoryStore));
+}
+
+function setMemoryStore(store) {
+  memoryStore = normalizeContentStore(store);
+  return getMemoryStore();
+}
+
+function slugify(value, fallback = 'item') {
+  return String(value || fallback)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9а-яё\s-]/gi, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '') || fallback;
+}
+
+function normalizeStringArray(value) {
+  return Array.isArray(value) ? value.map((item) => String(item || '').trim()).filter(Boolean) : [];
+}
+
+function toBoolean(value, fallback = false) {
+  return typeof value === 'boolean' ? value : fallback;
+}
+
+function toNullableNumber(value) {
+  if (value === '' || value === null || typeof value === 'undefined') {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function coerceStatus(value) {
+  return ['draft', 'hidden', 'published'].includes(value) ? value : 'published';
+}
+
+function normalizeCategory(category, index, fallbackMap) {
+  const fallback = fallbackMap.get(category?.id) || fallbackMap.get(category?.slug) || {};
+  const id = String(category?.id || fallback.id || '').trim();
+  const slug = String(category?.slug || fallback.slug || id || `category-${index + 1}`).trim();
+
+  return {
+    id,
+    title: String(category?.title || fallback.title || id).trim(),
+    path: String(category?.path || fallback.path || `/section/${slug}`).trim(),
+    badge: String(category?.badge || fallback.badge || '').trim(),
+    description: String(category?.description || fallback.description || '').trim(),
+    visible: category?.visible ?? fallback.visible ?? true,
+    showOnHome: category?.showOnHome ?? fallback.showOnHome ?? false,
+    slug,
+    shortTitle: String(category?.shortTitle || fallback.shortTitle || category?.title || fallback.title || id).trim(),
+    accent: String(category?.accent || fallback.accent || 'coast').trim(),
+    filterSchema: {
+      quickFilters: normalizeStringArray(category?.filterSchema?.quickFilters ?? fallback.filterSchema?.quickFilters),
+      fields: normalizeStringArray(category?.filterSchema?.fields ?? fallback.filterSchema?.fields)
+    },
+    sortOrder: Number.isFinite(Number(category?.sortOrder)) ? Number(category.sortOrder) : index * 10 + 10
+  };
+}
+
+function normalizePlace(place, index, fallbackPlace = {}) {
+  const categoryId = String(place?.categoryId || fallbackPlace.categoryId || 'restaurants').trim();
+  const imageGallery = normalizeStringArray(place?.imageGallery ?? place?.imageUrls ?? fallbackPlace.imageGallery ?? fallbackPlace.imageUrls);
+  const imageSrc = String(place?.imageSrc || place?.coverImageUrl || imageGallery[0] || fallbackPlace.imageSrc || fallbackPlace.coverImageUrl || '').trim();
+  const finalGallery = imageGallery.length ? imageGallery : imageSrc ? [imageSrc] : [];
+  const title = String(place?.title || fallbackPlace.title || '').trim();
+
+  return {
+    id: String(place?.id || fallbackPlace.id || crypto.randomUUID()).trim(),
+    categoryId,
+    title,
+    description: String(place?.description || place?.shortDescription || fallbackPlace.description || '').trim(),
+    address: String(place?.address || place?.location || fallbackPlace.address || '').trim(),
+    phone: String(place?.phone || place?.phoneNumber || fallbackPlace.phone || '').trim(),
+    website: String(place?.website || place?.websiteUrl || fallbackPlace.website || '').trim(),
+    hours: String(place?.hours || fallbackPlace.hours || '').trim(),
+    avgCheck: toNullableNumber(place?.avgCheck ?? fallbackPlace.avgCheck),
+    kind: String(place?.kind || place?.listingType || place?.type || fallbackPlace.kind || '').trim(),
+    cuisine: String(place?.cuisine || fallbackPlace.cuisine || '').trim(),
+    services: normalizeStringArray(place?.services ?? place?.extra ?? fallbackPlace.services),
+    tags: normalizeStringArray(place?.tags ?? fallbackPlace.tags),
+    breakfast: toBoolean(place?.breakfast, fallbackPlace.breakfast ?? false),
+    vegan: toBoolean(place?.vegan, fallbackPlace.vegan ?? false),
+    pets: toBoolean(place?.pets ?? place?.petFriendly, fallbackPlace.pets ?? false),
+    childPrograms: toBoolean(place?.childPrograms ?? place?.childFriendly, fallbackPlace.childPrograms ?? false),
+    top: toBoolean(place?.top ?? place?.featured, fallbackPlace.top ?? false),
+    rating: Number(place?.rating ?? fallbackPlace.rating ?? 0) || 0,
+    imageLabel: String(place?.imageLabel || fallbackPlace.imageLabel || title || 'Карточка места').trim(),
+    imageSrc,
+    imageGallery: finalGallery,
+    slug: String(place?.slug || fallbackPlace.slug || `${categoryId}-${slugify(title, String(place?.id || index + 1))}`).trim(),
+    categorySlug: String(place?.categorySlug || fallbackPlace.categorySlug || categoryId).trim(),
+    featured: toBoolean(place?.featured ?? place?.top, fallbackPlace.featured ?? fallbackPlace.top ?? false),
+    shortDescription: String(place?.shortDescription || place?.description || fallbackPlace.shortDescription || fallbackPlace.description || '').trim(),
+    priceLabel: String(place?.priceLabel || fallbackPlace.priceLabel || '').trim(),
+    listingType: String(place?.listingType || place?.kind || fallbackPlace.listingType || fallbackPlace.kind || '').trim(),
+    childFriendly: toBoolean(place?.childFriendly ?? place?.childPrograms, fallbackPlace.childFriendly ?? fallbackPlace.childPrograms ?? false),
+    petFriendly: toBoolean(place?.petFriendly ?? place?.pets, fallbackPlace.petFriendly ?? fallbackPlace.pets ?? false),
+    mapQuery: String(place?.mapQuery || place?.address || fallbackPlace.mapQuery || fallbackPlace.address || '').trim(),
+    extra: normalizeStringArray(place?.extra ?? place?.services ?? fallbackPlace.extra ?? fallbackPlace.services),
+    imageUrls: finalGallery,
+    coverImageUrl: String(place?.coverImageUrl || imageSrc || fallbackPlace.coverImageUrl || '').trim(),
+    websiteUrl: String(place?.websiteUrl || place?.website || fallbackPlace.websiteUrl || fallbackPlace.website || '').trim(),
+    phoneNumber: String(place?.phoneNumber || place?.phone || fallbackPlace.phoneNumber || fallbackPlace.phone || '').trim(),
+    district: String(place?.district || fallbackPlace.district || '').trim(),
+    location: String(place?.location || place?.address || fallbackPlace.location || fallbackPlace.address || '').trim(),
+    type: String(place?.type || place?.kind || fallbackPlace.type || fallbackPlace.kind || '').trim(),
+    status: coerceStatus(place?.status || fallbackPlace.status),
+    sortOrder: Number.isFinite(Number(place?.sortOrder)) ? Number(place.sortOrder) : Number.isFinite(Number(fallbackPlace.sortOrder)) ? Number(fallbackPlace.sortOrder) : index * 10 + 10,
+    lat: toNullableNumber(place?.lat ?? fallbackPlace.lat),
+    lng: toNullableNumber(place?.lng ?? fallbackPlace.lng),
+    visible: place?.visible ?? fallbackPlace.visible ?? (coerceStatus(place?.status || fallbackPlace.status) !== 'hidden')
+  };
+}
+
+function normalizeTip(tip, index) {
+  return {
+    id: String(tip?.id || `tip-${index + 1}`).trim(),
+    title: String(tip?.title || '').trim(),
+    text: String(tip?.text || '').trim(),
+    linkPath: String(tip?.linkPath || tip?.path || '').trim(),
+    active: tip?.active ?? true,
+    sortOrder: Number.isFinite(Number(tip?.sortOrder)) ? Number(tip.sortOrder) : index * 10 + 10
+  };
+}
+
+function normalizeBanner(banner, index) {
+  return {
+    id: String(banner?.id || `banner-${index + 1}`).trim(),
+    title: String(banner?.title || '').trim(),
+    subtitle: String(banner?.subtitle || '').trim(),
+    linkPath: String(banner?.linkPath || '').trim(),
+    tone: String(banner?.tone || 'coast').trim(),
+    imageSrc: String(banner?.imageSrc || '').trim(),
+    active: banner?.active ?? true,
+    sortOrder: Number.isFinite(Number(banner?.sortOrder)) ? Number(banner.sortOrder) : index * 10 + 10
+  };
+}
+
+function normalizeCollection(collection, index) {
+  return {
+    id: String(collection?.id || `collection-${index + 1}`).trim(),
+    title: String(collection?.title || '').trim(),
+    description: String(collection?.description || '').trim(),
+    linkPath: String(collection?.linkPath || '').trim(),
+    imageSrc: String(collection?.imageSrc || '').trim(),
+    itemIds: normalizeStringArray(collection?.itemIds),
+    active: collection?.active ?? true,
+    sortOrder: Number.isFinite(Number(collection?.sortOrder)) ? Number(collection.sortOrder) : index * 10 + 10
+  };
+}
+
 function normalizeContentStore(input) {
   const defaults = cloneDefaultContent();
   const base = input && typeof input === 'object' ? input : {};
-  const places = Array.isArray(base.places) ? base.places : defaults.places;
+  const defaultCategoryMap = new Map(defaults.categories.map((item) => [item.id, item]));
+
+  const categories = (Array.isArray(base.categories) ? base.categories : defaults.categories)
+    .map((item, index) => normalizeCategory(item, index, defaultCategoryMap))
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
+
+  const placeFallbackMap = new Map((Array.isArray(defaults.places) ? defaults.places : []).map((item) => [item.id, item]));
+  const places = (Array.isArray(base.places) ? base.places : defaults.places)
+    .map((item, index) => normalizePlace(item, index, placeFallbackMap.get(item?.id)))
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
+
+  const tips = (Array.isArray(base.tips) ? base.tips : defaults.tips)
+    .map(normalizeTip)
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
+
+  const banners = (Array.isArray(base.banners) ? base.banners : defaults.banners)
+    .map(normalizeBanner)
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
+
+  const collections = (Array.isArray(base.collections) ? base.collections : defaults.collections)
+    .map(normalizeCollection)
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
+
+  const homeDefaults = defaults.home || {};
+  const homeInput = base.home && typeof base.home === 'object' ? base.home : {};
 
   return {
     version: 4,
     places,
-    categories: Array.isArray(base.categories) ? base.categories : defaults.categories,
-    tips: Array.isArray(base.tips) ? base.tips : defaults.tips,
-    banners: Array.isArray(base.banners) ? base.banners : defaults.banners,
-    collections: Array.isArray(base.collections) ? base.collections : defaults.collections,
-    home: base.home && typeof base.home === 'object' ? base.home : defaults.home,
+    categories,
+    tips,
+    banners,
+    collections,
+    home: {
+      popularPlaceIds: normalizeStringArray(homeInput.popularPlaceIds ?? homeDefaults.popularPlaceIds),
+      featuredCategoryIds: normalizeStringArray(homeInput.featuredCategoryIds ?? homeDefaults.featuredCategoryIds),
+      tipIds: normalizeStringArray(homeInput.tipIds ?? homeDefaults.tipIds),
+      bannerIds: normalizeStringArray(homeInput.bannerIds ?? homeDefaults.bannerIds),
+      collectionIds: normalizeStringArray(homeInput.collectionIds ?? homeDefaults.collectionIds),
+      sectionTitles: {
+        popular: String(homeInput.sectionTitles?.popular || homeDefaults.sectionTitles?.popular || 'Популярное').trim(),
+        categories: String(homeInput.sectionTitles?.categories || homeDefaults.sectionTitles?.categories || 'Категории').trim(),
+        tips: String(homeInput.sectionTitles?.tips || homeDefaults.sectionTitles?.tips || 'Советы').trim(),
+        collections: String(homeInput.sectionTitles?.collections || homeDefaults.sectionTitles?.collections || 'Подборки').trim(),
+        allCategories: String(homeInput.sectionTitles?.allCategories || homeDefaults.sectionTitles?.allCategories || 'Все категории').trim()
+      }
+    },
     analytics: {
       events: Array.isArray(base.analytics?.events) ? base.analytics.events.slice(-400) : []
     },
@@ -72,7 +270,6 @@ function normalizeContentStore(input) {
 
 async function ensureDatabase() {
   const db = getSql();
-
   if (!db) {
     return false;
   }
@@ -80,9 +277,126 @@ async function ensureDatabase() {
   if (!dbReadyPromise) {
     dbReadyPromise = (async () => {
       await db.unsafe(`
-        create table if not exists app_content (
-          key text primary key,
-          data jsonb not null,
+        create table if not exists categories (
+          id text primary key,
+          title text not null,
+          path text not null,
+          badge text not null default '',
+          description text not null default '',
+          visible boolean not null default true,
+          show_on_home boolean not null default false,
+          slug text not null unique,
+          short_title text not null default '',
+          accent text not null default 'coast',
+          filter_schema jsonb not null default '{}'::jsonb,
+          sort_order integer not null default 100,
+          created_at timestamptz not null default now(),
+          updated_at timestamptz not null default now()
+        )
+      `);
+
+      await db.unsafe(`
+        create table if not exists places (
+          id text primary key,
+          category_id text not null references categories(id) on delete cascade,
+          slug text not null unique,
+          title text not null,
+          description text not null default '',
+          address text not null default '',
+          phone text not null default '',
+          website text not null default '',
+          hours text not null default '',
+          avg_check numeric,
+          kind text not null default '',
+          cuisine text not null default '',
+          services jsonb not null default '[]'::jsonb,
+          tags jsonb not null default '[]'::jsonb,
+          breakfast boolean not null default false,
+          vegan boolean not null default false,
+          pets boolean not null default false,
+          child_programs boolean not null default false,
+          top boolean not null default false,
+          rating numeric not null default 0,
+          image_label text not null default '',
+          image_src text not null default '',
+          status text not null default 'published' check (status in ('draft','hidden','published')),
+          sort_order integer not null default 100,
+          lat double precision,
+          lng double precision,
+          map_query text not null default '',
+          district text not null default '',
+          created_at timestamptz not null default now(),
+          updated_at timestamptz not null default now()
+        )
+      `);
+
+      await db.unsafe(`
+        create table if not exists place_images (
+          id text primary key,
+          place_id text not null references places(id) on delete cascade,
+          image_url text not null,
+          sort_order integer not null default 100,
+          is_cover boolean not null default false,
+          created_at timestamptz not null default now()
+        )
+      `);
+
+      await db.unsafe(`
+        create index if not exists place_images_place_id_idx on place_images(place_id, sort_order)
+      `);
+
+      await db.unsafe(`
+        create table if not exists tips (
+          id text primary key,
+          title text not null,
+          text text not null default '',
+          link_path text not null default '',
+          active boolean not null default true,
+          sort_order integer not null default 100,
+          updated_at timestamptz not null default now()
+        )
+      `);
+
+      await db.unsafe(`
+        create table if not exists banners (
+          id text primary key,
+          title text not null,
+          subtitle text not null default '',
+          link_path text not null default '',
+          tone text not null default 'coast',
+          image_src text not null default '',
+          active boolean not null default true,
+          sort_order integer not null default 100,
+          updated_at timestamptz not null default now()
+        )
+      `);
+
+      await db.unsafe(`
+        create table if not exists collections (
+          id text primary key,
+          title text not null,
+          description text not null default '',
+          link_path text not null default '',
+          image_src text not null default '',
+          active boolean not null default true,
+          sort_order integer not null default 100,
+          updated_at timestamptz not null default now()
+        )
+      `);
+
+      await db.unsafe(`
+        create table if not exists collection_items (
+          collection_id text not null references collections(id) on delete cascade,
+          place_id text not null references places(id) on delete cascade,
+          sort_order integer not null default 100,
+          primary key (collection_id, place_id)
+        )
+      `);
+
+      await db.unsafe(`
+        create table if not exists home_content (
+          id text primary key,
+          payload jsonb not null default '{}'::jsonb,
           updated_at timestamptz not null default now()
         )
       `);
@@ -100,23 +414,12 @@ async function ensureDatabase() {
       `);
 
       await db.unsafe(`
-        create index if not exists analytics_events_created_at_idx
-        on analytics_events (created_at desc)
+        create index if not exists analytics_events_created_at_idx on analytics_events (created_at desc)
       `);
 
-      const existing = await db.unsafe(
-        'select key from app_content where key = $1',
-        ['guide-content']
-      );
-
-      if (existing.length === 0) {
-        const seed = cloneDefaultContent();
-        delete seed.analytics;
-
-        await db.unsafe(
-          'insert into app_content (key, data, updated_at) values ($1, $2::jsonb, now())',
-          ['guide-content', JSON.stringify(seed)]
-        );
+      const categoryRows = await db.unsafe('select id from categories limit 1');
+      if (categoryRows.length === 0) {
+        await replaceStoreContents(normalizeContentStore(cloneDefaultContent()));
       }
 
       return true;
@@ -129,10 +432,407 @@ async function ensureDatabase() {
   return dbReadyPromise;
 }
 
+async function replaceStoreContents(store) {
+  const db = getSql();
+  if (!db) {
+    return setMemoryStore(store);
+  }
+
+  const normalized = normalizeContentStore(store);
+
+  await db.begin(async (tx) => {
+    const categories = normalized.categories;
+    const places = normalized.places;
+    const tips = normalized.tips;
+    const banners = normalized.banners;
+    const collections = normalized.collections;
+
+    if (places.length === 0) {
+      await tx.unsafe('delete from place_images');
+      await tx.unsafe('delete from places');
+    }
+
+    for (const category of categories) {
+      await tx.unsafe(
+        `
+          insert into categories (
+            id, title, path, badge, description, visible, show_on_home, slug, short_title, accent, filter_schema, sort_order, updated_at
+          ) values (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, now()
+          )
+          on conflict (id) do update set
+            title = excluded.title,
+            path = excluded.path,
+            badge = excluded.badge,
+            description = excluded.description,
+            visible = excluded.visible,
+            show_on_home = excluded.show_on_home,
+            slug = excluded.slug,
+            short_title = excluded.short_title,
+            accent = excluded.accent,
+            filter_schema = excluded.filter_schema,
+            sort_order = excluded.sort_order,
+            updated_at = now()
+        `,
+        [
+          category.id,
+          category.title,
+          category.path,
+          category.badge || '',
+          category.description || '',
+          category.visible,
+          category.showOnHome,
+          category.slug,
+          category.shortTitle,
+          category.accent,
+          JSON.stringify(category.filterSchema || {}),
+          Number(category.sortOrder || 100)
+        ]
+      );
+    }
+
+    if (categories.length > 0) {
+      await tx.unsafe('delete from categories where id <> all($1::text[])', [categories.map((item) => item.id)]);
+    }
+
+    for (const place of places) {
+      await tx.unsafe(
+        `
+          insert into places (
+            id, category_id, slug, title, description, address, phone, website, hours, avg_check, kind, cuisine,
+            services, tags, breakfast, vegan, pets, child_programs, top, rating, image_label, image_src,
+            status, sort_order, lat, lng, map_query, district, updated_at
+          ) values (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+            $13::jsonb, $14::jsonb, $15, $16, $17, $18, $19, $20, $21, $22,
+            $23, $24, $25, $26, $27, $28, now()
+          )
+          on conflict (id) do update set
+            category_id = excluded.category_id,
+            slug = excluded.slug,
+            title = excluded.title,
+            description = excluded.description,
+            address = excluded.address,
+            phone = excluded.phone,
+            website = excluded.website,
+            hours = excluded.hours,
+            avg_check = excluded.avg_check,
+            kind = excluded.kind,
+            cuisine = excluded.cuisine,
+            services = excluded.services,
+            tags = excluded.tags,
+            breakfast = excluded.breakfast,
+            vegan = excluded.vegan,
+            pets = excluded.pets,
+            child_programs = excluded.child_programs,
+            top = excluded.top,
+            rating = excluded.rating,
+            image_label = excluded.image_label,
+            image_src = excluded.image_src,
+            status = excluded.status,
+            sort_order = excluded.sort_order,
+            lat = excluded.lat,
+            lng = excluded.lng,
+            map_query = excluded.map_query,
+            district = excluded.district,
+            updated_at = now()
+        `,
+        [
+          place.id,
+          place.categoryId,
+          place.slug,
+          place.title,
+          place.description,
+          place.address,
+          place.phone,
+          place.website,
+          place.hours,
+          place.avgCheck,
+          place.kind,
+          place.cuisine,
+          JSON.stringify(place.services || []),
+          JSON.stringify(place.tags || []),
+          place.breakfast,
+          place.vegan,
+          place.pets,
+          place.childPrograms,
+          place.top,
+          place.rating || 0,
+          place.imageLabel || '',
+          place.imageSrc || '',
+          coerceStatus(place.status),
+          Number(place.sortOrder || 100),
+          toNullableNumber(place.lat),
+          toNullableNumber(place.lng),
+          place.mapQuery || place.address || '',
+          place.district || ''
+        ]
+      );
+
+      await tx.unsafe('delete from place_images where place_id = $1', [place.id]);
+
+      const gallery = normalizeStringArray(place.imageGallery || place.imageUrls);
+      const finalGallery = gallery.length ? gallery : place.imageSrc ? [place.imageSrc] : [];
+      for (const [imageIndex, imageUrl] of finalGallery.entries()) {
+        await tx.unsafe(
+          `
+            insert into place_images (id, place_id, image_url, sort_order, is_cover)
+            values ($1, $2, $3, $4, $5)
+            on conflict (id) do update set
+              place_id = excluded.place_id,
+              image_url = excluded.image_url,
+              sort_order = excluded.sort_order,
+              is_cover = excluded.is_cover
+          `,
+          [`${place.id}:${imageIndex + 1}`, place.id, imageUrl, imageIndex * 10 + 10, imageIndex === 0]
+        );
+      }
+    }
+
+    if (places.length > 0) {
+      await tx.unsafe('delete from places where id <> all($1::text[])', [places.map((item) => item.id)]);
+    }
+
+    for (const tip of tips) {
+      await tx.unsafe(
+        `
+          insert into tips (id, title, text, link_path, active, sort_order, updated_at)
+          values ($1, $2, $3, $4, $5, $6, now())
+          on conflict (id) do update set
+            title = excluded.title,
+            text = excluded.text,
+            link_path = excluded.link_path,
+            active = excluded.active,
+            sort_order = excluded.sort_order,
+            updated_at = now()
+        `,
+        [tip.id, tip.title, tip.text || '', tip.linkPath || '', tip.active, Number(tip.sortOrder || 100)]
+      );
+    }
+    if (tips.length > 0) {
+      await tx.unsafe('delete from tips where id <> all($1::text[])', [tips.map((item) => item.id)]);
+    }
+
+    for (const banner of banners) {
+      await tx.unsafe(
+        `
+          insert into banners (id, title, subtitle, link_path, tone, image_src, active, sort_order, updated_at)
+          values ($1, $2, $3, $4, $5, $6, $7, $8, now())
+          on conflict (id) do update set
+            title = excluded.title,
+            subtitle = excluded.subtitle,
+            link_path = excluded.link_path,
+            tone = excluded.tone,
+            image_src = excluded.image_src,
+            active = excluded.active,
+            sort_order = excluded.sort_order,
+            updated_at = now()
+        `,
+        [banner.id, banner.title, banner.subtitle || '', banner.linkPath || '', banner.tone || 'coast', banner.imageSrc || '', banner.active, Number(banner.sortOrder || 100)]
+      );
+    }
+    if (banners.length > 0) {
+      await tx.unsafe('delete from banners where id <> all($1::text[])', [banners.map((item) => item.id)]);
+    }
+
+    for (const collection of collections) {
+      await tx.unsafe(
+        `
+          insert into collections (id, title, description, link_path, image_src, active, sort_order, updated_at)
+          values ($1, $2, $3, $4, $5, $6, $7, now())
+          on conflict (id) do update set
+            title = excluded.title,
+            description = excluded.description,
+            link_path = excluded.link_path,
+            image_src = excluded.image_src,
+            active = excluded.active,
+            sort_order = excluded.sort_order,
+            updated_at = now()
+        `,
+        [collection.id, collection.title, collection.description || '', collection.linkPath || '', collection.imageSrc || '', collection.active, Number(collection.sortOrder || 100)]
+      );
+
+      await tx.unsafe('delete from collection_items where collection_id = $1', [collection.id]);
+      for (const [itemIndex, placeId] of collection.itemIds.entries()) {
+        await tx.unsafe(
+          `
+            insert into collection_items (collection_id, place_id, sort_order)
+            values ($1, $2, $3)
+            on conflict (collection_id, place_id) do update set sort_order = excluded.sort_order
+          `,
+          [collection.id, placeId, itemIndex * 10 + 10]
+        );
+      }
+    }
+    if (collections.length > 0) {
+      await tx.unsafe('delete from collections where id <> all($1::text[])', [collections.map((item) => item.id)]);
+    }
+
+    await tx.unsafe(
+      `
+        insert into home_content (id, payload, updated_at)
+        values ('main', $1::jsonb, now())
+        on conflict (id) do update set payload = excluded.payload, updated_at = now()
+      `,
+      [JSON.stringify(normalized.home)]
+    );
+  });
+
+  const analyticsEvents = await getAnalyticsEvents(400);
+  return normalizeContentStore({ ...normalized, analytics: { events: analyticsEvents } });
+}
+
+async function readCategories() {
+  const db = getSql();
+  if (!db) {
+    return getMemoryStore().categories;
+  }
+
+  await ensureDatabase();
+  const rows = await db.unsafe(`
+    select id, title, path, badge, description, visible, show_on_home as "showOnHome", slug,
+           short_title as "shortTitle", accent, filter_schema as "filterSchema", sort_order as "sortOrder"
+    from categories
+    order by sort_order asc, title asc
+  `);
+
+  const fallbackMap = new Map(cloneDefaultContent().categories.map((item) => [item.id, item]));
+  return rows.map((row, index) => normalizeCategory(row, index, fallbackMap));
+}
+
+async function readPlaces() {
+  const db = getSql();
+  if (!db) {
+    return getMemoryStore().places;
+  }
+
+  await ensureDatabase();
+  const [placeRows, imageRows] = await Promise.all([
+    db.unsafe(`
+      select id, category_id as "categoryId", slug, title, description, address, phone, website, hours,
+             avg_check as "avgCheck", kind, cuisine, services, tags, breakfast, vegan, pets,
+             child_programs as "childPrograms", top, rating, image_label as "imageLabel", image_src as "imageSrc",
+             status, sort_order as "sortOrder", lat, lng, map_query as "mapQuery", district
+      from places
+      order by sort_order asc, title asc
+    `),
+    db.unsafe(`
+      select place_id as "placeId", image_url as "imageUrl", sort_order as "sortOrder", is_cover as "isCover"
+      from place_images
+      order by place_id asc, sort_order asc
+    `)
+  ]);
+
+  const imagesByPlaceId = new Map();
+  for (const row of imageRows) {
+    const bucket = imagesByPlaceId.get(row.placeId) || [];
+    bucket.push(row);
+    imagesByPlaceId.set(row.placeId, bucket);
+  }
+
+  return placeRows.map((row, index) => {
+    const images = (imagesByPlaceId.get(row.id) || []).map((item) => item.imageUrl);
+    const cover = (imagesByPlaceId.get(row.id) || []).find((item) => item.isCover)?.imageUrl || row.imageSrc || images[0] || '';
+    return normalizePlace(
+      {
+        ...row,
+        imageGallery: images,
+        imageUrls: images,
+        coverImageUrl: cover,
+        imageSrc: cover,
+        categorySlug: row.categoryId,
+        featured: row.top,
+        childFriendly: row.childPrograms,
+        petFriendly: row.pets,
+        shortDescription: row.description,
+        priceLabel: typeof row.avgCheck === 'number' ? `от ${row.avgCheck}` : '',
+        listingType: row.kind,
+        location: row.address,
+        phoneNumber: row.phone,
+        websiteUrl: row.website,
+        type: row.kind,
+        visible: row.status !== 'hidden'
+      },
+      index
+    );
+  });
+}
+
+async function readTips() {
+  const db = getSql();
+  if (!db) {
+    return getMemoryStore().tips;
+  }
+
+  await ensureDatabase();
+  const rows = await db.unsafe(`
+    select id, title, text, link_path as "linkPath", active, sort_order as "sortOrder"
+    from tips
+    order by sort_order asc, title asc
+  `);
+  return rows.map(normalizeTip);
+}
+
+async function readBanners() {
+  const db = getSql();
+  if (!db) {
+    return getMemoryStore().banners;
+  }
+
+  await ensureDatabase();
+  const rows = await db.unsafe(`
+    select id, title, subtitle, link_path as "linkPath", tone, image_src as "imageSrc", active, sort_order as "sortOrder"
+    from banners
+    order by sort_order asc, title asc
+  `);
+  return rows.map(normalizeBanner);
+}
+
+async function readCollections() {
+  const db = getSql();
+  if (!db) {
+    return getMemoryStore().collections;
+  }
+
+  await ensureDatabase();
+  const [collectionRows, itemRows] = await Promise.all([
+    db.unsafe(`
+      select id, title, description, link_path as "linkPath", image_src as "imageSrc", active, sort_order as "sortOrder"
+      from collections
+      order by sort_order asc, title asc
+    `),
+    db.unsafe(`
+      select collection_id as "collectionId", place_id as "placeId", sort_order as "sortOrder"
+      from collection_items
+      order by collection_id asc, sort_order asc
+    `)
+  ]);
+
+  const itemsByCollection = new Map();
+  for (const row of itemRows) {
+    const bucket = itemsByCollection.get(row.collectionId) || [];
+    bucket.push(row.placeId);
+    itemsByCollection.set(row.collectionId, bucket);
+  }
+
+  return collectionRows.map((row, index) => normalizeCollection({ ...row, itemIds: itemsByCollection.get(row.id) || [] }, index));
+}
+
+async function readHomeContent() {
+  const db = getSql();
+  if (!db) {
+    return getMemoryStore().home;
+  }
+
+  await ensureDatabase();
+  const rows = await db.unsafe('select payload from home_content where id = $1 limit 1', ['main']);
+  return normalizeContentStore({ home: rows[0]?.payload || cloneDefaultContent().home }).home;
+}
+
 async function getAnalyticsEvents(limit = 400) {
   const db = getSql();
   if (!db) {
-    return [];
+    return getMemoryStore().analytics.events.slice(-limit);
   }
 
   await ensureDatabase();
@@ -160,21 +860,28 @@ async function getAnalyticsEvents(limit = 400) {
 async function getContentStore() {
   const db = getSql();
   if (!db) {
-    return normalizeContentStore(cloneDefaultContent());
+    return getMemoryStore();
   }
 
   await ensureDatabase();
 
-  const contentRows = await db.unsafe(
-    'select data from app_content where key = $1 limit 1',
-    ['guide-content']
-  );
-
-  const data = contentRows[0]?.data || cloneDefaultContent();
-  const analyticsEvents = await getAnalyticsEvents(400);
+  const [categories, places, tips, banners, collections, home, analyticsEvents] = await Promise.all([
+    readCategories(),
+    readPlaces(),
+    readTips(),
+    readBanners(),
+    readCollections(),
+    readHomeContent(),
+    getAnalyticsEvents(400)
+  ]);
 
   return normalizeContentStore({
-    ...data,
+    categories,
+    places,
+    tips,
+    banners,
+    collections,
+    home,
     analytics: {
       events: analyticsEvents
     }
@@ -182,57 +889,34 @@ async function getContentStore() {
 }
 
 async function saveContentStore(store) {
-  const db = getSql();
-  if (!db) {
-    return normalizeContentStore(store);
+  if (!getSql()) {
+    return setMemoryStore(store);
   }
 
   await ensureDatabase();
-
-  const normalized = normalizeContentStore(store);
-  const dataToSave = { ...normalized };
-  delete dataToSave.analytics;
-  delete dataToSave.restaurants;
-  delete dataToSave.wellness;
-
-  await db.unsafe(
-    `
-      insert into app_content (key, data, updated_at)
-      values ($1, $2::jsonb, now())
-      on conflict (key)
-      do update set data = excluded.data, updated_at = now()
-    `,
-    ['guide-content', JSON.stringify(dataToSave)]
-  );
-
-  const analyticsEvents = await getAnalyticsEvents(400);
-
-  return normalizeContentStore({
-    ...dataToSave,
-    analytics: {
-      events: analyticsEvents
-    }
-  });
+  return replaceStoreContents(store);
 }
 
 async function resetContentStore() {
-  const seed = cloneDefaultContent();
+  const seed = normalizeContentStore(cloneDefaultContent());
   seed.analytics = { events: [] };
 
   const db = getSql();
   if (!db) {
-    return normalizeContentStore(seed);
+    return setMemoryStore(seed);
   }
 
   await ensureDatabase();
   await db.unsafe('delete from analytics_events');
-
-  return saveContentStore(seed);
+  return replaceStoreContents(seed);
 }
 
 async function appendAnalyticsEvent(event) {
   const db = getSql();
   if (!db) {
+    const store = getMemoryStore();
+    store.analytics.events = [...store.analytics.events, event].slice(-400);
+    setMemoryStore(store);
     return event;
   }
 
@@ -258,11 +942,97 @@ async function appendAnalyticsEvent(event) {
   return event;
 }
 
+async function getCategories() {
+  const store = await getContentStore();
+  return store.categories;
+}
+
+async function getPlaces(options = {}) {
+  const store = await getContentStore();
+  const { categoryId, includeHidden = false, search = '' } = options;
+  const normalizedSearch = String(search || '').trim().toLowerCase();
+
+  return store.places.filter((place) => {
+    if (categoryId && place.categoryId !== categoryId && place.categorySlug !== categoryId) {
+      return false;
+    }
+    if (!includeHidden && place.status === 'hidden') {
+      return false;
+    }
+    if (!normalizedSearch) {
+      return true;
+    }
+    const haystack = [
+      place.title,
+      place.description,
+      place.address,
+      place.kind,
+      place.cuisine,
+      ...(place.tags || []),
+      ...(place.services || [])
+    ]
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(normalizedSearch);
+  });
+}
+
+async function getPlaceById(id) {
+  const places = await getPlaces({ includeHidden: true });
+  return places.find((place) => place.id === id) || null;
+}
+
+async function getPlaceBySlug(slug) {
+  const places = await getPlaces({ includeHidden: true });
+  return places.find((place) => place.slug === slug || place.id === slug) || null;
+}
+
+async function upsertPlace(incomingPlace) {
+  const store = await getContentStore();
+  const current = store.places.find((place) => place.id === incomingPlace?.id) || undefined;
+  const normalizedPlace = normalizePlace(incomingPlace, store.places.length, current);
+
+  const nextStore = await saveContentStore({
+    ...store,
+    places: [normalizedPlace, ...store.places.filter((place) => place.id !== normalizedPlace.id)]
+  });
+
+  return nextStore.places.find((place) => place.id === normalizedPlace.id) || normalizedPlace;
+}
+
+async function deletePlace(id) {
+  const store = await getContentStore();
+  const nextStore = await saveContentStore({
+    ...store,
+    places: store.places.filter((place) => place.id !== id),
+    home: {
+      ...store.home,
+      popularPlaceIds: store.home.popularPlaceIds.filter((itemId) => itemId !== id)
+    },
+    collections: store.collections.map((collection) => ({
+      ...collection,
+      itemIds: collection.itemIds.filter((itemId) => itemId !== id)
+    }))
+  });
+
+  return nextStore;
+}
+
 module.exports = {
   appendAnalyticsEvent,
+  cloneDefaultContent,
   ensureDatabase,
+  getCategories,
   getContentStore,
+  getPlaceById,
+  getPlaceBySlug,
+  getPlaces,
+  getSql,
   hasDatabase,
+  normalizeContentStore,
+  normalizePlace,
   resetContentStore,
-  saveContentStore
+  saveContentStore,
+  upsertPlace,
+  deletePlace
 };

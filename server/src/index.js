@@ -3,11 +3,18 @@ const express = require('express');
 const path = require('path');
 const {
   appendAnalyticsEvent,
+  deletePlace,
   ensureDatabase,
+  getCategories,
   getContentStore,
+  getPlaceById,
+  getPlaceBySlug,
+  getPlaces,
   hasDatabase,
+  normalizePlace,
   resetContentStore,
-  saveContentStore
+  saveContentStore,
+  upsertPlace
 } = require('./db');
 
 const app = express();
@@ -140,6 +147,7 @@ function toListing(place) {
   const categorySlug = place.categorySlug || place.categoryId;
   const slug = place.slug || `${categorySlug}-${place.id}`;
   const coverImageUrl = place.coverImageUrl || place.imageSrc || imageUrls[0] || '';
+  const status = place.status || 'published';
 
   return {
     ...place,
@@ -160,7 +168,12 @@ function toListing(place) {
     phoneNumber: place.phoneNumber || place.phone || '',
     district: place.district || '',
     location: place.location || place.address || '',
-    type: place.type || place.kind || ''
+    type: place.type || place.kind || '',
+    status,
+    sortOrder: Number(place.sortOrder || 0) || 0,
+    lat: typeof place.lat === 'number' ? place.lat : null,
+    lng: typeof place.lng === 'number' ? place.lng : null,
+    visible: place.visible ?? status !== 'hidden'
   };
 }
 
@@ -196,7 +209,7 @@ function toBootstrapPayload(store) {
 }
 
 function mergeCategoryPlaces(store, categoryId, incomingPlaces) {
-  const normalizedIncoming = Array.isArray(incomingPlaces) ? incomingPlaces.map((item) => ({ ...item, categoryId })) : [];
+  const normalizedIncoming = Array.isArray(incomingPlaces) ? incomingPlaces.map((item, index) => normalizePlace({ ...item, categoryId }, index)) : [];
   return {
     ...store,
     places: [...store.places.filter((place) => place.categoryId !== categoryId), ...normalizedIncoming]
@@ -204,44 +217,16 @@ function mergeCategoryPlaces(store, categoryId, incomingPlaces) {
 }
 
 function normalizeIncomingListing(incoming, currentListing = null) {
-  const categoryId = incoming.categoryId || incoming.categorySlug || currentListing?.categoryId || 'restaurants';
-  const imageGallery = Array.isArray(incoming.imageGallery)
-    ? incoming.imageGallery
-    : Array.isArray(incoming.imageUrls)
-      ? incoming.imageUrls
-      : incoming.coverImageUrl
-        ? [incoming.coverImageUrl]
-        : incoming.imageSrc
-          ? [incoming.imageSrc]
-          : currentListing?.imageGallery || [];
-
-  return {
-    ...currentListing,
-    ...incoming,
-    id: incoming.id || currentListing?.id || `place-${Date.now()}`,
-    categoryId,
-    categorySlug: incoming.categorySlug || categoryId,
-    title: String(incoming.title ?? currentListing?.title ?? '').trim(),
-    description: String(incoming.description ?? incoming.shortDescription ?? currentListing?.description ?? '').trim(),
-    address: String(incoming.address ?? incoming.location ?? currentListing?.address ?? '').trim(),
-    phone: String(incoming.phone ?? incoming.phoneNumber ?? currentListing?.phone ?? '').trim(),
-    website: String(incoming.website ?? incoming.websiteUrl ?? currentListing?.website ?? '').trim(),
-    hours: String(incoming.hours ?? currentListing?.hours ?? '').trim(),
-    avgCheck: incoming.avgCheck === '' ? undefined : Number(incoming.avgCheck ?? currentListing?.avgCheck ?? 0) || undefined,
-    kind: String(incoming.kind ?? incoming.listingType ?? incoming.type ?? currentListing?.kind ?? '').trim(),
-    cuisine: String(incoming.cuisine ?? currentListing?.cuisine ?? '').trim(),
-    services: normalizeStringArray(incoming.services ?? currentListing?.services ?? []),
-    tags: normalizeStringArray(incoming.tags ?? currentListing?.tags ?? []),
-    breakfast: Boolean(incoming.breakfast ?? currentListing?.breakfast),
-    vegan: Boolean(incoming.vegan ?? currentListing?.vegan),
-    pets: Boolean(incoming.pets ?? incoming.petFriendly ?? currentListing?.pets),
-    childPrograms: Boolean(incoming.childPrograms ?? incoming.childFriendly ?? currentListing?.childPrograms),
-    top: Boolean(incoming.top ?? incoming.featured ?? currentListing?.top),
-    rating: Number(incoming.rating ?? currentListing?.rating ?? 0),
-    imageLabel: String(incoming.imageLabel ?? currentListing?.imageLabel ?? incoming.title ?? 'Карточка места').trim(),
-    imageSrc: incoming.imageSrc || incoming.coverImageUrl || incoming.imageUrls?.[0] || imageGallery[0] || '',
-    imageGallery
-  };
+  return normalizePlace(
+    {
+      ...currentListing,
+      ...incoming,
+      categoryId: incoming.categoryId || incoming.categorySlug || currentListing?.categoryId || 'restaurants',
+      categorySlug: incoming.categorySlug || incoming.categoryId || currentListing?.categoryId || 'restaurants'
+    },
+    0,
+    currentListing || undefined
+  );
 }
 
 async function getOwnerSummaryPayload() {
@@ -411,8 +396,8 @@ app.get('/api/bootstrap', async (_req, res) => {
 
 app.get('/api/categories', async (_req, res) => {
   try {
-    const store = await getContentStore();
-    res.json({ ok: true, categories: store.categories });
+    const categories = await getCategories();
+    res.json({ ok: true, categories });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load categories' });
   }
@@ -420,8 +405,8 @@ app.get('/api/categories', async (_req, res) => {
 
 app.get('/api/categories/:slug', async (req, res) => {
   try {
-    const store = await getContentStore();
-    const category = store.categories.find((item) => item.slug === req.params.slug || item.id === req.params.slug);
+    const categories = await getCategories();
+    const category = categories.find((item) => item.slug === req.params.slug || item.id === req.params.slug);
 
     if (!category) {
       res.status(404).json({ ok: false, message: 'Category not found' });
@@ -436,22 +421,13 @@ app.get('/api/categories/:slug', async (req, res) => {
 
 app.get('/api/listings', async (req, res) => {
   try {
-    const store = await getContentStore();
     const category = typeof req.query.category === 'string' ? req.query.category : '';
     const search = typeof req.query.search === 'string' ? req.query.search : '';
     const includeHidden = req.query.status === '' || req.query.includeHidden === 'true';
 
-    const listings = store.places
+    const listings = (await getPlaces({ categoryId: category, search, includeHidden }))
       .map(toListing)
-      .filter((listing) => {
-        if (category && listing.categoryId !== category && listing.categorySlug !== category && listing.slug !== category) {
-          return false;
-        }
-        if (!includeHidden && listing.visible === false) {
-          return false;
-        }
-        return matchesListing(listing, search);
-      });
+      .filter((listing) => matchesListing(listing, search));
 
     res.json({ ok: true, listings });
   } catch (error) {
@@ -461,19 +437,22 @@ app.get('/api/listings', async (req, res) => {
 
 app.get('/api/listings/:slug', async (req, res) => {
   try {
-    const store = await getContentStore();
-    const listings = store.places.map(toListing);
-    const listing = listings.find((item) => item.slug === req.params.slug || item.id === req.params.slug);
+    const listing = await getPlaceBySlug(req.params.slug);
 
     if (!listing) {
       res.status(404).json({ ok: false, message: 'Listing not found' });
       return;
     }
 
-    const category = store.categories.find((item) => item.id === listing.categoryId);
-    const similar = listings.filter((item) => item.categoryId === listing.categoryId && item.id !== listing.id).slice(0, 6);
+    const categories = await getCategories();
+    const similar = (await getPlaces({ categoryId: listing.categoryId, includeHidden: true }))
+      .filter((item) => item.id !== listing.id)
+      .slice(0, 6)
+      .map(toListing);
 
-    res.json({ ok: true, listing, category, similar });
+    const category = categories.find((item) => item.id === listing.categoryId) || null;
+
+    res.json({ ok: true, listing: toListing(listing), category, similar });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load listing' });
   }
@@ -481,25 +460,38 @@ app.get('/api/listings/:slug', async (req, res) => {
 
 app.get('/api/search', async (req, res) => {
   try {
-    const store = await getContentStore();
     const query = typeof req.query.q === 'string' ? req.query.q : '';
-    const listings = store.places.map(toListing).filter((listing) => matchesListing(listing, query));
+    const listings = (await getPlaces({ includeHidden: true, search: query })).map(toListing);
     res.json({ ok: true, listings });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to search listings' });
   }
 });
 
+app.get('/api/owner/categories', requireOwner, async (_req, res) => {
+  try {
+    const categories = await getCategories();
+    res.json({ ok: true, categories });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load owner categories' });
+  }
+});
+
+app.get('/api/owner/places', requireOwner, async (req, res) => {
+  try {
+    const categoryId = typeof req.query.category === 'string' ? req.query.category : '';
+    const places = (await getPlaces({ categoryId, includeHidden: true })).map(toListing);
+    res.json({ ok: true, places });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load owner places' });
+  }
+});
+
 app.post('/api/owner/listings', requireOwner, async (req, res) => {
   try {
-    const store = await getContentStore();
     const nextListing = normalizeIncomingListing(req.body ?? {});
-    const nextStore = await saveContentStore({
-      ...store,
-      places: [nextListing, ...store.places.filter((item) => item.id !== nextListing.id)]
-    });
-    const savedListing = nextStore.places.map(toListing).find((item) => item.id === nextListing.id);
-    res.json({ ok: true, listing: savedListing });
+    const savedListing = await upsertPlace(nextListing);
+    res.json({ ok: true, listing: toListing(savedListing) });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save listing' });
   }
@@ -507,8 +499,7 @@ app.post('/api/owner/listings', requireOwner, async (req, res) => {
 
 app.put('/api/owner/listings/:id', requireOwner, async (req, res) => {
   try {
-    const store = await getContentStore();
-    const currentListing = store.places.find((item) => item.id === req.params.id);
+    const currentListing = await getPlaceById(req.params.id);
 
     if (!currentListing) {
       res.status(404).json({ ok: false, message: 'Listing not found' });
@@ -516,35 +507,52 @@ app.put('/api/owner/listings/:id', requireOwner, async (req, res) => {
     }
 
     const nextListing = normalizeIncomingListing(req.body ?? {}, currentListing);
-    const nextStore = await saveContentStore({
-      ...store,
-      places: store.places.map((item) => (item.id === req.params.id ? nextListing : item))
-    });
-    const savedListing = nextStore.places.map(toListing).find((item) => item.id === req.params.id);
-    res.json({ ok: true, listing: savedListing });
+    const savedListing = await upsertPlace(nextListing);
+    res.json({ ok: true, listing: toListing(savedListing) });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to update listing' });
   }
 });
 
+app.post('/api/owner/places', requireOwner, async (req, res) => {
+  try {
+    const savedListing = await upsertPlace(normalizeIncomingListing(req.body ?? {}));
+    res.json({ ok: true, place: toListing(savedListing) });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to create place' });
+  }
+});
+
+app.put('/api/owner/places/:id', requireOwner, async (req, res) => {
+  try {
+    const currentListing = await getPlaceById(req.params.id);
+    if (!currentListing) {
+      res.status(404).json({ ok: false, message: 'Place not found' });
+      return;
+    }
+
+    const savedListing = await upsertPlace(normalizeIncomingListing(req.body ?? {}, currentListing));
+    res.json({ ok: true, place: toListing(savedListing) });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to update place' });
+  }
+});
+
 app.delete('/api/owner/listings/:id', requireOwner, async (req, res) => {
   try {
-    const store = await getContentStore();
-    await saveContentStore({
-      ...store,
-      places: store.places.filter((item) => item.id !== req.params.id),
-      home: {
-        ...store.home,
-        popularPlaceIds: store.home.popularPlaceIds.filter((itemId) => itemId !== req.params.id)
-      },
-      collections: store.collections.map((collection) => ({
-        ...collection,
-        itemIds: collection.itemIds.filter((itemId) => itemId !== req.params.id)
-      }))
-    });
+    await deletePlace(req.params.id);
     res.json({ ok: true });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to delete listing' });
+  }
+});
+
+app.delete('/api/owner/places/:id', requireOwner, async (req, res) => {
+  try {
+    await deletePlace(req.params.id);
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to delete place' });
   }
 });
 
@@ -577,6 +585,33 @@ app.put('/api/owner/banners', requireOwner, async (req, res) => {
     res.json({ ok: true, banners: nextStore.banners });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save banners' });
+  }
+});
+
+app.put('/api/owner/tips', requireOwner, async (req, res) => {
+  try {
+    const store = await getContentStore();
+    const items = Array.isArray(req.body?.items) ? req.body.items : [];
+    const nextStore = await saveContentStore({
+      ...store,
+      tips: items
+    });
+    res.json({ ok: true, tips: nextStore.tips });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save tips' });
+  }
+});
+
+app.put('/api/owner/home', requireOwner, async (req, res) => {
+  try {
+    const store = await getContentStore();
+    const nextStore = await saveContentStore({
+      ...store,
+      home: req.body?.home && typeof req.body.home === 'object' ? req.body.home : store.home
+    });
+    res.json({ ok: true, home: nextStore.home });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save home' });
   }
 });
 
