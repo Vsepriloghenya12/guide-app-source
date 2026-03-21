@@ -14,11 +14,7 @@ type FeatureGridProps = {
 const tones = ['orange', 'blue', 'pink', 'green', 'red', 'teal'] as const;
 
 function getPlacePath(place: GuidePlace) {
-  return place.categoryId === 'restaurants'
-    ? '/restaurants'
-    : place.categoryId === 'wellness'
-      ? '/wellness'
-      : `/section/${place.categoryId}`;
+  return `/place/${place.slug || `${place.categoryId}-${place.id}`}`;
 }
 
 export function FeatureGrid({
