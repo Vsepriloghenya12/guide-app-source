@@ -13,7 +13,7 @@ async function apiFetch<T>(input: string, init?: RequestInit): Promise<T> {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data?.message || data?.error || 'Request failed');
+    throw new Error((data as { message?: string; error?: string })?.message || (data as { message?: string; error?: string })?.error || 'Request failed');
   }
 
   return data as T;

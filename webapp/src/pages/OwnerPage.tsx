@@ -50,13 +50,16 @@ export function OwnerPage() {
   const { places, categories, tips, banners, collections, home, analytics } = useGuideContent();
   const [activeTab, setActiveTab] = useState<OwnerTabId>('overview');
 
-  const handleLogout = () => {
-    logoutOwner();
-    navigate('/owner-login', { replace: true });
+  const handleLogout = async () => {
+    try {
+      await logoutOwner();
+    } finally {
+      navigate('/owner-login', { replace: true });
+    }
   };
 
-  const handleReset = () => {
-    resetGuideContent();
+  const handleReset = async () => {
+    await resetGuideContent();
   };
 
   const topPlacesCount = places.filter((place: { top: boolean }) => place.top).length;

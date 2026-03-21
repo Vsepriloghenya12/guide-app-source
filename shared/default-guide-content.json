@@ -1,0 +1,653 @@
+{
+  "version": 4,
+  "places": [
+    {
+      "id": "r-1",
+      "categoryId": "restaurants",
+      "title": "Panorama Terrace",
+      "kind": "Ресторан",
+      "cuisine": "Европейская",
+      "breakfast": true,
+      "vegan": true,
+      "pets": true,
+      "childPrograms": false,
+      "avgCheck": 900,
+      "address": "Набережная, 14",
+      "phone": "+84 90 000 00 01",
+      "website": "https://example.com/panorama-terrace",
+      "hours": "08:00–23:00",
+      "description": "Элегантный ресторан с видом на город, винной картой и атмосферным интерьером.",
+      "rating": 4.9,
+      "imageLabel": "Видовой ресторан",
+      "imageSrc": "",
+      "services": [
+        "Завтраки",
+        "Терраса"
+      ],
+      "tags": [
+        "вид",
+        "ужин",
+        "романтика"
+      ],
+      "top": true
+    },
+    {
+      "id": "r-2",
+      "categoryId": "restaurants",
+      "title": "Silk Garden",
+      "kind": "Ресторан",
+      "cuisine": "Вьетнамская",
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "avgCheck": 550,
+      "address": "Центральная улица, 8",
+      "phone": "+84 90 000 00 02",
+      "website": "https://example.com/silk-garden",
+      "hours": "11:00–22:30",
+      "description": "Современная локальная кухня, авторская подача и спокойная вечерняя атмосфера.",
+      "rating": 4.7,
+      "imageLabel": "Локальная кухня",
+      "imageSrc": "",
+      "services": [
+        "Ужин",
+        "Авторская подача"
+      ],
+      "tags": [
+        "локальная кухня",
+        "вечер"
+      ],
+      "top": true
+    },
+    {
+      "id": "r-3",
+      "categoryId": "restaurants",
+      "title": "Morning Roast",
+      "kind": "Кофейня",
+      "cuisine": "Европейская",
+      "breakfast": true,
+      "vegan": true,
+      "pets": true,
+      "childPrograms": false,
+      "avgCheck": 290,
+      "address": "Парк, 3",
+      "phone": "+84 90 000 00 03",
+      "website": "https://example.com/morning-roast",
+      "hours": "07:00–20:00",
+      "description": "Кофейня с завтраками весь день, specialty coffee и уютной террасой.",
+      "rating": 4.8,
+      "imageLabel": "Кофейня и завтраки",
+      "imageSrc": "",
+      "services": [
+        "Завтраки",
+        "Specialty coffee"
+      ],
+      "tags": [
+        "кофе",
+        "завтраки",
+        "терраса"
+      ],
+      "top": true
+    },
+    {
+      "id": "r-4",
+      "categoryId": "restaurants",
+      "title": "Spice Coast",
+      "kind": "Ресторан",
+      "cuisine": "Тайская",
+      "breakfast": false,
+      "vegan": true,
+      "pets": false,
+      "childPrograms": false,
+      "avgCheck": 610,
+      "address": "Линия моря, 27",
+      "phone": "+84 90 000 00 04",
+      "website": "https://example.com/spice-coast",
+      "hours": "12:00–23:00",
+      "description": "Яркая тайская кухня, панорамные окна и удобный формат для компаний.",
+      "rating": 4.6,
+      "imageLabel": "Тайская кухня",
+      "imageSrc": "",
+      "services": [
+        "Компании",
+        "Панорамные окна"
+      ],
+      "tags": [
+        "тайская кухня",
+        "панорама"
+      ],
+      "top": false
+    },
+    {
+      "id": "r-5",
+      "categoryId": "restaurants",
+      "title": "Old Yard Grill",
+      "kind": "Клуб",
+      "cuisine": "Кавказская",
+      "breakfast": false,
+      "vegan": false,
+      "pets": true,
+      "childPrograms": false,
+      "avgCheck": 740,
+      "address": "Старый квартал, 19",
+      "phone": "+84 90 000 00 05",
+      "website": "https://example.com/old-yard-grill",
+      "hours": "16:00–02:00",
+      "description": "Вечернее место с музыкой, грилем и большими столами для компаний.",
+      "rating": 4.5,
+      "imageLabel": "Клуб и гриль",
+      "imageSrc": "",
+      "services": [
+        "Музыка",
+        "Гриль"
+      ],
+      "tags": [
+        "вечер",
+        "музыка"
+      ],
+      "top": false
+    },
+    {
+      "id": "r-6",
+      "categoryId": "restaurants",
+      "title": "Daily Spoon",
+      "kind": "Столовая",
+      "cuisine": "Вьетнамская",
+      "breakfast": true,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "avgCheck": 180,
+      "address": "Бизнес-район, 4",
+      "phone": "+84 90 000 00 06",
+      "website": "https://example.com/daily-spoon",
+      "hours": "07:30–18:00",
+      "description": "Практичная столовая с домашней едой, быстрым обслуживанием и понятным меню.",
+      "rating": 4.3,
+      "imageLabel": "Столовая",
+      "imageSrc": "",
+      "services": [
+        "Домашняя еда",
+        "Быстрое обслуживание"
+      ],
+      "tags": [
+        "обед",
+        "бюджетно"
+      ],
+      "top": false
+    },
+    {
+      "id": "w-1",
+      "categoryId": "wellness",
+      "title": "Ocean Balance Spa",
+      "kind": "СПА-комплекс",
+      "cuisine": "",
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": true,
+      "avgCheck": 1200,
+      "address": "Морской проспект, 5",
+      "phone": "+84 90 000 10 01",
+      "website": "https://example.com/ocean-balance",
+      "hours": "10:00–22:00",
+      "description": "Спа-комплекс с расслабляющими ритуалами, ароматерапией и приватными кабинетами.",
+      "rating": 4.9,
+      "imageLabel": "Спа-комплекс",
+      "imageSrc": "",
+      "services": [
+        "Массаж",
+        "СПА",
+        "Обертывания"
+      ],
+      "tags": [
+        "ритуалы",
+        "релакс"
+      ],
+      "top": true
+    },
+    {
+      "id": "w-2",
+      "categoryId": "wellness",
+      "title": "Steam House",
+      "kind": "Баня",
+      "cuisine": "",
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "avgCheck": 900,
+      "address": "Тихая улица, 11",
+      "phone": "+84 90 000 10 02",
+      "website": "https://example.com/steam-house",
+      "hours": "12:00–23:00",
+      "description": "Баня и хамам с зонами отдыха, парными и возможностью бронирования компании.",
+      "rating": 4.6,
+      "imageLabel": "Баня и хамам",
+      "imageSrc": "",
+      "services": [
+        "Баня",
+        "Хамам"
+      ],
+      "tags": [
+        "парная",
+        "компания"
+      ],
+      "top": false
+    },
+    {
+      "id": "w-3",
+      "categoryId": "wellness",
+      "title": "Body Reset Studio",
+      "kind": "Косметология",
+      "cuisine": "",
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "avgCheck": 850,
+      "address": "Городской центр, 21",
+      "phone": "+84 90 000 10 03",
+      "website": "https://example.com/body-reset",
+      "hours": "09:00–21:00",
+      "description": "Уходовые программы, косметология и восстановительные процедуры в камерном формате.",
+      "rating": 4.7,
+      "imageLabel": "Косметология",
+      "imageSrc": "",
+      "services": [
+        "Массаж",
+        "Косметология",
+        "Обертывания"
+      ],
+      "tags": [
+        "уход",
+        "восстановление"
+      ],
+      "top": true
+    },
+    {
+      "id": "w-4",
+      "categoryId": "wellness",
+      "title": "Lotus Flow",
+      "kind": "Йога-студия",
+      "cuisine": "",
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": true,
+      "avgCheck": 600,
+      "address": "Зелёный квартал, 9",
+      "phone": "+84 90 000 10 04",
+      "website": "https://example.com/lotus-flow",
+      "hours": "07:00–20:00",
+      "description": "Студия йоги и мягких практик с утренними занятиями и семейными форматами.",
+      "rating": 4.8,
+      "imageLabel": "Йога и массаж",
+      "imageSrc": "",
+      "services": [
+        "Йога",
+        "Массаж"
+      ],
+      "tags": [
+        "семья",
+        "утро"
+      ],
+      "top": true
+    },
+    {
+      "id": "w-5",
+      "categoryId": "wellness",
+      "title": "Golden Hammam Club",
+      "kind": "Хамам",
+      "cuisine": "",
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "avgCheck": 1100,
+      "address": "Спа-аллея, 6",
+      "phone": "+84 90 000 10 05",
+      "website": "https://example.com/golden-hammam",
+      "hours": "11:00–22:00",
+      "description": "Эстетичное пространство с восточным интерьером и премиальными спа-ритуалами.",
+      "rating": 4.5,
+      "imageLabel": "Хамам",
+      "imageSrc": "",
+      "services": [
+        "Хамам",
+        "СПА",
+        "Массаж"
+      ],
+      "tags": [
+        "восточный интерьер",
+        "ритуалы"
+      ],
+      "top": false
+    }
+  ],
+  "categories": [
+    {
+      "id": "restaurants",
+      "title": "Рестораны, кафе и столовые",
+      "path": "/restaurants",
+      "badge": "Популярно",
+      "description": "Где поесть, выпить кофе или позавтракать.",
+      "visible": true,
+      "showOnHome": true,
+      "slug": "restaurants",
+      "shortTitle": "Рестораны",
+      "accent": "sunset",
+      "filterSchema": {
+        "quickFilters": [
+          "breakfast",
+          "vegan",
+          "pets"
+        ],
+        "fields": [
+          "avgCheck",
+          "cuisine",
+          "kind",
+          "tags"
+        ]
+      }
+    },
+    {
+      "id": "wellness",
+      "title": "СПА и оздоровление",
+      "path": "/wellness",
+      "description": "СПА, массаж, хамам и мягкие практики.",
+      "visible": true,
+      "showOnHome": true,
+      "slug": "wellness",
+      "shortTitle": "СПА",
+      "accent": "emerald",
+      "filterSchema": {
+        "quickFilters": [
+          "childPrograms"
+        ],
+        "fields": [
+          "services",
+          "avgCheck",
+          "tags"
+        ]
+      }
+    },
+    {
+      "id": "active-rest",
+      "title": "Активный отдых и экстрим",
+      "path": "/section/active-rest",
+      "visible": true,
+      "showOnHome": true,
+      "slug": "active-rest",
+      "shortTitle": "Активный отдых",
+      "accent": "sunset",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    },
+    {
+      "id": "routes",
+      "title": "Маршруты и тропы",
+      "path": "/section/routes",
+      "visible": true,
+      "showOnHome": true,
+      "slug": "routes",
+      "shortTitle": "Маршруты",
+      "accent": "bridge",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    },
+    {
+      "id": "hotels",
+      "title": "Отели и проживание",
+      "path": "/section/hotels",
+      "visible": true,
+      "showOnHome": false,
+      "slug": "hotels",
+      "shortTitle": "Отели",
+      "accent": "coast",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    },
+    {
+      "id": "events",
+      "title": "Афиша",
+      "path": "/section/events",
+      "visible": true,
+      "showOnHome": true,
+      "slug": "events",
+      "shortTitle": "Афиша",
+      "accent": "sunset",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    },
+    {
+      "id": "transport",
+      "title": "Транспорт",
+      "path": "/section/transport",
+      "visible": true,
+      "showOnHome": false,
+      "slug": "transport",
+      "shortTitle": "Транспорт",
+      "accent": "bridge",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    },
+    {
+      "id": "atm",
+      "title": "Банкоматы",
+      "path": "/section/atm",
+      "visible": true,
+      "showOnHome": false,
+      "slug": "atm",
+      "shortTitle": "Банкоматы",
+      "accent": "emerald",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    },
+    {
+      "id": "shops",
+      "title": "Магазины и сувениры",
+      "path": "/section/shops",
+      "visible": true,
+      "showOnHome": true,
+      "slug": "shops",
+      "shortTitle": "Магазины",
+      "accent": "sunset",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    },
+    {
+      "id": "culture",
+      "title": "Культура и достопримечательности",
+      "path": "/section/culture",
+      "visible": true,
+      "showOnHome": true,
+      "slug": "culture",
+      "shortTitle": "Культура",
+      "accent": "coast",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    },
+    {
+      "id": "kids",
+      "title": "Детский отдых",
+      "path": "/section/kids",
+      "visible": true,
+      "showOnHome": false,
+      "slug": "kids",
+      "shortTitle": "Детям",
+      "accent": "emerald",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    },
+    {
+      "id": "medicine",
+      "title": "Медицина",
+      "path": "/section/medicine",
+      "visible": true,
+      "showOnHome": false,
+      "slug": "medicine",
+      "shortTitle": "Медицина",
+      "accent": "bridge",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    },
+    {
+      "id": "photo-spots",
+      "title": "Фото зоны / смотровые",
+      "path": "/section/photo-spots",
+      "visible": true,
+      "showOnHome": false,
+      "slug": "photo-spots",
+      "shortTitle": "Фото-споты",
+      "accent": "sunset",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    },
+    {
+      "id": "car-rental",
+      "title": "Авто прокат",
+      "path": "/section/car-rental",
+      "visible": true,
+      "showOnHome": false,
+      "slug": "car-rental",
+      "shortTitle": "Автопрокат",
+      "accent": "bridge",
+      "filterSchema": {
+        "quickFilters": [],
+        "fields": []
+      }
+    }
+  ],
+  "tips": [
+    {
+      "id": "tip-1",
+      "title": "Топ 10 мест Дананга",
+      "text": "Собери подборку из смотровых, пляжей, ресторанов и атмосферных локаций для первого знакомства с городом.",
+      "linkPath": "/section/culture",
+      "active": true
+    },
+    {
+      "id": "tip-2",
+      "title": "Где купить сувениры",
+      "text": "Добавь сюда свои проверенные рынки, лавки, магазины подарков и шопинг-маршруты.",
+      "linkPath": "/section/shops",
+      "active": true
+    },
+    {
+      "id": "tip-3",
+      "title": "Лучшие кафе города",
+      "text": "Идеальный блок под полезные советы владельца: где завтракать, пить specialty coffee и работать с ноутбуком.",
+      "linkPath": "/restaurants",
+      "active": true
+    }
+  ],
+  "banners": [
+    {
+      "id": "banner-1",
+      "title": "Топ рестораны и кафе Дананга",
+      "subtitle": "Подборка популярных мест, которые легко обновлять прямо из owner-CMS.",
+      "linkPath": "/restaurants",
+      "tone": "coast",
+      "imageSrc": "",
+      "active": true
+    },
+    {
+      "id": "banner-2",
+      "title": "СПА, массаж и отдых",
+      "subtitle": "Собирай баннеры на главной и направляй пользователя в нужные разделы.",
+      "linkPath": "/wellness",
+      "tone": "bridge",
+      "imageSrc": "",
+      "active": true
+    }
+  ],
+  "collections": [
+    {
+      "id": "collection-1",
+      "title": "Завтраки с красивой подачей",
+      "description": "Готовая подборка для главной страницы: завтраки, кофе и спокойная утренняя атмосфера.",
+      "linkPath": "/restaurants",
+      "imageSrc": "",
+      "itemIds": [
+        "r-1",
+        "r-3"
+      ],
+      "active": true
+    },
+    {
+      "id": "collection-2",
+      "title": "Релакс после пляжа",
+      "description": "СПА, массаж и восстановление — отдельная подборка для быстрого входа в раздел.",
+      "linkPath": "/wellness",
+      "imageSrc": "",
+      "itemIds": [
+        "w-1",
+        "w-4"
+      ],
+      "active": true
+    }
+  ],
+  "home": {
+    "popularPlaceIds": [
+      "r-1",
+      "r-3",
+      "w-1",
+      "w-4"
+    ],
+    "featuredCategoryIds": [
+      "restaurants",
+      "events",
+      "culture",
+      "wellness",
+      "shops",
+      "routes"
+    ],
+    "tipIds": [
+      "tip-1",
+      "tip-2",
+      "tip-3"
+    ],
+    "bannerIds": [
+      "banner-1",
+      "banner-2"
+    ],
+    "collectionIds": [
+      "collection-1",
+      "collection-2"
+    ],
+    "sectionTitles": {
+      "popular": "Популярное",
+      "categories": "Категории",
+      "tips": "Советы",
+      "collections": "Подборки",
+      "allCategories": "Все рубрики"
+    }
+  },
+  "analytics": {
+    "events": []
+  }
+}
