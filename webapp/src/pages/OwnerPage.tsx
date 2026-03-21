@@ -4,6 +4,7 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { OwnerAnalyticsPanel } from '../components/owner/OwnerAnalyticsPanel';
 import { OwnerCategoryOverview } from '../components/owner/OwnerCategoryOverview';
 import { OwnerHomeManager } from '../components/owner/OwnerHomeManager';
+import { OwnerMediaLibrary } from '../components/owner/OwnerMediaLibrary';
 import { OwnerPlacesManager } from '../components/owner/OwnerPlacesManager';
 import { OwnerTipsManager } from '../components/owner/OwnerTipsManager';
 import { resetGuideContent } from '../data/guideContent';
@@ -11,7 +12,7 @@ import { useGuideContent } from '../hooks/useGuideContent';
 import { logoutOwner } from '../utils/ownerAuth';
 import { OWNER_AUTH_REQUIRED_EVENT } from '../utils/ownerEvents';
 
-type OwnerTabId = 'overview' | 'places' | 'categories' | 'tips' | 'home' | 'analytics';
+type OwnerTabId = 'overview' | 'places' | 'categories' | 'tips' | 'home' | 'media' | 'analytics';
 
 const ownerTabs: Array<{ id: OwnerTabId; label: string; description: string }> = [
   {
@@ -38,6 +39,11 @@ const ownerTabs: Array<{ id: OwnerTabId; label: string; description: string }> =
     id: 'home',
     label: 'Главная',
     description: 'Баннеры, подборки и блоки главной страницы.'
+  },
+  {
+    id: 'media',
+    label: 'Медиа',
+    description: 'Загруженные файлы, URL и быстрая очистка.'
   },
   {
     id: 'analytics',
@@ -179,6 +185,7 @@ export function OwnerPage() {
           collections={collections}
         />
       ) : null}
+      {activeTab === 'media' ? <OwnerMediaLibrary /> : null}
       {activeTab === 'analytics' ? (
         <OwnerAnalyticsPanel events={analytics.events} categories={categories} places={places} />
       ) : null}

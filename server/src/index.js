@@ -5,12 +5,14 @@ const path = require('path');
 const {
   appendAnalyticsEvent,
   deleteCategory,
+  deleteMediaFileRecord,
   deletePlace,
   ensureDatabase,
   getCategories,
   getCategoryById,
   getCategoryBySlug,
   getContentStore,
+  getMediaFiles,
   getPlaceById,
   getPlaceBySlug,
   getPlaces,
@@ -819,6 +821,38 @@ app.put('/api/owner/home', requireOwner, async (req, res) => {
     res.json({ ok: true, home });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save home' });
+  }
+});
+
+app.get('/api/owner/media', requireOwner, async (_req, res) => {
+  try {
+    const items = await getMediaFiles(160);
+    res.json({ ok: true, items });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Не удалось загрузить медиатеку.' });
+  }
+});
+
+app.delete('/api/owner/media/:id', requireOwner, async (req, res) => {
+  try {
+    const deleted = await deleteMediaFileRecord(req.params.id);
+
+    if (!deleted) {
+      res.status(404).json({ ok: false, message: 'Файл не найден.' });
+      return;
+    }
+
+    try {
+      if (deleted.storagePath && fs.existsSync(deleted.storagePath)) {
+        fs.unlinkSync(deleted.storagePath);
+      }
+    } catch (unlinkError) {
+      console.warn('Could not delete media file from disk:', unlinkError);
+    }
+
+    res.json({ ok: true, deleted });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Не удалось удалить файл.' });
   }
 });
 

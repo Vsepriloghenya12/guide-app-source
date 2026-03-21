@@ -30,7 +30,9 @@ export type GuideCategory = {
   slug: string;
   shortTitle: string;
   accent: string;
+  imageSrc?: string;
   filterSchema: GuideFilterSchema;
+  sortOrder?: number;
 };
 
 export type GuidePlace = {

@@ -123,6 +123,8 @@ function normalizeCategory(category: Partial<GuideCategory>, fallback: GuideCate
     slug: category.slug ?? fallback.slug ?? fallback.id,
     shortTitle: category.shortTitle ?? fallback.shortTitle ?? fallback.title,
     accent: category.accent ?? fallback.accent ?? 'coast',
+    imageSrc: category.imageSrc ?? fallback.imageSrc ?? '',
+    sortOrder: category.sortOrder ?? fallback.sortOrder ?? 100,
     filterSchema: {
       quickFilters: category.filterSchema?.quickFilters ?? fallback.filterSchema?.quickFilters ?? [],
       fields: category.filterSchema?.fields ?? fallback.filterSchema?.fields ?? []

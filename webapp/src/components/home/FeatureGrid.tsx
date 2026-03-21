@@ -74,6 +74,7 @@ export function FeatureGrid({
                 })
               }
             >
+              {category.imageSrc ? <span className="menu-tile__cover" style={{ backgroundImage: `url(${category.imageSrc})` }} aria-hidden="true" /> : null}
               <span className="menu-tile__icon" aria-hidden="true">
                 <CategoryIcon categoryId={category.id} size="md" />
               </span>

@@ -11,6 +11,7 @@ function makeCategory(
     showOnHome?: boolean;
     shortTitle?: string;
     accent?: string;
+    imageSrc?: string;
     quickFilters?: string[];
     fields?: string[];
   } = {}
@@ -26,6 +27,8 @@ function makeCategory(
     slug: id,
     shortTitle: options.shortTitle ?? title,
     accent: options.accent ?? 'coast',
+    imageSrc: options.imageSrc ?? '',
+    sortOrder: 100,
     filterSchema: {
       quickFilters: options.quickFilters ?? [],
       fields: options.fields ?? []

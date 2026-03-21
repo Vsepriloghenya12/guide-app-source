@@ -110,6 +110,7 @@ function normalizeCategory(category, index, fallbackMap) {
     slug,
     shortTitle: String(category?.shortTitle || fallback.shortTitle || category?.title || fallback.title || id).trim(),
     accent: String(category?.accent || fallback.accent || 'coast').trim(),
+    imageSrc: String(category?.imageSrc || fallback.imageSrc || '').trim(),
     filterSchema: {
       quickFilters: normalizeStringArray(category?.filterSchema?.quickFilters ?? fallback.filterSchema?.quickFilters),
       fields: normalizeStringArray(category?.filterSchema?.fields ?? fallback.filterSchema?.fields)
@@ -288,12 +289,15 @@ async function ensureDatabase() {
           slug text not null unique,
           short_title text not null default '',
           accent text not null default 'coast',
+          image_src text not null default '',
           filter_schema jsonb not null default '{}'::jsonb,
           sort_order integer not null default 100,
           created_at timestamptz not null default now(),
           updated_at timestamptz not null default now()
         )
       `);
+
+      await db.unsafe(`alter table categories add column if not exists image_src text not null default ''`);
 
       await db.unsafe(`
         create table if not exists places (
@@ -473,9 +477,9 @@ async function replaceStoreContents(store) {
       await tx.unsafe(
         `
           insert into categories (
-            id, title, path, badge, description, visible, show_on_home, slug, short_title, accent, filter_schema, sort_order, updated_at
+            id, title, path, badge, description, visible, show_on_home, slug, short_title, accent, image_src, filter_schema, sort_order, updated_at
           ) values (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, now()
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13, now()
           )
           on conflict (id) do update set
             title = excluded.title,
@@ -487,6 +491,7 @@ async function replaceStoreContents(store) {
             slug = excluded.slug,
             short_title = excluded.short_title,
             accent = excluded.accent,
+            image_src = excluded.image_src,
             filter_schema = excluded.filter_schema,
             sort_order = excluded.sort_order,
             updated_at = now()
@@ -502,6 +507,7 @@ async function replaceStoreContents(store) {
           category.slug,
           category.shortTitle,
           category.accent,
+          category.imageSrc || '',
           JSON.stringify(category.filterSchema || {}),
           Number(category.sortOrder || 100)
         ]
@@ -708,7 +714,7 @@ async function readCategories() {
   await ensureDatabase();
   const rows = await db.unsafe(`
     select id, title, path, badge, description, visible, show_on_home as "showOnHome", slug,
-           short_title as "shortTitle", accent, filter_schema as "filterSchema", sort_order as "sortOrder"
+           short_title as "shortTitle", accent, image_src as "imageSrc", filter_schema as "filterSchema", sort_order as "sortOrder"
     from categories
     order by sort_order asc, title asc
   `);
@@ -1071,9 +1077,9 @@ async function upsertCategory(incomingCategory) {
   await db.unsafe(
     `
       insert into categories (
-        id, title, path, badge, description, visible, show_on_home, slug, short_title, accent, filter_schema, sort_order, updated_at
+        id, title, path, badge, description, visible, show_on_home, slug, short_title, accent, image_src, filter_schema, sort_order, updated_at
       ) values (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, now()
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13, now()
       )
       on conflict (id) do update set
         title = excluded.title,
@@ -1085,6 +1091,7 @@ async function upsertCategory(incomingCategory) {
         slug = excluded.slug,
         short_title = excluded.short_title,
         accent = excluded.accent,
+        image_src = excluded.image_src,
         filter_schema = excluded.filter_schema,
         sort_order = excluded.sort_order,
         updated_at = now()
@@ -1100,6 +1107,7 @@ async function upsertCategory(incomingCategory) {
       normalizedCategory.slug,
       normalizedCategory.shortTitle,
       normalizedCategory.accent,
+      normalizedCategory.imageSrc || '',
       JSON.stringify(normalizedCategory.filterSchema || {}),
       Number(normalizedCategory.sortOrder || 100)
     ]
@@ -1456,6 +1464,40 @@ async function deletePlace(id) {
   return getContentStore();
 }
 
+
+async function getMediaFiles(limit = 120) {
+  const db = getSql();
+  if (!db) {
+    return [];
+  }
+
+  await ensureDatabase();
+  return db.unsafe(
+    `
+      select id, kind, file_name as "fileName", mime_type as "mimeType", size_bytes as "sizeBytes",
+             storage_path as "storagePath", public_url as "publicUrl", created_at as "createdAt"
+      from media_files
+      order by created_at desc
+      limit $1
+    `,
+    [limit]
+  );
+}
+
+async function deleteMediaFileRecord(id) {
+  const db = getSql();
+  if (!db) {
+    return null;
+  }
+
+  await ensureDatabase();
+  const rows = await db.unsafe(
+    `delete from media_files where id = $1 returning id, kind, file_name as "fileName", mime_type as "mimeType", size_bytes as "sizeBytes", storage_path as "storagePath", public_url as "publicUrl", created_at as "createdAt"`,
+    [id]
+  );
+  return rows[0] || null;
+}
+
 async function saveMediaFileRecord(input) {
   const db = getSql();
   const record = {
@@ -1504,6 +1546,7 @@ module.exports = {
   appendAnalyticsEvent,
   cloneDefaultContent,
   deleteCategory,
+  deleteMediaFileRecord,
   deletePlace,
   ensureDatabase,
   getCategories,
@@ -1513,6 +1556,7 @@ module.exports = {
   getPlaceById,
   getPlaceBySlug,
   getPlaces,
+  getMediaFiles,
   getSql,
   hasDatabase,
   normalizeContentStore,
