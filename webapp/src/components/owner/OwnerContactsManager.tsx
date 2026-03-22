@@ -103,7 +103,7 @@ export function OwnerContactsManager() {
       {loading ? <div className="panel page-loader">Загружаю контакты…</div> : null}
 
       {!loading ? (
-        <div className="owner-cms-layout owner-cms-layout--stack">
+        <div className="owner-cms-layout owner-cms-layout--stack owner-cms-layout--narrow">
           <article className="panel owner-subsection">
             <div className="section-headline">
               <strong>Верхний блок</strong>

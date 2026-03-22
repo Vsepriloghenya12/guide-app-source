@@ -2757,3 +2757,84 @@ img {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+
+.poster-carousel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(240px, 320px);
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+
+.poster-carousel__item {
+  scroll-snap-align: start;
+}
+
+.poster-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.poster-carousel::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.18);
+  border-radius: 999px;
+}
+
+.owner-panel-tabs {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.owner-panel-tab {
+  min-height: 112px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 16px 18px;
+  border-radius: 24px;
+}
+
+.owner-panel-tab__title {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.owner-panel-tab__desc {
+  display: block;
+  color: rgba(255,247,232,0.72);
+  font-size: 0.92rem;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.owner-cms-layout--narrow {
+  max-width: 980px;
+}
+
+.owner-cms-layout--narrow .owner-subsection {
+  width: 100%;
+}
+
+.owner-inline-card {
+  align-items: start;
+}
+
+@media (max-width: 700px) {
+  .poster-carousel {
+    grid-auto-columns: minmax(220px, 82vw);
+  }
+
+  .owner-panel-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-panel-tab {
+    min-height: 0;
+  }
+}

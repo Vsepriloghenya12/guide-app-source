@@ -30,12 +30,12 @@ export function FeatureGrid({
     <section className="home-showcase" aria-label="Главное меню">
       <div className="home-column home-column--popular">
         <div className="home-section-title">{sectionTitles.popular}</div>
-        <div className="poster-grid poster-grid--two">
+        <div className="poster-carousel" role="list" aria-label={sectionTitles.popular}>
           {popularPlaces.map((place, index) => (
             <Link
               key={place.id}
               to={getPlacePath(place)}
-              className={`poster-tile poster-tile--${index % 2 === 0 ? 'coast' : 'bridge'}`}
+              className={`poster-tile poster-carousel__item poster-tile--${index % 2 === 0 ? 'coast' : 'bridge'}`}
               style={place.imageSrc ? { backgroundImage: `url(${place.imageGallery?.[0] ?? place.imageSrc})` } : undefined}
               onClick={() =>
                 recordGuideAnalytics({

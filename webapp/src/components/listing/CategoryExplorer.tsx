@@ -292,12 +292,18 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
 
       <section className={`panel category-hero category-hero--${category.accent || 'coast'}`}>
         <div className="category-hero__content">
-          <div className="chip-row chip-row--wrap">
-            <span className="chip">{category.shortTitle}</span>
-            {category.badge ? <span className="chip chip--soft">{category.badge}</span> : null}
-          </div>
+          {category.shortTitle && category.shortTitle !== category.title ? (
+            <div className="chip-row chip-row--wrap">
+              <span className="chip">{category.shortTitle}</span>
+              {category.badge ? <span className="chip chip--soft">{category.badge}</span> : null}
+            </div>
+          ) : category.badge ? (
+            <div className="chip-row chip-row--wrap">
+              <span className="chip chip--soft">{category.badge}</span>
+            </div>
+          ) : null}
           <h2>{category.title}</h2>
-          <p>{categoryPlaces.length > 0 ? 'Собрали всё важное по этому разделу в одном месте.' : 'Раздел открыт и готов к наполнению.'}</p>
+          <p>{category.description || (categoryPlaces.length > 0 ? 'Здесь собраны места и полезная информация по разделу.' : 'Скоро здесь появятся новые места и полезные адреса.')}</p>
         </div>
 
         {category.imageSrc ? (
