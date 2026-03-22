@@ -336,6 +336,9 @@ export function ListingDetailPage() {
             <li><span>Адрес</span><strong>{listing.address || 'Уточняется'}</strong></li>
             <li><span>Часы работы</span><strong>{listing.hours || 'Уточняется'}</strong></li>
             <li><span>Стоимость</span><strong>{listing.priceLabel || 'Смотри описание'}</strong></li>
+            {listing.categoryId === 'hotels' ? <li><span>Звёзды</span><strong>{typeof listing.hotelStars === 'number' ? `${listing.hotelStars}★` : 'Не указано'}</strong></li> : null}
+            {listing.categoryId === 'hotels' ? <li><span>Бассейн</span><strong>{listing.hotelPool ? 'Да' : 'Нет'}</strong></li> : null}
+            {listing.categoryId === 'hotels' ? <li><span>СПА</span><strong>{listing.hotelSpa ? 'Да' : 'Нет'}</strong></li> : null}
             <li><span>Можно с детьми</span><strong>{listing.childFriendly ? 'Да' : 'Не указано'}</strong></li>
             <li><span>Можно с животными</span><strong>{listing.petFriendly ? 'Да' : 'Не указано'}</strong></li>
           </ul>
@@ -346,6 +349,9 @@ export function ListingDetailPage() {
           <div className="chip-row">
             {listing.listingType ? <span className="chip">{listing.listingType}</span> : null}
             {listing.cuisine ? <span className="chip">{listing.cuisine}</span> : null}
+            {listing.categoryId === 'hotels' && typeof listing.hotelStars === 'number' ? <span className="chip">{listing.hotelStars}★</span> : null}
+            {listing.categoryId === 'hotels' && listing.hotelPool ? <span className="chip">Бассейн</span> : null}
+            {listing.categoryId === 'hotels' && listing.hotelSpa ? <span className="chip">СПА</span> : null}
             {listing.services.map((service) => (
               <span key={service} className="chip">{service}</span>
             ))}

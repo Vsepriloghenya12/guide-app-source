@@ -267,6 +267,9 @@ function toListing(place) {
     coverImageUrl,
     websiteUrl: place.websiteUrl || place.website || '',
     phoneNumber: place.phoneNumber || place.phone || '',
+    hotelStars: typeof place.hotelStars === 'number' ? place.hotelStars : null,
+    hotelPool: Boolean(place.hotelPool),
+    hotelSpa: Boolean(place.hotelSpa),
     district: place.district || '',
     location: place.location || place.address || '',
     type: place.type || place.kind || '',
@@ -289,6 +292,9 @@ function matchesListing(listing, searchText) {
     listing.address,
     listing.kind,
     listing.cuisine,
+    typeof listing.hotelStars === 'number' ? `${listing.hotelStars} звезд` : '',
+    listing.hotelPool ? 'бассейн' : '',
+    listing.hotelSpa ? 'спа' : '',
     ...(listing.tags || []),
     ...(listing.services || [])
   ]

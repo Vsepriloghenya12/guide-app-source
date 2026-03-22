@@ -36,6 +36,9 @@ export type GuideCategory = {
 };
 
 export type GuidePlace = {
+  hotelStars?: number | null;
+  hotelPool?: boolean;
+  hotelSpa?: boolean;
   id: string;
   categoryId: GuideCategoryId;
   title: string;

@@ -15,6 +15,7 @@ type CategoryExplorerProps = {
 };
 
 type SortMode = 'priority' | 'rating' | 'alphabet' | 'check-low' | 'check-high';
+type BinaryFilter = 'all' | 'yes' | 'no';
 
 type FiltersState = {
   kind: string;
@@ -22,6 +23,10 @@ type FiltersState = {
   district: string;
   minCheck: string;
   maxCheck: string;
+  hotelStars: string;
+  hotelPool: BinaryFilter;
+  hotelSpa: BinaryFilter;
+  petFriendly: BinaryFilter;
   selectedServices: string[];
   selectedTags: string[];
   sortMode: SortMode;
@@ -33,6 +38,10 @@ const initialFilters: FiltersState = {
   district: 'all',
   minCheck: '',
   maxCheck: '',
+  hotelStars: 'all',
+  hotelPool: 'all',
+  hotelSpa: 'all',
+  petFriendly: 'all',
   selectedServices: [],
   selectedTags: [],
   sortMode: 'priority'
@@ -56,7 +65,11 @@ function toLabel(filterKey: string) {
     cuisine: 'Кухня',
     services: 'Услуги',
     tags: 'Теги',
-    district: 'Район'
+    district: 'Район',
+    hotelStars: 'Звёзды',
+    hotelPool: 'Бассейн',
+    hotelSpa: 'СПА',
+    petFriendly: 'С животными'
   };
 
   return map[filterKey] || filterKey;
@@ -118,6 +131,11 @@ function isNonEmptyString(value: string | undefined | null): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+function matchesBinaryFilter(value: boolean, filter: BinaryFilter) {
+  if (filter === 'all') return true;
+  return filter === 'yes' ? value : !value;
+}
+
 export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerProps) {
   const [filters, setFilters] = useState<FiltersState>(initialFilters);
   const { categories, places, tips, collections, loading, error } = useGuideContent();
@@ -162,6 +180,10 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
     () => Array.from(new Set(categoryPlaces.map((item) => item.district).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
     [categoryPlaces]
   );
+  const hotelStarsOptions = useMemo(
+    () => Array.from(new Set(categoryPlaces.map((item) => item.hotelStars).filter((value): value is number => typeof value === 'number' && Number.isFinite(value)))).sort((a, b) => b - a),
+    [categoryPlaces]
+  );
   const serviceOptions = useMemo(
     () => Array.from(new Set(categoryPlaces.flatMap((item) => item.services || []).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
     [categoryPlaces]
@@ -194,6 +216,22 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
         return false;
       }
 
+      if (filters.hotelStars !== 'all' && Number(place.hotelStars || 0) !== Number(filters.hotelStars)) {
+        return false;
+      }
+
+      if (!matchesBinaryFilter(Boolean(place.hotelPool), filters.hotelPool)) {
+        return false;
+      }
+
+      if (!matchesBinaryFilter(Boolean(place.hotelSpa), filters.hotelSpa)) {
+        return false;
+      }
+
+      if (!matchesBinaryFilter(Boolean(place.petFriendly ?? place.pets), filters.petFriendly)) {
+        return false;
+      }
+
       if (filters.selectedServices.length > 0 && !filters.selectedServices.every((service) => place.services?.includes(service))) {
         return false;
       }
@@ -215,7 +253,11 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
     Number(filters.cuisine !== 'all') +
     Number(filters.district !== 'all') +
     Number(Boolean(filters.minCheck)) +
-    Number(Boolean(filters.maxCheck));
+    Number(Boolean(filters.maxCheck)) +
+    Number(filters.hotelStars !== 'all') +
+    Number(filters.hotelPool !== 'all') +
+    Number(filters.hotelSpa !== 'all') +
+    Number(filters.petFriendly !== 'all');
 
   const relatedTips = useMemo(
     () =>
@@ -330,6 +372,53 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
               </label>
             ) : null}
 
+            {filterFields.includes('hotelStars') ? (
+              <label className="field field--grow">
+                <span>{toLabel('hotelStars')}</span>
+                <select value={filters.hotelStars} onChange={(event) => setFilters((current) => ({ ...current, hotelStars: event.target.value }))}>
+                  <option value="all">Любое количество</option>
+                  {hotelStarsOptions.map((option) => (
+                    <option key={option} value={String(option)}>
+                      {option}★
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+
+            {filterFields.includes('hotelPool') ? (
+              <label className="field field--grow">
+                <span>{toLabel('hotelPool')}</span>
+                <select value={filters.hotelPool} onChange={(event) => setFilters((current) => ({ ...current, hotelPool: event.target.value as BinaryFilter }))}>
+                  <option value="all">Неважно</option>
+                  <option value="yes">Да</option>
+                  <option value="no">Нет</option>
+                </select>
+              </label>
+            ) : null}
+
+            {filterFields.includes('hotelSpa') ? (
+              <label className="field field--grow">
+                <span>{toLabel('hotelSpa')}</span>
+                <select value={filters.hotelSpa} onChange={(event) => setFilters((current) => ({ ...current, hotelSpa: event.target.value as BinaryFilter }))}>
+                  <option value="all">Неважно</option>
+                  <option value="yes">Да</option>
+                  <option value="no">Нет</option>
+                </select>
+              </label>
+            ) : null}
+
+            {filterFields.includes('petFriendly') ? (
+              <label className="field field--grow">
+                <span>{toLabel('petFriendly')}</span>
+                <select value={filters.petFriendly} onChange={(event) => setFilters((current) => ({ ...current, petFriendly: event.target.value as BinaryFilter }))}>
+                  <option value="all">Неважно</option>
+                  <option value="yes">Да</option>
+                  <option value="no">Нет</option>
+                </select>
+              </label>
+            ) : null}
+
             {filterFields.includes('avgCheck') ? (
               <div className="filter-grid-two">
                 <label className="field field--grow">
@@ -434,6 +523,10 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
               meta={compactStrings([
                 item.kind,
                 item.cuisine,
+                typeof item.hotelStars === 'number' ? `${item.hotelStars}★` : undefined,
+                item.hotelPool ? 'Бассейн' : undefined,
+                item.hotelSpa ? 'СПА' : undefined,
+                item.petFriendly || item.pets ? 'С животными' : undefined,
                 item.avgCheck ? `Средний чек ${item.avgCheck}` : undefined,
                 item.district,
                 ...item.services,

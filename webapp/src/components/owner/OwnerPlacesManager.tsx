@@ -22,6 +22,7 @@ type PlaceDraft = {
   website: string;
   hours: string;
   avgCheck: string;
+  hotelStars: string;
   kind: string;
   cuisine: string;
   services: string;
@@ -29,6 +30,8 @@ type PlaceDraft = {
   breakfast: boolean;
   vegan: boolean;
   pets: boolean;
+  hotelPool: boolean;
+  hotelSpa: boolean;
   childPrograms: boolean;
   top: boolean;
   status: NonNullable<GuidePlace['status']>;
@@ -53,6 +56,7 @@ const initialDraft: PlaceDraft = {
   website: '',
   hours: '',
   avgCheck: '',
+  hotelStars: '',
   kind: '',
   cuisine: '',
   services: '',
@@ -60,6 +64,8 @@ const initialDraft: PlaceDraft = {
   breakfast: false,
   vegan: false,
   pets: false,
+  hotelPool: false,
+  hotelSpa: false,
   childPrograms: false,
   top: false,
   status: 'published',
@@ -147,6 +153,7 @@ function toDraft(item: GuidePlace): PlaceDraft {
     website: item.website,
     hours: item.hours,
     avgCheck: item.avgCheck ? String(item.avgCheck) : '',
+    hotelStars: typeof item.hotelStars === 'number' ? String(item.hotelStars) : '',
     kind: item.kind,
     cuisine: item.cuisine,
     services: item.services.join(', '),
@@ -154,6 +161,8 @@ function toDraft(item: GuidePlace): PlaceDraft {
     breakfast: item.breakfast,
     vegan: item.vegan,
     pets: item.pets,
+    hotelPool: Boolean(item.hotelPool),
+    hotelSpa: Boolean(item.hotelSpa),
     childPrograms: item.childPrograms,
     top: item.top,
     status: item.status || 'published',
@@ -229,6 +238,9 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
       website: draft.website.trim(),
       hours: draft.hours.trim(),
       avgCheck: draft.avgCheck ? Number(draft.avgCheck) : undefined,
+      hotelStars: draft.categoryId === 'hotels' && draft.hotelStars ? Number(draft.hotelStars) : null,
+      hotelPool: draft.categoryId === 'hotels' ? draft.hotelPool : false,
+      hotelSpa: draft.categoryId === 'hotels' ? draft.hotelSpa : false,
       kind: draft.kind.trim(),
       cuisine: draft.cuisine.trim(),
       services: parseMultiValue(draft.services),
@@ -478,6 +490,20 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               />
             </label>
 
+            {draft.categoryId === 'hotels' ? (
+              <label className="field">
+                <span>Звёзды</span>
+                <select value={draft.hotelStars} onChange={(event) => setDraft((current) => ({ ...current, hotelStars: event.target.value }))}>
+                  <option value="">Не указано</option>
+                  <option value="5">5★</option>
+                  <option value="4">4★</option>
+                  <option value="3">3★</option>
+                  <option value="2">2★</option>
+                  <option value="1">1★</option>
+                </select>
+              </label>
+            ) : null}
+
             <label className="field">
               <span>Рейтинг</span>
               <input
@@ -675,6 +701,26 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               />
               <span>Можно с животными</span>
             </label>
+            {draft.categoryId === 'hotels' ? (
+              <label className="checkbox-pill checkbox-pill--owner">
+                <input
+                  type="checkbox"
+                  checked={draft.hotelPool}
+                  onChange={(event) => setDraft((current) => ({ ...current, hotelPool: event.target.checked }))}
+                />
+                <span>Есть бассейн</span>
+              </label>
+            ) : null}
+            {draft.categoryId === 'hotels' ? (
+              <label className="checkbox-pill checkbox-pill--owner">
+                <input
+                  type="checkbox"
+                  checked={draft.hotelSpa}
+                  onChange={(event) => setDraft((current) => ({ ...current, hotelSpa: event.target.checked }))}
+                />
+                <span>Есть СПА</span>
+              </label>
+            ) : null}
             <label className="checkbox-pill checkbox-pill--owner checkbox-pill--owner-wide">
               <input
                 type="checkbox"
@@ -744,7 +790,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
                     <p className="owner-item-card__address">{item.address}</p>
                     <p className="owner-item-card__description">{item.description}</p>
                     <p className="owner-item-card__meta-row">
-                      {[item.cuisine, item.district, ...(item.services ?? []), ...(item.tags ?? [])].filter(Boolean).join(' · ')}
+                      {[typeof item.hotelStars === 'number' ? `${item.hotelStars}★` : '', item.hotelPool ? 'Бассейн' : '', item.hotelSpa ? 'СПА' : '', item.cuisine, item.district, ...(item.services ?? []), ...(item.tags ?? [])].filter(Boolean).join(' · ')}
                     </p>
                     <div className="owner-item-card__stats">
                       <span>Фото: {imageCount}</span>

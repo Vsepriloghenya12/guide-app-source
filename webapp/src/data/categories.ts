@@ -74,8 +74,8 @@ export const defaultCategories: GuideCategory[] = [
     shortTitle: 'Отели',
     accent: 'coast',
     description: 'Отели, апартаменты и варианты проживания в разных районах.',
-    quickFilters: ['pool', 'family', 'beach'],
-    fields: ['avgCheck', 'kind', 'tags', 'district']
+    quickFilters: [],
+    fields: ['hotelStars', 'hotelPool', 'hotelSpa', 'petFriendly', 'district']
   }),
   makeCategory('events', 'Афиша', '/section/events', {
     showOnHome: true,

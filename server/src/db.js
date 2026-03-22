@@ -218,6 +218,9 @@ function normalizePlace(place, index, fallbackPlace = {}) {
     imageLabel: String(place?.imageLabel || fallbackPlace.imageLabel || title || 'Карточка места').trim(),
     imageSrc,
     imageGallery: finalGallery,
+    hotelStars: toNullableNumber(place?.hotelStars ?? fallbackPlace.hotelStars),
+    hotelPool: toBoolean(place?.hotelPool, fallbackPlace.hotelPool ?? false),
+    hotelSpa: toBoolean(place?.hotelSpa, fallbackPlace.hotelSpa ?? false),
     slug: String(place?.slug || fallbackPlace.slug || `${categoryId}-${slugify(title, String(place?.id || index + 1))}`).trim(),
     categorySlug: String(place?.categorySlug || fallbackPlace.categorySlug || categoryId).trim(),
     featured: toBoolean(place?.featured ?? place?.top, fallbackPlace.featured ?? fallbackPlace.top ?? false),
@@ -398,9 +401,24 @@ async function ensureDatabase() {
           lng double precision,
           map_query text not null default '',
           district text not null default '',
+          hotel_stars integer,
+          hotel_pool boolean not null default false,
+          hotel_spa boolean not null default false,
           created_at timestamptz not null default now(),
           updated_at timestamptz not null default now()
         )
+      `);
+
+      await db.unsafe(`alter table places add column if not exists hotel_stars integer`);
+      await db.unsafe(`alter table places add column if not exists hotel_pool boolean not null default false`);
+      await db.unsafe(`alter table places add column if not exists hotel_spa boolean not null default false`);
+
+      await db.unsafe(`
+        update categories
+        set filter_schema = '{"quickFilters":[],"fields":["hotelStars","hotelPool","hotelSpa","petFriendly","district"]}'::jsonb,
+            updated_at = now()
+        where id = 'hotels'
+          and not coalesce((filter_schema->'fields') ? 'hotelStars', false)
       `);
 
       await db.unsafe(`
@@ -609,11 +627,11 @@ async function replaceStoreContents(store) {
           insert into places (
             id, category_id, slug, title, description, address, phone, website, hours, avg_check, kind, cuisine,
             services, tags, breakfast, vegan, pets, child_programs, top, rating, image_label, image_src,
-            status, sort_order, lat, lng, map_query, district, updated_at
+            status, sort_order, lat, lng, map_query, district, hotel_stars, hotel_pool, hotel_spa, updated_at
           ) values (
             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
             $13::jsonb, $14::jsonb, $15, $16, $17, $18, $19, $20, $21, $22,
-            $23, $24, $25, $26, $27, $28, now()
+            $23, $24, $25, $26, $27, $28, $29, $30, $31, now()
           )
           on conflict (id) do update set
             category_id = excluded.category_id,
@@ -643,6 +661,9 @@ async function replaceStoreContents(store) {
             lng = excluded.lng,
             map_query = excluded.map_query,
             district = excluded.district,
+            hotel_stars = excluded.hotel_stars,
+            hotel_pool = excluded.hotel_pool,
+            hotel_spa = excluded.hotel_spa,
             updated_at = now()
         `,
         [
@@ -673,7 +694,10 @@ async function replaceStoreContents(store) {
           toNullableNumber(place.lat),
           toNullableNumber(place.lng),
           place.mapQuery || place.address || '',
-          place.district || ''
+          place.district || '',
+          place.hotelStars,
+          Boolean(place.hotelPool),
+          Boolean(place.hotelSpa)
         ]
       );
 
@@ -820,7 +844,8 @@ async function readPlaces() {
       select id, category_id as "categoryId", slug, title, description, address, phone, website, hours,
              avg_check as "avgCheck", kind, cuisine, services, tags, breakfast, vegan, pets,
              child_programs as "childPrograms", top, rating, image_label as "imageLabel", image_src as "imageSrc",
-             status, sort_order as "sortOrder", lat, lng, map_query as "mapQuery", district
+             status, sort_order as "sortOrder", lat, lng, map_query as "mapQuery", district,
+             hotel_stars as "hotelStars", hotel_pool as "hotelPool", hotel_spa as "hotelSpa"
       from places
       order by sort_order asc, title asc
     `),
@@ -859,6 +884,9 @@ async function readPlaces() {
         phoneNumber: row.phone,
         websiteUrl: row.website,
         type: row.kind,
+        hotelStars: row.hotelStars,
+        hotelPool: row.hotelPool,
+        hotelSpa: row.hotelSpa,
         visible: row.status !== 'hidden'
       },
       index
@@ -1446,11 +1474,11 @@ async function upsertPlace(incomingPlace) {
         insert into places (
           id, category_id, slug, title, description, address, phone, website, hours, avg_check, kind, cuisine,
           services, tags, breakfast, vegan, pets, child_programs, top, rating, image_label, image_src,
-          status, sort_order, lat, lng, map_query, district, updated_at
+          status, sort_order, lat, lng, map_query, district, hotel_stars, hotel_pool, hotel_spa, updated_at
         ) values (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
           $13::jsonb, $14::jsonb, $15, $16, $17, $18, $19, $20, $21, $22,
-          $23, $24, $25, $26, $27, $28, now()
+          $23, $24, $25, $26, $27, $28, $29, $30, $31, now()
         )
         on conflict (id) do update set
           category_id = excluded.category_id,
@@ -1480,6 +1508,9 @@ async function upsertPlace(incomingPlace) {
           lng = excluded.lng,
           map_query = excluded.map_query,
           district = excluded.district,
+          hotel_stars = excluded.hotel_stars,
+          hotel_pool = excluded.hotel_pool,
+          hotel_spa = excluded.hotel_spa,
           updated_at = now()
       `,
       [
@@ -1510,7 +1541,10 @@ async function upsertPlace(incomingPlace) {
         toNullableNumber(normalizedPlace.lat),
         toNullableNumber(normalizedPlace.lng),
         normalizedPlace.mapQuery || normalizedPlace.address || '',
-        normalizedPlace.district || ''
+        normalizedPlace.district || '',
+        normalizedPlace.hotelStars,
+        Boolean(normalizedPlace.hotelPool),
+        Boolean(normalizedPlace.hotelSpa)
       ]
     );
 

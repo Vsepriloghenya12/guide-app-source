@@ -44,12 +44,15 @@ export function ListingCard({ listing, accent = 'orange', isFavorite, onToggleFa
 
           <div className="listing-card__meta">
             <span>{listing.address}</span>
+            {typeof listing.hotelStars === 'number' ? <span>{listing.hotelStars}★</span> : null}
             {listing.priceLabel ? <span>{listing.priceLabel}</span> : null}
           </div>
 
           <div className="chip-row">
             {listing.listingType ? <span className="chip">{listing.listingType}</span> : null}
             {listing.cuisine ? <span className="chip">{listing.cuisine}</span> : null}
+            {listing.hotelPool ? <span className="chip">Бассейн</span> : null}
+            {listing.hotelSpa ? <span className="chip">СПА</span> : null}
             {listing.childFriendly ? <span className="chip">С детьми</span> : null}
             {listing.petFriendly ? <span className="chip">С животными</span> : null}
             {listing.tags.slice(0, 2).map((tag) => (
