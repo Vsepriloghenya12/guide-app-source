@@ -11,10 +11,32 @@ try {
 
 const seedPath = path.resolve(__dirname, '../../shared/default-guide-content.json');
 const defaultContent = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+const defaultSupportContent = {
+  heroEyebrow: 'На связи',
+  heroTitle: 'Все важные контакты в одном месте',
+  heroText: 'Здесь собраны основные каналы связи, чтобы телефон, Telegram и WhatsApp всегда были под рукой. Ниже также есть важные номера для экстренных ситуаций.',
+  helpButtonLabel: 'Открыть помощь',
+  emergencyTitle: 'Экстренные контакты',
+  emergencySubtitle: 'Полезно сохранить до поездки или держать под рукой в офлайн-режиме.',
+  contactChannels: [
+    { id: 'telegram', title: 'Telegram', subtitle: 'Быстрые вопросы, рекомендации и помощь по приложению.', value: '@danangguide_support', href: 'https://t.me/danangguide_support', kind: 'telegram' },
+    { id: 'whatsapp', title: 'WhatsApp', subtitle: 'Удобно для быстрых сообщений и отправки локации.', value: '+84 90 000 90 90', href: 'https://wa.me/84900009090', kind: 'whatsapp' },
+    { id: 'phone', title: 'Телефон', subtitle: 'Срочный звонок, если нужна помощь или уточнение по контакту.', value: '+84 90 000 90 90', href: 'tel:+84900009090', kind: 'phone' },
+    { id: 'email', title: 'Email', subtitle: 'Для партнёрств, размещения и подробных запросов.', value: 'hello@danangguide.app', href: 'mailto:hello@danangguide.app', kind: 'email' },
+    { id: 'instagram', title: 'Instagram', subtitle: 'Актуальные анонсы и подборки.', value: '@danangguide.app', href: 'https://instagram.com/danangguide.app', kind: 'instagram' }
+  ],
+  emergencyContacts: [
+    { id: 'police', title: 'Полиция', description: 'Экстренная помощь и безопасность.', value: '113', href: 'tel:113' },
+    { id: 'fire', title: 'Пожарная служба', description: 'Пожар, задымление, угроза жизни.', value: '114', href: 'tel:114' },
+    { id: 'ambulance', title: 'Скорая помощь', description: 'Медицинская экстренная помощь.', value: '115', href: 'tel:115' },
+    { id: 'tourist-help', title: 'Туристическая помощь', description: 'Локальная помощь по логистике, утерянным вещам и маршрутам.', value: '+84 90 000 90 90', href: 'tel:+84900009090' }
+  ]
+};
 
 let sql = null;
 let dbReadyPromise = null;
 let memoryStore = null;
+let memorySupportContent = null;
 
 function getSslConfig() {
   const mode = String(process.env.PGSSLMODE || '').toLowerCase();
@@ -49,6 +71,53 @@ function hasDatabase() {
 
 function cloneDefaultContent() {
   return JSON.parse(JSON.stringify(defaultContent));
+}
+
+function cloneDefaultSupportContent() {
+  return JSON.parse(JSON.stringify(defaultSupportContent));
+}
+
+function normalizeSupportContent(input) {
+  const base = input && typeof input === 'object' ? input : {};
+  const defaults = cloneDefaultSupportContent();
+  const normalizeChannel = (channel, index) => ({
+    id: String(channel?.id || `contact-${index + 1}`).trim(),
+    title: String(channel?.title || '').trim(),
+    subtitle: String(channel?.subtitle || '').trim(),
+    value: String(channel?.value || '').trim(),
+    href: String(channel?.href || '').trim(),
+    kind: ['telegram', 'whatsapp', 'phone', 'email', 'instagram'].includes(String(channel?.kind)) ? String(channel.kind) : 'telegram'
+  });
+  const normalizeEmergency = (contact, index) => ({
+    id: String(contact?.id || `emergency-${index + 1}`).trim(),
+    title: String(contact?.title || '').trim(),
+    description: String(contact?.description || '').trim(),
+    value: String(contact?.value || '').trim(),
+    href: String(contact?.href || '').trim()
+  });
+
+  return {
+    heroEyebrow: String(base.heroEyebrow || defaults.heroEyebrow).trim(),
+    heroTitle: String(base.heroTitle || defaults.heroTitle).trim(),
+    heroText: String(base.heroText || defaults.heroText).trim(),
+    helpButtonLabel: String(base.helpButtonLabel || defaults.helpButtonLabel).trim(),
+    emergencyTitle: String(base.emergencyTitle || defaults.emergencyTitle).trim(),
+    emergencySubtitle: String(base.emergencySubtitle || defaults.emergencySubtitle).trim(),
+    contactChannels: (Array.isArray(base.contactChannels) ? base.contactChannels : defaults.contactChannels).map(normalizeChannel),
+    emergencyContacts: (Array.isArray(base.emergencyContacts) ? base.emergencyContacts : defaults.emergencyContacts).map(normalizeEmergency)
+  };
+}
+
+function getMemorySupportContent() {
+  if (!memorySupportContent) {
+    memorySupportContent = normalizeSupportContent(cloneDefaultSupportContent());
+  }
+  return JSON.parse(JSON.stringify(memorySupportContent));
+}
+
+function setMemorySupportContent(content) {
+  memorySupportContent = normalizeSupportContent(content);
+  return getMemorySupportContent();
 }
 
 function getMemoryStore() {
@@ -423,6 +492,14 @@ async function ensureDatabase() {
       `);
 
       await db.unsafe(`
+        create table if not exists support_content (
+          id text primary key,
+          payload jsonb not null default '{}'::jsonb,
+          updated_at timestamptz not null default now()
+        )
+      `);
+
+      await db.unsafe(`
         create table if not exists analytics_events (
           id text primary key,
           kind text not null,
@@ -441,6 +518,14 @@ async function ensureDatabase() {
       const categoryRows = await db.unsafe('select id from categories limit 1');
       if (categoryRows.length === 0) {
         await replaceStoreContents(normalizeContentStore(cloneDefaultContent()));
+      }
+
+      const supportRows = await db.unsafe('select id from support_content where id = $1 limit 1', ['contacts']);
+      if (supportRows.length === 0) {
+        await db.unsafe(
+          'insert into support_content (id, payload, updated_at) values ($1, $2::jsonb, now())',
+          ['contacts', JSON.stringify(cloneDefaultSupportContent())]
+        );
       }
 
       return true;
@@ -878,6 +963,37 @@ async function getAnalyticsEvents(limit = 400) {
   );
 
   return rows.reverse();
+}
+
+async function readSupportContent() {
+  const db = getSql();
+  if (!db) {
+    return getMemorySupportContent();
+  }
+
+  await ensureDatabase();
+  const rows = await db.unsafe('select payload from support_content where id = $1 limit 1', ['contacts']);
+  return normalizeSupportContent(rows[0]?.payload || cloneDefaultSupportContent());
+}
+
+async function saveSupportContent(contentInput) {
+  const normalized = normalizeSupportContent(contentInput);
+  const db = getSql();
+  if (!db) {
+    return setMemorySupportContent(normalized);
+  }
+
+  await ensureDatabase();
+  await db.unsafe(
+    `
+      insert into support_content (id, payload, updated_at)
+      values ('contacts', $1::jsonb, now())
+      on conflict (id) do update set payload = excluded.payload, updated_at = now()
+    `,
+    [JSON.stringify(normalized)]
+  );
+
+  return readSupportContent();
 }
 
 async function getContentStore() {
@@ -1569,6 +1685,8 @@ module.exports = {
   saveTips,
   updateCollectionItems,
   saveMediaFileRecord,
+  saveSupportContent,
+  readSupportContent,
   upsertCategory,
   upsertPlace
 };

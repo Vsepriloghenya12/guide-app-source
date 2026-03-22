@@ -2738,3 +2738,22 @@ img {
     transition-duration: 0.01ms !important;
   }
 }
+
+.owner-subsection {
+  display: grid;
+  gap: 18px;
+}
+
+.owner-stack-list {
+  display: grid;
+  gap: 14px;
+}
+
+.owner-inline-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}

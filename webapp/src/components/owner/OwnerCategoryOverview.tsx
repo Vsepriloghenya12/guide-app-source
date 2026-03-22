@@ -33,7 +33,7 @@ export function OwnerCategoryOverview({ categories }: OwnerCategoryOverviewProps
     }));
   };
 
-  const handleCategoryFilterField = (categoryId: string, field: 'quickFilters' | 'fields', value: string) => {
+  const handleCategoryFilterField = (categoryId: string, field: 'fields', value: string) => {
     updateGuideContent((current) => ({
       ...current,
       categories: current.categories.map((category) =>
@@ -79,7 +79,7 @@ export function OwnerCategoryOverview({ categories }: OwnerCategoryOverviewProps
         <div>
           <span className="eyebrow">CMS / категории</span>
           <h2>Управление категориями</h2>
-          <p>Здесь можно менять названия, медиа, фильтры, порядок показа и видимость категорий.</p>
+          <p>Здесь можно менять названия, обложки, поля фильтрации, порядок показа и видимость категорий.</p>
         </div>
       </div>
 
@@ -189,17 +189,8 @@ export function OwnerCategoryOverview({ categories }: OwnerCategoryOverviewProps
                 />
               </label>
 
-              <label className="field">
-                <span>Quick filters</span>
-                <input
-                  value={(category.filterSchema?.quickFilters ?? []).join(', ')}
-                  onChange={(event) => handleCategoryFilterField(category.id, 'quickFilters', event.target.value)}
-                  placeholder="breakfast, vegan, pets"
-                />
-              </label>
-
               <label className="field field--full">
-                <span>Fields</span>
+                <span>Поля фильтрации</span>
                 <input
                   value={(category.filterSchema?.fields ?? []).join(', ')}
                   onChange={(event) => handleCategoryFilterField(category.id, 'fields', event.target.value)}

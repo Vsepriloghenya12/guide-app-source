@@ -19,11 +19,13 @@ const {
   hasDatabase,
   normalizePlace,
   resetContentStore,
+  readSupportContent,
   saveBanners,
   saveCollections,
   saveContentStore,
   saveHomeContent,
   saveMediaFileRecord,
+  saveSupportContent,
   saveTips,
   updateCollectionItems,
   upsertCategory,
@@ -453,6 +455,15 @@ app.get('/api/public/content', async (_req, res) => {
   }
 });
 
+app.get('/api/support-content', async (_req, res) => {
+  try {
+    const content = await readSupportContent();
+    res.json({ ok: true, content });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load support content' });
+  }
+});
+
 app.put('/api/content', requireOwner, async (req, res) => {
   try {
     const store = await saveContentStore(req.body?.content ?? req.body ?? {});
@@ -546,6 +557,24 @@ app.get('/api/owner/bootstrap', requireOwner, async (_req, res) => {
     res.json({ ok: true, content: store, ...toBootstrapPayload(store) });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load owner bootstrap' });
+  }
+});
+
+app.get('/api/owner/support-content', requireOwner, async (_req, res) => {
+  try {
+    const content = await readSupportContent();
+    res.json({ ok: true, content });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to load support content' });
+  }
+});
+
+app.put('/api/owner/support-content', requireOwner, async (req, res) => {
+  try {
+    const content = await saveSupportContent(req.body?.content ?? req.body ?? {});
+    res.json({ ok: true, content });
+  } catch (error) {
+    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save support content' });
   }
 });
 

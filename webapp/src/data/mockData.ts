@@ -557,27 +557,27 @@ const eventPlaces: GuidePlace[] = [
 
 export const defaultGuideContent: GuideContentStore = {
   version: 4,
-  places: [...restaurantPlaces, ...wellnessPlaces, ...routePlaces, ...transportPlaces, ...atmPlaces, ...eventPlaces],
+  places: [],
   categories: defaultCategories,
   tips: [
     {
       id: 'tip-1',
       title: 'Топ 10 мест Дананга',
-      text: 'Собери подборку из смотровых, пляжей, ресторанов и атмосферных локаций для первого знакомства с городом.',
+      text: 'Идеи для первого знакомства с городом: красивые виды, прогулки и атмосферные точки.',
       linkPath: '/section/culture',
       active: true
     },
     {
       id: 'tip-2',
       title: 'Где купить сувениры',
-      text: 'Добавь сюда свои проверенные рынки, лавки, магазины подарков и шопинг-маршруты.',
+      text: 'Магазины, лавки и сувениры, куда удобно заглянуть за подарками и мелочами.',
       linkPath: '/section/shops',
       active: true
     },
     {
       id: 'tip-3',
       title: 'Лучшие кафе города',
-      text: 'Идеальный блок под полезные советы владельца: где завтракать, пить specialty coffee и работать с ноутбуком.',
+      text: 'Где начать день с кофе, завтрака и спокойной атмосферы.',
       linkPath: '/restaurants',
       active: true
     }
@@ -586,7 +586,7 @@ export const defaultGuideContent: GuideContentStore = {
     {
       id: 'banner-1',
       title: 'Топ рестораны и кафе Дананга',
-      subtitle: 'Подборка популярных мест для вдохновения и быстрого выбора.',
+      subtitle: 'Подборка мест, куда приятно зайти в любое время дня.',
       linkPath: '/restaurants',
       tone: 'coast',
       imageSrc: '',
@@ -595,7 +595,7 @@ export const defaultGuideContent: GuideContentStore = {
     {
       id: 'banner-2',
       title: 'СПА, массаж и отдых',
-      subtitle: 'Собирай баннеры на главной и направляй пользователя в нужные разделы.',
+      subtitle: 'Места для отдыха, восстановления и неспешного дня.',
       linkPath: '/wellness',
       tone: 'bridge',
       imageSrc: '',
@@ -606,24 +606,24 @@ export const defaultGuideContent: GuideContentStore = {
     {
       id: 'collection-1',
       title: 'Завтраки с красивой подачей',
-      description: 'Готовая подборка для главной страницы: завтраки, кофе и спокойная утренняя атмосфера.',
+      description: 'Подборка мест для неторопливого утра и красивого начала дня.',
       linkPath: '/restaurants',
       imageSrc: '',
-      itemIds: ['r-1', 'r-3'],
+      itemIds: [],
       active: true
     },
     {
       id: 'collection-2',
       title: 'Релакс после пляжа',
-      description: 'СПА, массаж и восстановление — отдельная подборка для быстрого входа в раздел.',
+      description: 'Идеи для спокойного отдыха, массажа и восстановления.',
       linkPath: '/wellness',
       imageSrc: '',
-      itemIds: ['w-1', 'w-4'],
+      itemIds: [],
       active: true
     }
   ],
   home: {
-    popularPlaceIds: ['r-1', 'event-1', 'w-1', 'route-1', 'transport-1', 'atm-1'],
+    popularPlaceIds: [],
     featuredCategoryIds: ['restaurants', 'events', 'wellness', 'routes', 'transport', 'atm'],
     tipIds: ['tip-1', 'tip-2', 'tip-3'],
     bannerIds: ['banner-1', 'banner-2'],

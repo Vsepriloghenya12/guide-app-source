@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { PageHeader } from '../components/layout/PageHeader';
-import { contactChannels, emergencyContacts } from '../data/supportContent';
+import { defaultSupportContent, fetchSupportContent, type SupportContentStore } from '../data/supportContent';
 import { recordGuideAnalytics } from '../utils/analytics';
 import { usePageMeta } from '../hooks/usePageMeta';
 
@@ -22,35 +23,53 @@ function getChannelBadge(kind: string) {
 }
 
 export function ContactsPage() {
+  const [content, setContent] = useState<SupportContentStore>(defaultSupportContent);
+
+  useEffect(() => {
+    let active = true;
+    fetchSupportContent()
+      .then((next) => {
+        if (active) {
+          setContent(next);
+        }
+      })
+      .catch(() => {
+        // fallback stays on defaults
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   usePageMeta({
     title: 'Контакты',
     description: 'Мессенджеры, телефон и важные контакты для поездки.'
   });
+
   return (
     <div className="page-stack utility-page utility-page--contacts">
       <PageHeader
         title="Контакты"
         subtitle="Основные каналы связи, мессенджеры, телефон и важные номера, которые могут пригодиться в поездке."
-        badgeLabel="Contacts"
+        badgeLabel="Контакты"
       />
 
       <section className="panel utility-hero-card">
         <div>
-          <span className="eyebrow">На связи</span>
-          <h2>Все важные контакты в одном месте</h2>
-          <p>
-            Здесь собраны основные каналы связи, чтобы телефон, Telegram и WhatsApp всегда были под рукой. Ниже также есть важные номера для экстренных ситуаций.
-          </p>
+          <span className="eyebrow">{content.heroEyebrow}</span>
+          <h2>{content.heroTitle}</h2>
+          <p>{content.heroText}</p>
         </div>
         <div className="utility-hero-card__actions">
           <Link className="button button--ghost" to="/help">
-            Открыть помощь
+            {content.helpButtonLabel}
           </Link>
         </div>
       </section>
 
       <section className="utility-grid utility-grid--channels">
-        {contactChannels.map((channel) => (
+        {content.contactChannels.map((channel) => (
           <a
             key={channel.id}
             className="panel utility-channel-card"
@@ -75,12 +94,12 @@ export function ContactsPage() {
 
       <section className="panel utility-section-card">
         <div className="section-headline">
-          <strong>Экстренные контакты</strong>
-          <span>Полезно сохранить до поездки или держать под рукой в офлайн-режиме.</span>
+          <strong>{content.emergencyTitle}</strong>
+          <span>{content.emergencySubtitle}</span>
         </div>
 
         <div className="utility-grid utility-grid--emergency">
-          {emergencyContacts.map((contact) => (
+          {content.emergencyContacts.map((contact) => (
             <a
               key={contact.id}
               className="utility-emergency-card"
