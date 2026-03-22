@@ -375,7 +375,7 @@ function normalizeIncomingCategory(incoming, currentCategory = null) {
     path: String(incoming?.path || currentCategory?.path || `/section/${slug}`).trim(),
     title: String(incoming?.title || currentCategory?.title || id).trim(),
     shortTitle: String(incoming?.shortTitle || currentCategory?.shortTitle || incoming?.title || currentCategory?.title || id).trim(),
-    badge: String(incoming?.badge || currentCategory?.badge || '').trim(),
+    badge: String(incoming?.badge ?? currentCategory?.badge ?? '').trim(),
     description: String(incoming?.description || currentCategory?.description || '').trim(),
     accent: String(incoming?.accent || currentCategory?.accent || 'coast').trim(),
     visible: incoming?.visible ?? currentCategory?.visible ?? true,

@@ -75,6 +75,19 @@ function toLabel(filterKey: string) {
   return map[filterKey] || filterKey;
 }
 
+function isGenericCategoryDescription(value: string | undefined) {
+  const text = String(value || '').trim().toLowerCase();
+  if (!text) return true;
+  return [
+    'раздел открыт и готов к наполнению.',
+    'раздел открыт и готов к наполнению',
+    'скоро здесь появятся новые места и полезные адреса.',
+    'скоро здесь появятся новые места и полезные адреса',
+    'здесь собраны места и полезная информация по разделу.',
+    'подборка мест и полезной информации по этому разделу.'
+  ].includes(text);
+}
+
 function sortPlaces<T extends GuidePlace>(places: T[], sortMode: SortMode): T[] {
   if (sortMode === 'priority') {
     return [...places].sort(comparePlacesByPriority);
@@ -285,25 +298,19 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
     <div className="page-stack category-explorer-page">
       <PageHeader
         title={category.title}
-        subtitle={category.description || 'Подборка мест и полезной информации по этому разделу.'}
+        subtitle={undefined}
         showBack
-        badgeLabel={category.shortTitle}
       />
 
       <section className={`panel category-hero category-hero--${category.accent || 'coast'}`}>
         <div className="category-hero__content">
-          {category.shortTitle && category.shortTitle !== category.title ? (
-            <div className="chip-row chip-row--wrap">
-              <span className="chip">{category.shortTitle}</span>
-              {category.badge ? <span className="chip chip--soft">{category.badge}</span> : null}
-            </div>
-          ) : category.badge ? (
+          {category.badge ? (
             <div className="chip-row chip-row--wrap">
               <span className="chip chip--soft">{category.badge}</span>
             </div>
           ) : null}
-          <h2>{category.title}</h2>
-          <p>{category.description || (categoryPlaces.length > 0 ? 'Здесь собраны места и полезная информация по разделу.' : 'Скоро здесь появятся новые места и полезные адреса.')}</p>
+          {category.shortTitle && category.shortTitle !== category.title ? <h2>{category.shortTitle}</h2> : null}
+          {!isGenericCategoryDescription(category.description) ? <p>{category.description}</p> : null}
         </div>
 
         {category.imageSrc ? (

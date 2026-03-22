@@ -172,7 +172,7 @@ function normalizeCategory(category, index, fallbackMap) {
     id,
     title: String(category?.title || fallback.title || id).trim(),
     path: String(category?.path || fallback.path || `/section/${slug}`).trim(),
-    badge: String(category?.badge || fallback.badge || '').trim(),
+    badge: String(category?.badge ?? fallback.badge ?? '').trim(),
     description: String(category?.description || fallback.description || '').trim(),
     visible: category?.visible ?? fallback.visible ?? true,
     showOnHome: category?.showOnHome ?? fallback.showOnHome ?? false,

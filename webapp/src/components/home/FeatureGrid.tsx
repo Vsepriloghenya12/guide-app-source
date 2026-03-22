@@ -30,7 +30,7 @@ export function FeatureGrid({
     <section className="home-showcase" aria-label="Главное меню">
       <div className="home-column home-column--popular">
         <div className="home-section-title">{sectionTitles.popular}</div>
-        <div className="poster-carousel" role="list" aria-label={sectionTitles.popular}>
+        <div className="poster-carousel home-popular-strip" role="list" aria-label={sectionTitles.popular}>
           {popularPlaces.map((place, index) => (
             <Link
               key={place.id}

@@ -103,7 +103,7 @@ export function OwnerContactsManager() {
       {loading ? <div className="panel page-loader">Загружаю контакты…</div> : null}
 
       {!loading ? (
-        <div className="owner-cms-layout owner-cms-layout--stack owner-cms-layout--narrow">
+        <div className="owner-cms-layout owner-contacts-layout">
           <article className="panel owner-subsection">
             <div className="section-headline">
               <strong>Верхний блок</strong>
@@ -134,7 +134,7 @@ export function OwnerContactsManager() {
               <strong>Основные контакты</strong>
               <span>Telegram, WhatsApp, телефон, email и другие каналы связи.</span>
             </div>
-            <div className="owner-stack-list">
+            <div className="owner-stack-list owner-stack-list--contacts">
               {content.contactChannels.map((channel) => (
                 <div key={channel.id} className="owner-inline-card">
                   <div className="owner-editor-form__grid owner-editor-form__grid--double">
@@ -191,7 +191,7 @@ export function OwnerContactsManager() {
                 <input value={content.emergencySubtitle} onChange={(event) => updateField('emergencySubtitle', event.target.value)} />
               </label>
             </div>
-            <div className="owner-stack-list">
+            <div className="owner-stack-list owner-stack-list--emergency">
               {content.emergencyContacts.map((contact) => (
                 <div key={contact.id} className="owner-inline-card">
                   <div className="owner-editor-form__grid owner-editor-form__grid--double">
