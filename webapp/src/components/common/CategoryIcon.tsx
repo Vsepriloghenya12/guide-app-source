@@ -9,180 +9,147 @@ type CategoryIconProps = {
 };
 
 type Palette = {
-  start: string;
-  end: string;
-  glow: string;
+  primary: string;
+  secondary: string;
 };
 
 const paletteMap: Record<GuideCategoryId, Palette> = {
-  restaurants: { start: '#ffb347', end: '#ff6a3d', glow: 'rgba(255, 197, 114, 0.46)' },
-  wellness: { start: '#4fd6c2', end: '#0d9ca0', glow: 'rgba(79, 214, 194, 0.4)' },
-  'active-rest': { start: '#a4dd59', end: '#2e8c44', glow: 'rgba(164, 221, 89, 0.34)' },
-  routes: { start: '#59b8ff', end: '#2d6fe5', glow: 'rgba(89, 184, 255, 0.35)' },
-  hotels: { start: '#8699ff', end: '#4956d3', glow: 'rgba(134, 153, 255, 0.32)' },
-  events: { start: '#ff88b6', end: '#d1467f', glow: 'rgba(255, 136, 182, 0.34)' },
-  transport: { start: '#71c8ff', end: '#1f7cc8', glow: 'rgba(113, 200, 255, 0.33)' },
-  atm: { start: '#ffd25c', end: '#f19221', glow: 'rgba(255, 210, 92, 0.34)' },
-  shops: { start: '#ff9d78', end: '#de5c4f', glow: 'rgba(255, 157, 120, 0.34)' },
-  culture: { start: '#c8a3ff', end: '#6d4dd9', glow: 'rgba(200, 163, 255, 0.34)' },
-  kids: { start: '#ffd96f', end: '#ff8d4e', glow: 'rgba(255, 217, 111, 0.34)' },
-  medicine: { start: '#66e2cf', end: '#169b84', glow: 'rgba(102, 226, 207, 0.34)' },
-  'photo-spots': { start: '#8fd1ff', end: '#397fd9', glow: 'rgba(143, 209, 255, 0.34)' },
-  'car-rental': { start: '#7fb0ff', end: '#3f58d6', glow: 'rgba(127, 176, 255, 0.34)' }
+  restaurants: { primary: '#f3e7d2', secondary: '#d0b184' },
+  wellness: { primary: '#dbf2ea', secondary: '#7bc2ae' },
+  'active-rest': { primary: '#e6efd5', secondary: '#9dc567' },
+  routes: { primary: '#deebff', secondary: '#7ea8ef' },
+  hotels: { primary: '#eaecff', secondary: '#8e99dc' },
+  events: { primary: '#f7dfeb', secondary: '#ca81a5' },
+  transport: { primary: '#deedf7', secondary: '#7caecc' },
+  atm: { primary: '#f8eac8', secondary: '#d7b064' },
+  shops: { primary: '#fae2d8', secondary: '#da8e73' },
+  culture: { primary: '#ece2f8', secondary: '#a083d0' },
+  kids: { primary: '#faedd4', secondary: '#d8a972' },
+  medicine: { primary: '#dff3ed', secondary: '#64bba7' },
+  'photo-spots': { primary: '#e3efff', secondary: '#78abdf' },
+  'car-rental': { primary: '#e3e9f8', secondary: '#8599c7' }
 };
 
 function IconShape({ categoryId }: { categoryId: GuideCategoryId }) {
-  const common = {
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2.4,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const
-  };
-
   switch (categoryId) {
     case 'restaurants':
       return (
         <>
-          <path {...common} d="M19 12v8" />
-          <path {...common} d="M15.5 8.5v5.5c0 1.1.9 2 2 2h3" />
-          <path {...common} d="M22.5 8.5v5.5c0 1.1-.9 2-2 2" />
-          <path {...common} d="M10 8.5v13" />
-          <path {...common} d="M7.5 8.5v5" />
-          <path {...common} d="M10 8.5v5" />
-          <path {...common} d="M12.5 8.5v5" />
+          <path d="M11 6h2v12h-2zM15 6h2v12h-2zM19 6h2v12h-2zM15 18h4v8h-4z" fill="currentColor" />
+          <path d="M26 6c3.3 0 6 2.7 6 6v14h-4V6h-2Z" fill="currentColor" opacity="0.95" />
         </>
       );
     case 'wellness':
       return (
         <>
-          <path {...common} d="M16 22c2.9-1.4 4.9-3.9 5.8-7-2.5.2-4.7 1.5-5.8 3.6-1.1-2.1-3.3-3.4-5.8-3.6.9 3.1 2.9 5.6 5.8 7Z" />
-          <path {...common} d="M16 18c-2.6-1-4.3-3.1-5-6 2 .1 3.9 1 5 2.7 1.1-1.7 3-2.6 5-2.7-.7 2.9-2.4 5-5 6Z" />
-          <path {...common} d="M16 9.5c1.1-1.8 3-2.8 5-3-1 2.7-2.8 4.7-5 5.6-2.2-.9-4-2.9-5-5.6 2 .2 3.9 1.2 5 3Z" />
+          <path d="M20 8c2.2 0 4 2 4 4.4 0 1-.3 2-.9 2.8 2.8.7 4.9 3.2 4.9 6.2 0 4.2-3.6 7.6-8 7.6s-8-3.4-8-7.6c0-3 2.1-5.5 4.9-6.2a4.9 4.9 0 0 1-.9-2.8C16 10 17.8 8 20 8Z" fill="currentColor" />
+          <path d="M20 4c1.6 2 2.4 3.8 2.4 5.5 0 1.7-.8 3.3-2.4 4.8-1.6-1.5-2.4-3.1-2.4-4.8S18.4 6 20 4Z" fill="var(--icon-secondary)" />
         </>
       );
     case 'active-rest':
       return (
         <>
-          <circle cx="24" cy="11" r="2.4" fill="currentColor" />
-          <path {...common} d="M8 24l7.3-10.2 4.1 5.1 3.7-4.6L32 24" />
-          <path {...common} d="M14 24l4.6-6.2 2.7 3.2" />
+          <circle cx="24" cy="7" r="3" fill="currentColor" />
+          <path d="M12 26l6-8 4 3 6-9 3 2-7.5 12H20l-3.5-3.2L14 26Z" fill="currentColor" />
         </>
       );
     case 'routes':
       return (
         <>
-          <path {...common} d="M11 25c0-2.8 2-4.3 4.5-5 3.3-1 5-2 5-4.5 0-2.1-1.7-3.7-3.8-3.7-2.8 0-4.1 1.8-4.8 4.2" />
-          <path {...common} d="M24.6 22.5c1.8 0 3.4-1.5 3.4-3.4 0-1.8-1.6-3.4-3.4-3.4-1.8 0-3.4 1.6-3.4 3.4 0 1.9 1.6 3.4 3.4 3.4Z" />
-          <path {...common} d="M11.2 14.7c1.2 0 2.2-1 2.2-2.2s-1-2.2-2.2-2.2S9 11.3 9 12.5s1 2.2 2.2 2.2Z" />
+          <circle cx="9" cy="10" r="4" fill="currentColor" />
+          <circle cx="31" cy="23" r="4" fill="currentColor" />
+          <path d="M12 10c6 0 8 3 8 6s-2 6-8 6" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          <path d="M20 22c2.5 2.4 5.3 3.7 8 3.9" fill="none" stroke="var(--icon-secondary)" strokeWidth="3" strokeLinecap="round" />
         </>
       );
     case 'hotels':
       return (
         <>
-          <path {...common} d="M10 24V11.5c0-.8.7-1.5 1.5-1.5h9c.8 0 1.5.7 1.5 1.5V24" />
-          <path {...common} d="M22 14h5.5c.8 0 1.5.7 1.5 1.5V24" />
-          <path {...common} d="M14 14h4" />
-          <path {...common} d="M14 18h4" />
-          <path {...common} d="M15 24v-4h2v4" />
+          <path d="M9 26V8h14v18h-4v-5h-6v5Z" fill="currentColor" />
+          <path d="M23 12h8v14h-8z" fill="var(--icon-secondary)" />
+          <path d="M12 11h2v2h-2zm4 0h2v2h-2zm-4 4h2v2h-2zm4 0h2v2h-2z" fill="#08111c" opacity="0.7" />
         </>
       );
     case 'events':
       return (
         <>
-          <path {...common} d="M12.5 11h15a1.5 1.5 0 0 1 1.5 1.5v2c-1.7 0-3 1.4-3 3 0 1.7 1.3 3 3 3v2A1.5 1.5 0 0 1 27.5 24h-15A1.5 1.5 0 0 1 11 22.5v-2c1.7 0 3-1.3 3-3 0-1.6-1.3-3-3-3v-2A1.5 1.5 0 0 1 12.5 11Z" />
-          <path {...common} d="M19.5 14.5v6" />
-          <path {...common} d="M17 17.5h5" />
+          <rect x="8" y="9" width="24" height="19" rx="4" fill="currentColor" />
+          <rect x="8" y="14" width="24" height="4" fill="#08111c" opacity="0.28" />
+          <path d="M14 5h3v6h-3zm9 0h3v6h-3z" fill="var(--icon-secondary)" />
         </>
       );
     case 'transport':
       return (
         <>
-          <path {...common} d="M12 21.5V14c0-2.2 1.8-4 4-4h8c2.2 0 4 1.8 4 4v7.5" />
-          <path {...common} d="M12 19h16" />
-          <path {...common} d="M16 13h8" />
-          <circle cx="16" cy="22.5" r="1.8" fill="currentColor" />
-          <circle cx="24" cy="22.5" r="1.8" fill="currentColor" />
+          <path d="M10 20v-4c0-4.4 3.6-8 8-8h4c4.4 0 8 3.6 8 8v4H10Z" fill="currentColor" />
+          <path d="M8 22h24v3H8z" fill="var(--icon-secondary)" />
+          <circle cx="14" cy="25" r="2.4" fill="#08111c" opacity="0.75" />
+          <circle cx="26" cy="25" r="2.4" fill="#08111c" opacity="0.75" />
         </>
       );
     case 'atm':
       return (
         <>
-          <rect x="9.5" y="10" width="21" height="14" rx="3" {...common} />
-          <path {...common} d="M13 15h7" />
-          <path {...common} d="M13 19h4" />
-          <path {...common} d="M24 14.5h3" />
-          <path {...common} d="M25.5 13v3" />
+          <rect x="8" y="8" width="24" height="18" rx="4" fill="currentColor" />
+          <rect x="12" y="12" width="9" height="3" rx="1.5" fill="#08111c" opacity="0.28" />
+          <rect x="12" y="18" width="6" height="3" rx="1.5" fill="#08111c" opacity="0.28" />
+          <path d="M25 12h4v10h-4z" fill="var(--icon-secondary)" />
         </>
       );
     case 'shops':
       return (
         <>
-          <path {...common} d="M12.5 14h15l-1.2 10H13.7L12.5 14Z" />
-          <path {...common} d="M16 14v-1.2c0-2.1 1.7-3.8 3.8-3.8h.4c2.1 0 3.8 1.7 3.8 3.8V14" />
-          <path {...common} d="M18.5 18.5h3" />
+          <path d="M10 12h20l-1.8 14H11.8L10 12Z" fill="currentColor" />
+          <path d="M14 12V9a6 6 0 0 1 12 0v3h-4V9a2 2 0 1 0-4 0v3Z" fill="var(--icon-secondary)" />
         </>
       );
     case 'culture':
       return (
         <>
-          <path {...common} d="M10 14l6-3 6 3 6-3" />
-          <path {...common} d="M11 24h18" />
-          <path {...common} d="M13 14v8" />
-          <path {...common} d="M19 14v8" />
-          <path {...common} d="M25 14v8" />
-          <path {...common} d="M9.5 24h21" />
-          <path {...common} d="M16 11h10" />
+          <path d="M7 13h26L20 6 7 13Zm3 2h3v10h-3zm8 0h4v10h-4zm9 0h3v10h-3ZM8 27h24v3H8Z" fill="currentColor" />
         </>
       );
     case 'kids':
       return (
         <>
-          <path {...common} d="M16 10l7 5-7 5-7-5 7-5Z" />
-          <path {...common} d="M23 15l3.5 6.5" />
-          <path {...common} d="M26.5 21.5l-1.8 1.8" />
-          <path {...common} d="M16 20v4" />
+          <path d="M20 6l10 6-10 6-10-6 10-6Zm0 13 8 4.7V29l-8-4.5L12 29v-5.3L20 19Z" fill="currentColor" />
         </>
       );
     case 'medicine':
       return (
         <>
-          <rect x="12" y="9.5" width="8" height="15" rx="4" {...common} />
-          <path {...common} d="M20 13h1c2.8 0 5 2.2 5 5s-2.2 5-5 5h-1" />
-          <path {...common} d="M16 13v7" />
-          <path {...common} d="M12.5 16.5h7" />
+          <rect x="9" y="7" width="22" height="22" rx="5" fill="currentColor" />
+          <path d="M18 12h4v5h5v4h-5v5h-4v-5h-5v-4h5z" fill="#08111c" opacity="0.28" />
         </>
       );
     case 'photo-spots':
       return (
         <>
-          <rect x="10" y="12" width="20" height="12" rx="3" {...common} />
-          <circle cx="20" cy="18" r="4" {...common} />
-          <path {...common} d="M14 12l2-2h4l2 2" />
+          <rect x="8" y="10" width="24" height="16" rx="4" fill="currentColor" />
+          <circle cx="20" cy="18" r="4.5" fill="var(--icon-secondary)" />
+          <path d="M13 10l2-3h10l2 3" fill="currentColor" />
         </>
       );
     case 'car-rental':
       return (
         <>
-          <path {...common} d="M12 20.5l1.5-4.8c.4-1.1 1.4-1.8 2.6-1.8h7.8c1.2 0 2.2.7 2.6 1.8l1.5 4.8" />
-          <path {...common} d="M10.5 20.5h19" />
-          <circle cx="15.5" cy="22.5" r="1.7" fill="currentColor" />
-          <circle cx="24.5" cy="22.5" r="1.7" fill="currentColor" />
+          <path d="M10 20l2.4-6c.6-1.5 2-2.5 3.6-2.5h8c1.6 0 3 .9 3.6 2.5L30 20H10Z" fill="currentColor" />
+          <path d="M9 21h22v3H9z" fill="var(--icon-secondary)" />
+          <circle cx="14" cy="25" r="2.4" fill="#08111c" opacity="0.75" />
+          <circle cx="26" cy="25" r="2.4" fill="#08111c" opacity="0.75" />
         </>
       );
     default:
-      return <circle cx="20" cy="18" r="6" {...common} />;
+      return <circle cx="20" cy="16" r="8" fill="currentColor" />;
   }
 }
 
 export function CategoryIcon({ categoryId, size = 'md', className = '', title }: CategoryIconProps) {
   const palette = paletteMap[categoryId];
-  const gradientId = `icon-gradient-${categoryId}`;
-
   const style = {
-    ['--icon-start' as string]: palette.start,
-    ['--icon-end' as string]: palette.end,
-    ['--icon-glow' as string]: palette.glow
+    ['--icon-primary' as string]: palette.primary,
+    ['--icon-secondary' as string]: palette.secondary,
+    color: palette.primary
   } as CSSProperties;
 
   return (
@@ -193,19 +160,8 @@ export function CategoryIcon({ categoryId, size = 'md', className = '', title }:
       role={title ? 'img' : undefined}
       aria-label={title}
     >
-      <svg viewBox="0 0 40 40" className="category-icon__svg" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id={gradientId} x1="8" y1="7" x2="31" y2="33" gradientUnits="userSpaceOnUse">
-            <stop stopColor={palette.start} />
-            <stop offset="1" stopColor={palette.end} />
-          </linearGradient>
-        </defs>
-        <circle cx="20" cy="20" r="17" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.16)" />
-        <circle cx="28.5" cy="11.5" r="5.5" fill={`url(#${gradientId})`} opacity="0.28" />
-        <circle cx="13" cy="28.5" r="7" fill="rgba(255,255,255,0.04)" />
-        <g style={{ color: '#fff9f0' }}>
-          <IconShape categoryId={categoryId} />
-        </g>
+      <svg viewBox="0 0 40 32" className="category-icon__svg" xmlns="http://www.w3.org/2000/svg">
+        <IconShape categoryId={categoryId} />
       </svg>
     </span>
   );

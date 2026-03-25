@@ -11,48 +11,35 @@ const items: Array<{ to: string; label: string; icon: NavIconName }> = [
 ];
 
 function BottomNavIcon({ name }: { name: NavIconName }) {
-  const common = {
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 1.85,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const
-  };
-
   switch (name) {
     case 'home':
       return (
-        <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg">
-          <path {...common} d="M3.75 10.25 12 3.75l8.25 6.5" />
-          <path {...common} d="M6.75 9.8V19a1.25 1.25 0 0 0 1.25 1.25h8A1.25 1.25 0 0 0 17.25 19V9.8" />
-          <path {...common} d="M10 20.25V14.75h4v5.5" />
+        <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="currentColor" d="M12 3.6 3.8 10.3c-.33.27-.41.75-.18 1.12.24.36.72.5 1.1.32L6 11.1V19c0 1.1.9 2 2 2h2.9c.5 0 .9-.4.9-.9v-4.2h.4V20c0 .5.4.9.9.9H16c1.1 0 2-.9 2-2v-7.9l1.28.67c.38.18.86.04 1.1-.32.23-.37.15-.85-.18-1.12L12 3.6Z"/>
         </svg>
       );
     case 'search':
       return (
-        <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg">
-          <circle {...common} cx="10.5" cy="10.5" r="5.75" />
-          <path {...common} d="m15.25 15.25 4.5 4.5" />
+        <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="currentColor" d="M10.4 4a6.4 6.4 0 1 0 3.95 11.43l3.5 3.5a1 1 0 0 0 1.42-1.41l-3.5-3.5A6.4 6.4 0 0 0 10.4 4Zm0 1.8a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2Z"/>
         </svg>
       );
     case 'heart':
       return (
-        <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg">
-          <path {...common} d="M12 20c-4.95-2.85-8-6.15-8-10 0-2.65 2.05-4.75 4.6-4.75 1.65 0 3.05.8 3.9 2.05.85-1.25 2.25-2.05 3.9-2.05C18.95 5.25 21 7.35 21 10c0 3.85-3.05 7.15-9 10Z" />
+        <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="currentColor" d="M12 20.8c-.17 0-.34-.04-.5-.13C8.16 18.85 4 15.77 4 10.97 4 8.2 6.18 6 8.83 6c1.42 0 2.72.62 3.57 1.67A4.72 4.72 0 0 1 15.97 6C18.8 6 21 8.24 21 10.97c0 4.8-4.45 7.88-8.48 9.7-.16.08-.34.12-.52.12Z"/>
         </svg>
       );
     case 'nearby':
       return (
-        <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg">
-          <path {...common} d="M12 20s-5.25-3.95-5.25-8.45A5.25 5.25 0 0 1 17.25 11.55C17.25 16.05 12 20 12 20Z" />
-          <circle {...common} cx="12" cy="11.25" r="1.75" />
+        <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="currentColor" d="M12 2.9A8.1 8.1 0 0 0 3.9 11c0 5.22 6.65 10.03 7.4 10.55.42.3.98.3 1.4 0 .76-.52 7.4-5.33 7.4-10.55A8.1 8.1 0 0 0 12 2.9Zm0 4.3a3.8 3.8 0 1 1 0 7.6 3.8 3.8 0 0 1 0-7.6Zm0 2a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6Z"/>
         </svg>
       );
     case 'contacts':
       return (
-        <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg">
-          <path {...common} d="M5.25 8.25A2.25 2.25 0 0 1 7.5 6h9a2.25 2.25 0 0 1 2.25 2.25v7.5A2.25 2.25 0 0 1 16.5 18h-9a2.25 2.25 0 0 1-2.25-2.25v-7.5Z" />
-          <path {...common} d="m6.5 8.25 5.5 4.5 5.5-4.5" />
+        <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="currentColor" d="M5.5 5A2.5 2.5 0 0 0 3 7.5v9A2.5 2.5 0 0 0 5.5 19h13a2.5 2.5 0 0 0 2.5-2.5v-9A2.5 2.5 0 0 0 18.5 5h-13Zm.73 2h11.54c.14 0 .23.15.15.26l-5.15 4.5a1.2 1.2 0 0 1-1.58 0L6.08 7.26A.18.18 0 0 1 6.23 7Zm-.73 2.62 4.38 3.83a3 3 0 0 0 3.96 0l4.16-3.65v6.7a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V9.62Z"/>
         </svg>
       );
     default:
@@ -70,9 +57,7 @@ export function BottomNav() {
           className={({ isActive }) => `bottom-nav__item${isActive ? ' is-active' : ''}`}
           end={item.to === '/'}
         >
-          <span className="bottom-nav__icon" aria-hidden="true">
-            <BottomNavIcon name={item.icon} />
-          </span>
+          <BottomNavIcon name={item.icon} />
           <span className="bottom-nav__label">{item.label}</span>
         </NavLink>
       ))}
