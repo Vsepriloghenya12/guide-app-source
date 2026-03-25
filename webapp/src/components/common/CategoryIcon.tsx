@@ -177,6 +177,7 @@ function IconShape({ categoryId }: { categoryId: GuideCategoryId }) {
 
 export function CategoryIcon({ categoryId, size = 'md', className = '', title }: CategoryIconProps) {
   const palette = paletteMap[categoryId];
+  const gradientId = `icon-gradient-${categoryId}`;
 
   const style = {
     ['--icon-start' as string]: palette.start,
@@ -194,15 +195,15 @@ export function CategoryIcon({ categoryId, size = 'md', className = '', title }:
     >
       <svg viewBox="0 0 40 40" className="category-icon__svg" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id={`icon-gradient-${categoryId}`} x1="8" y1="6" x2="32" y2="34" gradientUnits="userSpaceOnUse">
+          <linearGradient id={gradientId} x1="8" y1="7" x2="31" y2="33" gradientUnits="userSpaceOnUse">
             <stop stopColor={palette.start} />
             <stop offset="1" stopColor={palette.end} />
           </linearGradient>
         </defs>
-        <rect x="3" y="3" width="34" height="34" rx="12" fill={`url(#icon-gradient-${categoryId})`} />
-        <circle cx="28" cy="12" r="8" fill="rgba(255,255,255,0.18)" />
-        <circle cx="13" cy="29" r="10" fill="rgba(0,0,0,0.08)" />
-        <g style={{ color: '#fff8ea' }}>
+        <circle cx="20" cy="20" r="17" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.16)" />
+        <circle cx="28.5" cy="11.5" r="5.5" fill={`url(#${gradientId})`} opacity="0.28" />
+        <circle cx="13" cy="28.5" r="7" fill="rgba(255,255,255,0.04)" />
+        <g style={{ color: '#fff9f0' }}>
           <IconShape categoryId={categoryId} />
         </g>
       </svg>
