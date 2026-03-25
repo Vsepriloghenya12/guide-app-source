@@ -35,7 +35,6 @@ export function CategoryList({ categories, title }: CategoryListProps) {
             }
           >
             {category.imageSrc ? <div className="category-list__cover" style={{ backgroundImage: `url(${category.imageSrc})` }} aria-hidden="true" /> : null}
-            {category.badge ? <span className="category-list__badge category-list__badge--floating">{category.badge}</span> : null}
             <div className="category-list__main">
               <CategoryIcon categoryId={category.id} size="md" />
               <div className="category-list__text">
@@ -43,6 +42,11 @@ export function CategoryList({ categories, title }: CategoryListProps) {
                 {category.description ? <span>{category.description}</span> : null}
               </div>
             </div>
+            {category.badge ? (
+              <div className="category-list__meta">
+                <span className="category-list__badge">{category.badge}</span>
+              </div>
+            ) : null}
           </Link>
         ))}
       </div>
