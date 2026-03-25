@@ -14,7 +14,7 @@ function BottomNavIcon({ name }: { name: NavIconName }) {
   const common = {
     fill: 'none',
     stroke: 'currentColor',
-    strokeWidth: 1.9,
+    strokeWidth: 1.85,
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const
   };
@@ -23,36 +23,36 @@ function BottomNavIcon({ name }: { name: NavIconName }) {
     case 'home':
       return (
         <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg">
-          <path {...common} d="M4 10.5 12 4l8 6.5" />
-          <path {...common} d="M6.5 9.8V19a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V9.8" />
-          <path {...common} d="M10 20v-5h4v5" />
+          <path {...common} d="M3.75 10.25 12 3.75l8.25 6.5" />
+          <path {...common} d="M6.75 9.8V19a1.25 1.25 0 0 0 1.25 1.25h8A1.25 1.25 0 0 0 17.25 19V9.8" />
+          <path {...common} d="M10 20.25V14.75h4v5.5" />
         </svg>
       );
     case 'search':
       return (
         <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg">
-          <circle {...common} cx="11" cy="11" r="5.5" />
-          <path {...common} d="m16 16 4 4" />
+          <circle {...common} cx="10.5" cy="10.5" r="5.75" />
+          <path {...common} d="m15.25 15.25 4.5 4.5" />
         </svg>
       );
     case 'heart':
       return (
         <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg">
-          <path {...common} d="M12 19.5c-4.6-2.7-7.5-5.6-7.5-9.1 0-2.3 1.8-4.1 4-4.1 1.5 0 2.8.8 3.5 2 0.7-1.2 2-2 3.5-2 2.2 0 4 1.8 4 4.1 0 3.5-2.9 6.4-7.5 9.1Z" />
+          <path {...common} d="M12 20c-4.95-2.85-8-6.15-8-10 0-2.65 2.05-4.75 4.6-4.75 1.65 0 3.05.8 3.9 2.05.85-1.25 2.25-2.05 3.9-2.05C18.95 5.25 21 7.35 21 10c0 3.85-3.05 7.15-9 10Z" />
         </svg>
       );
     case 'nearby':
       return (
         <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg">
-          <path {...common} d="M12 20.5s5-4.5 5-8.6A5 5 0 0 0 7 11.9c0 4.1 5 8.6 5 8.6Z" />
-          <circle {...common} cx="12" cy="11" r="1.8" />
+          <path {...common} d="M12 20s-5.25-3.95-5.25-8.45A5.25 5.25 0 0 1 17.25 11.55C17.25 16.05 12 20 12 20Z" />
+          <circle {...common} cx="12" cy="11.25" r="1.75" />
         </svg>
       );
     case 'contacts':
       return (
         <svg viewBox="0 0 24 24" className="bottom-nav__icon-svg" xmlns="http://www.w3.org/2000/svg">
-          <path {...common} d="M7.8 6.2h8.4a2.2 2.2 0 0 1 2.2 2.2v7.2a2.2 2.2 0 0 1-2.2 2.2H7.8a2.2 2.2 0 0 1-2.2-2.2V8.4a2.2 2.2 0 0 1 2.2-2.2Z" />
-          <path {...common} d="m7 9 5 4 5-4" />
+          <path {...common} d="M5.25 8.25A2.25 2.25 0 0 1 7.5 6h9a2.25 2.25 0 0 1 2.25 2.25v7.5A2.25 2.25 0 0 1 16.5 18h-9a2.25 2.25 0 0 1-2.25-2.25v-7.5Z" />
+          <path {...common} d="m6.5 8.25 5.5 4.5 5.5-4.5" />
         </svg>
       );
     default:
