@@ -1,4 +1,4 @@
-const VERSION = '2026-03-25-nav-r2';
+const VERSION = '2026-03-25-category-nav-r3';
 const STATIC_CACHE = `dg-static-${VERSION}`;
 const PAGES_CACHE = `dg-pages-${VERSION}`;
 const RUNTIME_CACHE = `dg-runtime-${VERSION}`;
