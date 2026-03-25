@@ -30,27 +30,29 @@ export function FeatureGrid({
     <section className="home-showcase" aria-label="Главное меню">
       <div className="home-column home-column--popular">
         <div className="home-section-title">{sectionTitles.popular}</div>
-        <div className="poster-carousel home-popular-strip" role="list" aria-label={sectionTitles.popular}>
-          {popularPlaces.map((place, index) => (
-            <Link
-              key={place.id}
-              to={getPlacePath(place)}
-              className={`poster-tile poster-carousel__item poster-tile--${index % 2 === 0 ? 'coast' : 'bridge'}`}
-              style={place.imageSrc ? { backgroundImage: `url(${place.imageGallery?.[0] ?? place.imageSrc})` } : undefined}
-              onClick={() =>
-                recordGuideAnalytics({
-                  kind: 'place-click',
-                  label: place.title,
-                  path: getPlacePath(place),
-                  entityId: place.id,
-                  categoryId: place.categoryId
-                })
-              }
-            >
-              <strong>{place.title}</strong>
-              <span>{place.imageLabel}</span>
-            </Link>
-          ))}
+        <div className="home-popular-carousel" role="region" aria-label={sectionTitles.popular}>
+          <div className="home-popular-track" role="list">
+            {popularPlaces.map((place, index) => (
+              <Link
+                key={place.id}
+                to={getPlacePath(place)}
+                className={`poster-tile home-popular-card poster-tile--${index % 2 === 0 ? 'coast' : 'bridge'}`}
+                style={place.imageSrc ? { backgroundImage: `url(${place.imageGallery?.[0] ?? place.imageSrc})` } : undefined}
+                onClick={() =>
+                  recordGuideAnalytics({
+                    kind: 'place-click',
+                    label: place.title,
+                    path: getPlacePath(place),
+                    entityId: place.id,
+                    categoryId: place.categoryId
+                  })
+                }
+              >
+                <strong>{place.title}</strong>
+                <span>{place.imageLabel}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 

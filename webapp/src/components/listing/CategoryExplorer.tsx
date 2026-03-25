@@ -309,7 +309,6 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
               <span className="chip chip--soft">{category.badge}</span>
             </div>
           ) : null}
-          {category.shortTitle && category.shortTitle !== category.title ? <h2>{category.shortTitle}</h2> : null}
           {!isGenericCategoryDescription(category.description) ? <p>{category.description}</p> : null}
         </div>
 
@@ -317,7 +316,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
           <div className="category-hero__cover" style={{ backgroundImage: `url(${category.imageSrc})` }} aria-hidden="true" />
         ) : (
           <div className="category-hero__cover category-hero__cover--empty" aria-hidden="true">
-            <span>{category.shortTitle}</span>
+            <span>{category.title}</span>
           </div>
         )}
       </section>
