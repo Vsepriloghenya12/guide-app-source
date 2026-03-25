@@ -1417,8 +1417,9 @@ body {
   .owner-shell__main {
     padding: 14px 10px 28px;
   }
+}
 
-  .bottom-nav {
+.bottom-nav {
   position: fixed;
   left: 50%;
   bottom: max(12px, env(safe-area-inset-bottom, 0px) + 6px);
