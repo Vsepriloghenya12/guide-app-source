@@ -29,7 +29,7 @@ function isVideoSource(src: string) {
   return /\.(mp4|webm|mov)$/i.test(src);
 }
 
-function normalizeMedia(media: HomeLogoMedia | null | undefined, fallbackAlt: string): LogoCandidate | null {
+function normalizeMedia(media: HomeLogoMedia | null | undefined): LogoCandidate | null {
   if (!media?.src) {
     return null;
   }
@@ -45,8 +45,8 @@ export function AppLogo({ className, alt = 'Логотип Danang Guide', media 
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const currentAsset = useMemo(() => {
-    return normalizeMedia(media, alt) ?? LOGO_CANDIDATES[currentIndex] ?? LOGO_CANDIDATES[LOGO_CANDIDATES.length - 1];
-  }, [alt, currentIndex, media]);
+    return normalizeMedia(media) ?? LOGO_CANDIDATES[currentIndex] ?? LOGO_CANDIDATES[LOGO_CANDIDATES.length - 1];
+  }, [currentIndex, media]);
 
   const advanceFallback = () => {
     if (media?.src) {
@@ -61,22 +61,39 @@ export function AppLogo({ className, alt = 'Логотип Danang Guide', media 
     });
   };
 
-  if (currentAsset.type === 'video') {
-    return (
-      <video
-        className={className}
-        src={currentAsset.src}
-        poster={currentAsset.posterSrc}
-        muted
-        loop
-        autoPlay
-        playsInline
-        preload="metadata"
-        aria-label={alt}
-        onError={advanceFallback}
-      />
-    );
-  }
+  const wrapperClassName = [
+    'app-logo-motion',
+    currentAsset.type === 'video' ? 'app-logo-motion--video' : 'app-logo-motion--image',
+    className
+  ]
+    .filter(Boolean)
+    .join(' ');
 
-  return <img className={className} src={currentAsset.src} alt={alt} decoding="async" onError={advanceFallback} />;
+  return (
+    <div className={wrapperClassName} aria-label={alt}>
+      <span className="app-logo-motion__glow" aria-hidden="true" />
+      <span className="app-logo-motion__halo" aria-hidden="true" />
+      <span className="app-logo-motion__shine" aria-hidden="true" />
+      <span className="app-logo-motion__spark app-logo-motion__spark--1" aria-hidden="true" />
+      <span className="app-logo-motion__spark app-logo-motion__spark--2" aria-hidden="true" />
+      <span className="app-logo-motion__spark app-logo-motion__spark--3" aria-hidden="true" />
+
+      {currentAsset.type === 'video' ? (
+        <video
+          className="app-logo-motion__media"
+          src={currentAsset.src}
+          poster={currentAsset.posterSrc}
+          muted
+          loop
+          autoPlay
+          playsInline
+          preload="metadata"
+          aria-label={alt}
+          onError={advanceFallback}
+        />
+      ) : (
+        <img className="app-logo-motion__media" src={currentAsset.src} alt={alt} decoding="async" onError={advanceFallback} />
+      )}
+    </div>
+  );
 }

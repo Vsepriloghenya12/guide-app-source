@@ -115,14 +115,213 @@ body {
   text-align: center;
 }
 
+
 .hero__logo {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
   object-fit: contain;
 }
 
 .hero__logo--giant {
   width: clamp(360px, 58vw, 860px);
   max-width: 100%;
-  filter: drop-shadow(0 16px 34px rgba(8, 17, 31, 0.45));
+}
+
+.app-logo-motion {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  isolation: isolate;
+  overflow: visible;
+}
+
+.app-logo-motion__media {
+  position: relative;
+  z-index: 3;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  transform-origin: center center;
+  filter: drop-shadow(0 18px 38px rgba(6, 15, 28, 0.34));
+  animation: logo-float 7.2s ease-in-out infinite, logo-breathe 5.6s ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+.app-logo-motion__glow,
+.app-logo-motion__halo,
+.app-logo-motion__shine,
+.app-logo-motion__spark {
+  position: absolute;
+  pointer-events: none;
+}
+
+.app-logo-motion__glow {
+  z-index: 0;
+  inset: 18% 12% 12%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 222, 168, 0.4), rgba(255, 178, 107, 0.18) 35%, rgba(5, 10, 16, 0) 72%);
+  filter: blur(24px);
+  animation: logo-glow 6.6s ease-in-out infinite;
+}
+
+.app-logo-motion__halo {
+  z-index: 1;
+  width: 88%;
+  height: 66%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 247, 231, 0.2), rgba(255, 247, 231, 0) 70%);
+  filter: blur(18px);
+  animation: logo-halo 8.5s ease-in-out infinite;
+}
+
+.app-logo-motion__shine {
+  z-index: 4;
+  top: 6%;
+  bottom: 8%;
+  left: 4%;
+  width: 26%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.32), rgba(255,255,255,0));
+  transform: translate3d(-150%, 0, 0) skewX(-16deg);
+  filter: blur(2px);
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: logo-shine 7.8s ease-in-out infinite;
+}
+
+.app-logo-motion__spark {
+  z-index: 2;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 247, 231, 0.95), rgba(255, 192, 128, 0.55) 56%, rgba(255, 192, 128, 0) 72%);
+  filter: blur(0.6px);
+  opacity: 0;
+}
+
+.app-logo-motion__spark--1 {
+  left: 14%;
+  top: 34%;
+  animation: logo-spark-1 5.8s ease-in-out infinite;
+}
+
+.app-logo-motion__spark--2 {
+  right: 18%;
+  top: 22%;
+  animation: logo-spark-2 7.1s ease-in-out infinite;
+}
+
+.app-logo-motion__spark--3 {
+  right: 12%;
+  bottom: 20%;
+  animation: logo-spark-3 6.3s ease-in-out infinite;
+}
+
+.app-logo-motion--video .app-logo-motion__media {
+  filter: drop-shadow(0 16px 34px rgba(8, 17, 31, 0.28));
+}
+
+@keyframes logo-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0) scale(1.012);
+  }
+}
+
+@keyframes logo-breathe {
+  0%, 100% {
+    filter: drop-shadow(0 18px 38px rgba(6, 15, 28, 0.34));
+  }
+  50% {
+    filter: drop-shadow(0 24px 52px rgba(255, 188, 120, 0.18)) drop-shadow(0 14px 28px rgba(6, 15, 28, 0.24));
+  }
+}
+
+@keyframes logo-glow {
+  0%, 100% {
+    opacity: 0.72;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes logo-halo {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.94) rotate(-1.5deg);
+  }
+  50% {
+    opacity: 0.44;
+    transform: scale(1.05) rotate(1.5deg);
+  }
+}
+
+@keyframes logo-shine {
+  0%, 14%, 100% {
+    opacity: 0;
+    transform: translate3d(-160%, 0, 0) skewX(-16deg);
+  }
+  24%, 38% {
+    opacity: 0.66;
+    transform: translate3d(345%, 0, 0) skewX(-16deg);
+  }
+  46% {
+    opacity: 0;
+    transform: translate3d(390%, 0, 0) skewX(-16deg);
+  }
+}
+
+@keyframes logo-spark-1 {
+  0%, 100% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.35);
+  }
+  16%, 42% {
+    opacity: 0.95;
+    transform: translate3d(14px, -26px, 0) scale(1);
+  }
+  56% {
+    opacity: 0;
+    transform: translate3d(24px, -38px, 0) scale(0.5);
+  }
+}
+
+@keyframes logo-spark-2 {
+  0%, 100% {
+    opacity: 0;
+    transform: translate3d(-4px, 6px, 0) scale(0.4);
+  }
+  20%, 46% {
+    opacity: 0.88;
+    transform: translate3d(-18px, -32px, 0) scale(1);
+  }
+  58% {
+    opacity: 0;
+    transform: translate3d(-26px, -42px, 0) scale(0.55);
+  }
+}
+
+@keyframes logo-spark-3 {
+  0%, 100% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0) scale(0.4);
+  }
+  14%, 40% {
+    opacity: 0.9;
+    transform: translate3d(-12px, -22px, 0) scale(0.92);
+  }
+  54% {
+    opacity: 0;
+    transform: translate3d(-18px, -34px, 0) scale(0.5);
+  }
 }
 
 .eyebrow,
@@ -3196,10 +3395,6 @@ img {
   gap: 10px;
 }
 
-.hero__logo {
-  display: block;
-  object-fit: contain;
-}
 
 .owner-media-preview {
   display: block;
