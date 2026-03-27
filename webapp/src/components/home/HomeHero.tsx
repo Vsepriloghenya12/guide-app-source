@@ -11,7 +11,7 @@ export function HomeHero({ banners, logoMedia }: HomeHeroProps) {
   return (
     <section className="hero hero--poster hero--compact">
       <div className="hero__brand hero__brand--center">
-        <AppLogo className="hero__logo hero__logo--giant" alt={logoMedia?.alt || 'Логотип Guide'} media={logoMedia} />
+        <AppLogo className="hero__logo hero__logo--giant" alt={logoMedia?.alt || 'Логотип Guide'} media={logoMedia} animated />
       </div>
 
       {banners.length > 0 ? (

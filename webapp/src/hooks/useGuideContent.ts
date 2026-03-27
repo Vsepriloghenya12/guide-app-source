@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { GUIDE_CONTENT_EVENT, readGuideContent, syncGuideContentFromServer, type GuideContentScope } from '../data/guideContent';
+import { isBootReady } from '../boot/bootState';
 import type { GuideContentStore } from '../types';
 
 type UseGuideContentOptions = {
@@ -9,7 +10,7 @@ type UseGuideContentOptions = {
 export function useGuideContent(options: UseGuideContentOptions = {}) {
   const scope = options.scope ?? 'public';
   const [content, setContent] = useState<GuideContentStore>(() => readGuideContent());
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !isBootReady());
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,7 +22,9 @@ export function useGuideContent(options: UseGuideContentOptions = {}) {
     };
 
     const load = async () => {
-      setLoading(true);
+      if (!isBootReady()) {
+        setLoading(true);
+      }
       setError(null);
       try {
         const nextContent = await syncGuideContentFromServer(scope);

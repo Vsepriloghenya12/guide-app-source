@@ -3782,3 +3782,371 @@ img {
     width: 100%;
   }
 }
+
+/* === boot splash === */
+.boot-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #07111b;
+}
+
+.boot-splash__backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8, 15, 26, 0.84), rgba(4, 8, 14, 0.96)),
+    url('/danang-clean-poster.png') center center / cover no-repeat;
+  filter: saturate(1.04);
+}
+
+.boot-splash__content {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 740px);
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+  text-align: center;
+}
+
+.boot-splash__logo-wrap {
+  width: min(100%, 560px);
+}
+
+.boot-splash__logo {
+  width: 100%;
+}
+
+.boot-splash__meta {
+  display: grid;
+  gap: 8px;
+}
+
+.boot-splash__meta strong {
+  font-family: var(--heading-font);
+  font-size: clamp(1.35rem, 2.2vw, 2rem);
+  line-height: 1;
+  color: #fff7e7;
+  text-transform: uppercase;
+}
+
+.boot-splash__meta span {
+  max-width: 48ch;
+  color: rgba(255, 246, 230, 0.8);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.boot-progress {
+  width: min(92vw, 460px);
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.boot-progress__bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(255, 209, 107, 0.96), rgba(255, 144, 86, 0.96), rgba(255, 209, 107, 0.96));
+  box-shadow: 0 8px 22px rgba(255, 177, 95, 0.24);
+  transition: width 0.28s ease;
+}
+
+.boot-splash__percent {
+  color: rgba(255, 244, 226, 0.72);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* === cinematic logo motion === */
+.logo-cinematic {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 100%;
+  min-height: clamp(220px, 32vw, 520px);
+  isolation: isolate;
+}
+
+.logo-cinematic__scene,
+.logo-cinematic__media-wrap {
+  grid-area: 1 / 1;
+}
+
+.logo-cinematic__scene {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 18px 34px rgba(2, 7, 18, 0.24));
+}
+
+.logo-cinematic__media-wrap {
+  position: relative;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.logo-cinematic__poster,
+.logo-cinematic__video {
+  grid-area: 1 / 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 34px rgba(7, 12, 23, 0.34));
+}
+
+.logo-cinematic__poster {
+  opacity: 0;
+  transform: translateY(22px) scale(0.9);
+  animation: logoFinalReveal 0.95s cubic-bezier(0.2, 0.9, 0.22, 1) 1.45s forwards;
+}
+
+.logo-cinematic__video {
+  opacity: 0;
+  transform: translateY(16px) scale(0.96);
+  animation: logoVideoReveal 0.92s ease 2.05s forwards;
+}
+
+.logo-cinematic__sky {
+  opacity: 0;
+  transform: scale(0.94) translateY(22px);
+  animation: logoSkyIn 0.66s ease-out 0.08s forwards;
+}
+
+.logo-cinematic__sun-group {
+  opacity: 0;
+  transform: translateY(84px) scale(0.72);
+  transform-origin: center;
+  animation: logoSunRise 0.9s cubic-bezier(0.2, 0.9, 0.18, 1) 0.28s forwards;
+}
+
+.logo-cinematic__mountain-back {
+  opacity: 0;
+  transform: translateY(34px) scaleY(0.88);
+  transform-origin: bottom center;
+  animation: logoMountainsIn 0.74s ease-out 0.5s forwards;
+}
+
+.logo-cinematic__mountain-front {
+  opacity: 0;
+  transform: translateY(46px) scaleY(0.84);
+  transform-origin: bottom center;
+  animation: logoMountainsIn 0.82s ease-out 0.66s forwards;
+}
+
+.logo-cinematic__waterline {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: logoWaterIn 0.6s ease-out 0.8s forwards;
+}
+
+.logo-cinematic__plane-group {
+  opacity: 0;
+  transform: translate(-150px, 24px) rotate(-3deg);
+  animation: logoPlaneFly 1s cubic-bezier(0.24, 0.82, 0.2, 1) 0.96s forwards;
+}
+
+.logo-cinematic__plane-trail {
+  opacity: 0.7;
+}
+
+.logo-cinematic__dragon-group {
+  opacity: 0;
+  transform: translate(180px, 12px) scale(0.9);
+  transform-origin: 80% 50%;
+  animation: logoDragonFly 1.08s cubic-bezier(0.2, 0.88, 0.16, 1) 1.12s forwards;
+}
+
+.logo-cinematic__mist-group {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: logoMistIn 0.82s ease-out 1.05s forwards;
+}
+
+.logo-cinematic--secret .logo-cinematic__scene {
+  filter: drop-shadow(0 18px 34px rgba(34, 8, 14, 0.34));
+}
+
+@keyframes logoSkyIn {
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes logoSunRise {
+  0% { opacity: 0; transform: translateY(84px) scale(0.72); }
+  55% { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes logoMountainsIn {
+  to { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+
+@keyframes logoWaterIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes logoPlaneFly {
+  0% { opacity: 0; transform: translate(-150px, 24px) rotate(-3deg); }
+  12% { opacity: 1; }
+  100% { opacity: 1; transform: translate(12px, 0) rotate(0deg); }
+}
+
+@keyframes logoDragonFly {
+  0% { opacity: 0; transform: translate(180px, 12px) scale(0.9); }
+  12% { opacity: 1; }
+  100% { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+@keyframes logoMistIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes logoFinalReveal {
+  0% { opacity: 0; transform: translateY(22px) scale(0.9); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes logoVideoReveal {
+  from { opacity: 0; transform: translateY(16px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* === desktop cleanup === */
+.hero__logo--giant {
+  width: min(100%, clamp(320px, 46vw, 760px));
+}
+
+.home-banners {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+}
+
+@media (min-width: 980px) {
+  .app-main {
+    max-width: 1480px;
+    padding-inline: 28px;
+  }
+
+  .page-stack.home-page,
+  .home-stage,
+  .category-section--all {
+    width: 100%;
+    max-width: 1360px;
+    margin-inline: auto;
+  }
+
+  .home-stage {
+    gap: 32px;
+    padding-top: 8px;
+  }
+
+  .hero--compact {
+    gap: 18px;
+  }
+
+  .hero__logo--giant {
+    width: min(100%, 560px);
+  }
+
+  .home-showcase {
+    grid-template-columns: minmax(0, 1.16fr) minmax(320px, 0.88fr) minmax(340px, 0.96fr);
+    gap: 22px;
+    align-items: start;
+  }
+
+  .home-column {
+    gap: 16px;
+  }
+
+  .category-section--all {
+    padding: 22px 26px 8px;
+  }
+
+  .category-list--plain {
+    gap: 2px;
+  }
+
+  .category-list__row {
+    padding: 18px 4px;
+  }
+
+  .category-list__thumb {
+    width: 72px;
+    height: 72px;
+    flex-basis: 72px;
+    border-radius: 20px;
+  }
+
+  .category-list__row-text strong {
+    font-size: 1.14rem;
+  }
+
+  .category-list__row-text span {
+    font-size: 0.98rem;
+    max-width: 64ch;
+  }
+}
+
+@media (min-width: 1280px) {
+  .hero__logo--giant {
+    width: min(100%, 620px);
+  }
+
+  .home-showcase {
+    grid-template-columns: minmax(0, 1.18fr) minmax(340px, 0.86fr) minmax(360px, 0.96fr);
+    gap: 24px;
+  }
+
+  .category-list__thumb {
+    width: 78px;
+    height: 78px;
+    flex-basis: 78px;
+  }
+}
+
+@media (max-width: 760px) {
+  .boot-splash__content {
+    width: min(94vw, 520px);
+    gap: 14px;
+  }
+
+  .boot-splash__logo-wrap {
+    width: min(100%, 420px);
+  }
+
+  .logo-cinematic {
+    min-height: clamp(180px, 46vw, 360px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-cinematic__sky,
+  .logo-cinematic__sun-group,
+  .logo-cinematic__mountain-back,
+  .logo-cinematic__mountain-front,
+  .logo-cinematic__waterline,
+  .logo-cinematic__plane-group,
+  .logo-cinematic__dragon-group,
+  .logo-cinematic__mist-group,
+  .logo-cinematic__poster,
+  .logo-cinematic__video,
+  .boot-progress__bar {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

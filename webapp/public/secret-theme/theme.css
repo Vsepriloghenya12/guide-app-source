@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Yuji+Mai&family=Zen+Kurenaido&display=swap');
+
 body.secret-theme-active {
   color-scheme: dark;
   --bg: #09060a;
   --bg-soft: #130b12;
-  --surface: rgba(22, 11, 17, 0.78);
+  --surface: rgba(22, 11, 17, 0.76);
   --surface-solid: #170b12;
   --surface-strong: #231019;
   --surface-light: rgba(255, 255, 255, 0.06);
@@ -18,19 +20,26 @@ body.secret-theme-active {
   --warning: #f6c15d;
   --shadow-lg: 0 28px 60px rgba(0, 0, 0, 0.42);
   --shadow-md: 0 18px 36px rgba(0, 0, 0, 0.34);
+  --heading-font: 'Yuji Mai', 'Times New Roman', serif;
+  --body-font: 'Zen Kurenaido', 'Inter', sans-serif;
+}
+
+body.secret-theme-active {
+  font-family: var(--body-font);
 }
 
 body.secret-theme-active .app-shell {
   background:
-    linear-gradient(180deg, rgba(9, 5, 9, 0.22) 0%, rgba(13, 6, 10, 0.58) 38%, rgba(11, 6, 9, 0.9) 76%, rgba(6, 4, 6, 0.98) 100%),
-    url('/secret-theme/secret-bg.png') center top / cover fixed no-repeat !important;
+    linear-gradient(180deg, rgba(9, 5, 9, 0.14) 0%, rgba(13, 6, 10, 0.46) 38%, rgba(11, 6, 9, 0.86) 76%, rgba(6, 4, 6, 0.98) 100%),
+    url('/secret-theme/secret-bg-anime.png') center top / cover fixed no-repeat !important;
 }
 
-body.secret-theme-active .app-shell::before {
+body.secret-theme-active .app-shell::before,
+body.secret-theme-active .boot-splash__backdrop {
   background:
-    radial-gradient(circle at 12% 10%, rgba(255, 187, 98, 0.18), transparent 18%),
-    radial-gradient(circle at 78% 14%, rgba(217, 65, 82, 0.22), transparent 23%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(10, 6, 8, 0.14) 30%, rgba(8, 4, 6, 0.34)) !important;
+    radial-gradient(circle at 10% 12%, rgba(255, 187, 98, 0.16), transparent 20%),
+    radial-gradient(circle at 84% 16%, rgba(217, 65, 82, 0.24), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(10, 6, 8, 0.2) 30%, rgba(8, 4, 6, 0.48)) !important;
 }
 
 body.secret-theme-active .panel,
@@ -53,9 +62,10 @@ body.secret-theme-active .field textarea,
 body.secret-theme-active .owner-summary-card,
 body.secret-theme-active .owner-category-card,
 body.secret-theme-active .owner-dashboard,
-body.secret-theme-active .owner-login-card {
+body.secret-theme-active .owner-login-card,
+body.secret-theme-active .category-section--all {
   border-color: rgba(255, 218, 173, 0.12) !important;
-  background: linear-gradient(180deg, rgba(27, 12, 18, 0.9), rgba(15, 7, 12, 0.88)) !important;
+  background: linear-gradient(180deg, rgba(27, 12, 18, 0.88), rgba(15, 7, 12, 0.9)) !important;
   box-shadow: 0 16px 38px rgba(0, 0, 0, 0.32);
 }
 
@@ -64,7 +74,10 @@ body.secret-theme-active .page-header h1,
 body.secret-theme-active .home-section-title,
 body.secret-theme-active .category-list__row-text strong,
 body.secret-theme-active .place-card__title,
-body.secret-theme-active .detail-page__title {
+body.secret-theme-active .detail-page__title,
+body.secret-theme-active .boot-splash__meta strong {
+  font-family: var(--heading-font);
+  letter-spacing: 0.02em;
   text-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
 }
 
@@ -98,6 +111,37 @@ body.secret-theme-active .bottom-nav__item::before {
   background: linear-gradient(90deg, rgba(255, 205, 99, 0.18), rgba(217, 65, 82, 0.26), rgba(255, 205, 99, 0.18));
 }
 
+body.secret-theme-active .bottom-nav__icon-kanji {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 220, 159, 0.22), rgba(173, 46, 63, 0.88));
+  color: #fff8ea;
+  font-family: var(--heading-font);
+  font-size: 1rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.28);
+}
+
+body.secret-theme-active .category-icon--secret {
+  background: radial-gradient(circle at 34% 28%, rgba(255, 225, 180, 0.24), rgba(33, 12, 18, 0.88));
+  border: 1px solid rgba(255, 218, 173, 0.18);
+  border-radius: 999px;
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.28);
+}
+
+body.secret-theme-active .category-icon__secret-core {
+  display: inline-grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--secret-icon-accent, #ffcd63);
+  font-family: var(--heading-font);
+  font-size: 1.02em;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--secret-icon-accent, #ffcd63) 36%, transparent);
+}
+
 body.secret-theme-active .category-list__row {
   border-bottom-color: rgba(255, 215, 186, 0.1);
 }
@@ -116,7 +160,8 @@ body.secret-theme-active .app-logo-button:focus-visible {
 
 body.secret-theme-active .section-heading .eyebrow,
 body.secret-theme-active .page-header__eyebrow,
-body.secret-theme-active .eyebrow {
+body.secret-theme-active .eyebrow,
+body.secret-theme-active .boot-splash__percent {
   color: #ffcd63;
 }
 
@@ -143,9 +188,17 @@ body.secret-theme-active .hero__brand {
 }
 
 body.secret-theme-active .hero__logo,
-body.secret-theme-active .secret-logo {
+body.secret-theme-active .logo-cinematic {
   position: relative;
   z-index: 1;
+}
+
+body.secret-theme-active .boot-progress {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.secret-theme-active .boot-progress__bar {
+  background: linear-gradient(90deg, #ffd76e, #d94152, #ffd76e);
 }
 
 @media (min-width: 980px) {

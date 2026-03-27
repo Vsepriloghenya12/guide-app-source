@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { GuideCategoryId } from '../../types';
+import { useSecretTheme } from '../../secretTheme/SecretThemeProvider';
 
 type CategoryIconProps = {
   categoryId: GuideCategoryId;
@@ -28,6 +29,23 @@ const paletteMap: Record<GuideCategoryId, Palette> = {
   medicine: { primary: '#dff3ed', secondary: '#64bba7' },
   'photo-spots': { primary: '#e3efff', secondary: '#78abdf' },
   'car-rental': { primary: '#e3e9f8', secondary: '#8599c7' }
+};
+
+const secretGlyphMap: Record<GuideCategoryId, { glyph: string; accent: string }> = {
+  restaurants: { glyph: '火', accent: '#ff8f4d' },
+  wellness: { glyph: '花', accent: '#f3a9d4' },
+  'active-rest': { glyph: '雷', accent: '#ffd45c' },
+  routes: { glyph: '風', accent: '#7fd9f5' },
+  hotels: { glyph: '月', accent: '#d1c3ff' },
+  events: { glyph: '祭', accent: '#ff7b8b' },
+  transport: { glyph: '刃', accent: '#8dd0ff' },
+  atm: { glyph: '金', accent: '#ffc85a' },
+  shops: { glyph: '面', accent: '#ffb06c' },
+  culture: { glyph: '龍', accent: '#ef8dff' },
+  kids: { glyph: '狐', accent: '#ffd08a' },
+  medicine: { glyph: '薬', accent: '#81e0b4' },
+  'photo-spots': { glyph: '星', accent: '#8ac0ff' },
+  'car-rental': { glyph: '走', accent: '#c5d6ff' }
 };
 
 function IconShape({ categoryId }: { categoryId: GuideCategoryId }) {
@@ -110,11 +128,7 @@ function IconShape({ categoryId }: { categoryId: GuideCategoryId }) {
         </>
       );
     case 'kids':
-      return (
-        <>
-          <path d="M20 6l10 6-10 6-10-6 10-6Zm0 13 8 4.7V29l-8-4.5L12 29v-5.3L20 19Z" fill="currentColor" />
-        </>
-      );
+      return <path d="M20 6l10 6-10 6-10-6 10-6Zm0 13 8 4.7V29l-8-4.5L12 29v-5.3L20 19Z" fill="currentColor" />;
     case 'medicine':
       return (
         <>
@@ -144,7 +158,32 @@ function IconShape({ categoryId }: { categoryId: GuideCategoryId }) {
   }
 }
 
+function SecretCategoryBadge({ categoryId, size, className, title }: CategoryIconProps) {
+  const glyph = secretGlyphMap[categoryId];
+  const style = {
+    ['--secret-icon-accent' as string]: glyph.accent
+  } as CSSProperties;
+
+  return (
+    <span
+      className={`category-icon category-icon--${size} category-icon--secret ${className}`.trim()}
+      style={style}
+      aria-hidden={title ? undefined : 'true'}
+      role={title ? 'img' : undefined}
+      aria-label={title}
+    >
+      <span className="category-icon__secret-core">{glyph.glyph}</span>
+    </span>
+  );
+}
+
 export function CategoryIcon({ categoryId, size = 'md', className = '', title }: CategoryIconProps) {
+  const { isActive } = useSecretTheme();
+
+  if (isActive) {
+    return <SecretCategoryBadge categoryId={categoryId} size={size} className={className} title={title} />;
+  }
+
   const palette = paletteMap[categoryId];
   const style = {
     ['--icon-primary' as string]: palette.primary,
