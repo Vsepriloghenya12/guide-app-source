@@ -1,5 +1,6 @@
-import { useMemo, useState, type CSSProperties } from 'react';
+import { useMemo, useState } from 'react';
 import type { HomeLogoMedia } from '../../types';
+import { useSecretTheme } from '../../secretTheme/SecretThemeProvider';
 
 type AppLogoProps = {
   className?: string;
@@ -13,13 +14,6 @@ type LogoCandidate = {
   posterSrc?: string;
 };
 
-type LogoPiece = {
-  clipPath: string;
-  fromX: string;
-  fromY: string;
-  delayMs: number;
-};
-
 const LOGO_CANDIDATES: LogoCandidate[] = [
   { type: 'video', src: '/logo.mp4', posterSrc: '/logo-poster.png' },
   { type: 'video', src: '/logo.webm', posterSrc: '/logo-poster.png' },
@@ -30,15 +24,6 @@ const LOGO_CANDIDATES: LogoCandidate[] = [
   { type: 'image', src: '/logo.jpg' },
   { type: 'image', src: '/logo.jpeg' },
   { type: 'image', src: '/logo-placeholder.svg' }
-];
-
-const LOGO_PIECES: LogoPiece[] = [
-  { clipPath: 'polygon(0 0, 35% 0, 27% 39%, 0 49%)', fromX: '-58px', fromY: '-34px', delayMs: 0 },
-  { clipPath: 'polygon(35% 0, 68% 0, 61% 41%, 27% 39%)', fromX: '0px', fromY: '-48px', delayMs: 120 },
-  { clipPath: 'polygon(68% 0, 100% 0, 100% 47%, 61% 41%)', fromX: '56px', fromY: '-30px', delayMs: 240 },
-  { clipPath: 'polygon(0 49%, 27% 39%, 34% 100%, 0 100%)', fromX: '-48px', fromY: '44px', delayMs: 360 },
-  { clipPath: 'polygon(27% 39%, 61% 41%, 72% 100%, 34% 100%)', fromX: '0px', fromY: '58px', delayMs: 480 },
-  { clipPath: 'polygon(61% 41%, 100% 47%, 100% 100%, 72% 100%)', fromX: '52px', fromY: '40px', delayMs: 600 }
 ];
 
 function isVideoSource(src: string) {
@@ -57,14 +42,51 @@ function normalizeMedia(media: HomeLogoMedia | null | undefined): LogoCandidate 
   };
 }
 
+function DefaultLogoMedia({ asset, alt, onError }: { asset: LogoCandidate; alt: string; onError: () => void }) {
+  if (asset.type === 'video') {
+    return (
+      <video
+        className="app-logo-media"
+        src={asset.src}
+        poster={asset.posterSrc}
+        muted
+        loop
+        autoPlay
+        playsInline
+        preload="metadata"
+        aria-label={alt}
+        onError={onError}
+      />
+    );
+  }
+
+  return <img className="app-logo-media" src={asset.src} alt={alt} decoding="async" onError={onError} />;
+}
+
+function SecretLogoIntro({ logoSrc, alt }: { logoSrc: string; alt: string }) {
+  return (
+    <span className="secret-logo" aria-label={alt}>
+      <span className="secret-logo__scene" aria-hidden="true">
+        <span className="secret-logo__sky" />
+        <span className="secret-logo__sun" />
+        <span className="secret-logo__mountains" />
+        <span className="secret-logo__airplane" />
+        <span className="secret-logo__dragon" />
+        <span className="secret-logo__mist" />
+        <span className="secret-logo__flare" />
+      </span>
+      <img className="secret-logo__final" src={logoSrc} alt={alt} decoding="async" />
+    </span>
+  );
+}
+
 export function AppLogo({ className, alt = 'Логотип Danang Guide', media }: AppLogoProps) {
+  const { isActive, manifest, registerLogoTap } = useSecretTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const currentAsset = useMemo(() => {
     return normalizeMedia(media) ?? LOGO_CANDIDATES[currentIndex] ?? LOGO_CANDIDATES[LOGO_CANDIDATES.length - 1];
   }, [currentIndex, media]);
-
-  const previewSrc = currentAsset.type === 'video' ? currentAsset.posterSrc || '/logo-poster.png' : currentAsset.src;
 
   const advanceFallback = () => {
     if (media?.src) {
@@ -79,48 +101,18 @@ export function AppLogo({ className, alt = 'Логотип Danang Guide', media 
     });
   };
 
-  const wrapperClassName = [
-    'app-logo-assembly',
-    currentAsset.type === 'video' ? 'app-logo-assembly--video' : 'app-logo-assembly--image',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const wrapperClassName = ['app-logo', className].filter(Boolean).join(' ');
+  const hiddenToggleLabel = isActive
+    ? 'Секретная тема активна. Нажмите логотип 10 раз, чтобы вернуть обычную тему.'
+    : 'Нажмите логотип 10 раз, чтобы включить секретную тему.';
 
   return (
-    <div className={wrapperClassName} aria-label={alt}>
-      <span className="app-logo-assembly__stage" aria-hidden="true">
-        {previewSrc
-          ? LOGO_PIECES.map((piece, index) => {
-              const style = {
-                backgroundImage: `url("${previewSrc}")`,
-                ['--logo-piece-clip' as string]: piece.clipPath,
-                ['--logo-piece-from-x' as string]: piece.fromX,
-                ['--logo-piece-from-y' as string]: piece.fromY,
-                ['--logo-piece-delay' as string]: `${piece.delayMs}ms`
-              } as CSSProperties;
-
-              return <span key={`${currentAsset.src}-${index}`} className="app-logo-assembly__piece" style={style} />;
-            })
-          : null}
-      </span>
-
-      {currentAsset.type === 'video' ? (
-        <video
-          className="app-logo-assembly__media"
-          src={currentAsset.src}
-          poster={currentAsset.posterSrc}
-          muted
-          loop
-          autoPlay
-          playsInline
-          preload="metadata"
-          aria-label={alt}
-          onError={advanceFallback}
-        />
+    <button type="button" className={wrapperClassName + ' app-logo-button'} onClick={registerLogoTap} aria-label={hiddenToggleLabel}>
+      {isActive && manifest?.logoSrc ? (
+        <SecretLogoIntro logoSrc={manifest.logoSrc} alt={manifest.logoAlt || alt} />
       ) : (
-        <img className="app-logo-assembly__media" src={currentAsset.src} alt={alt} decoding="async" onError={advanceFallback} />
+        <DefaultLogoMedia asset={currentAsset} alt={alt} onError={advanceFallback} />
       )}
-    </div>
+    </button>
   );
 }

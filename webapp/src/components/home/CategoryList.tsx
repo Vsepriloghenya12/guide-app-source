@@ -36,7 +36,11 @@ export function CategoryList({ categories, title }: CategoryListProps) {
             }
           >
             <div className="category-list__row-main">
-              <CategoryIcon categoryId={category.id} size="md" className="category-list__row-icon" />
+              {category.imageSrc ? (
+                <span className="category-list__thumb" style={{ backgroundImage: `url(${category.imageSrc})` }} aria-hidden="true" />
+              ) : (
+                <CategoryIcon categoryId={category.id} size="md" className="category-list__row-icon" />
+              )}
               <div className="category-list__row-text">
                 <strong>{category.title}</strong>
                 {category.description ? <span>{category.description}</span> : null}

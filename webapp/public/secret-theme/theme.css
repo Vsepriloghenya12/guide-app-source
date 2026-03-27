@@ -1,0 +1,155 @@
+body.secret-theme-active {
+  color-scheme: dark;
+  --bg: #09060a;
+  --bg-soft: #130b12;
+  --surface: rgba(22, 11, 17, 0.78);
+  --surface-solid: #170b12;
+  --surface-strong: #231019;
+  --surface-light: rgba(255, 255, 255, 0.06);
+  --line: rgba(255, 214, 180, 0.14);
+  --line-strong: rgba(255, 214, 180, 0.22);
+  --text: #fff8ee;
+  --text-soft: rgba(255, 244, 229, 0.84);
+  --text-muted: rgba(255, 237, 214, 0.58);
+  --accent: #d94152;
+  --accent-strong: #ffcd63;
+  --accent-violet: #8f2432;
+  --success: #8cc7a1;
+  --warning: #f6c15d;
+  --shadow-lg: 0 28px 60px rgba(0, 0, 0, 0.42);
+  --shadow-md: 0 18px 36px rgba(0, 0, 0, 0.34);
+}
+
+body.secret-theme-active .app-shell {
+  background:
+    linear-gradient(180deg, rgba(9, 5, 9, 0.22) 0%, rgba(13, 6, 10, 0.58) 38%, rgba(11, 6, 9, 0.9) 76%, rgba(6, 4, 6, 0.98) 100%),
+    url('/secret-theme/secret-bg.png') center top / cover fixed no-repeat !important;
+}
+
+body.secret-theme-active .app-shell::before {
+  background:
+    radial-gradient(circle at 12% 10%, rgba(255, 187, 98, 0.18), transparent 18%),
+    radial-gradient(circle at 78% 14%, rgba(217, 65, 82, 0.22), transparent 23%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(10, 6, 8, 0.14) 30%, rgba(8, 4, 6, 0.34)) !important;
+}
+
+body.secret-theme-active .panel,
+body.secret-theme-active .page-header,
+body.secret-theme-active .place-card,
+body.secret-theme-active .favorites-section,
+body.secret-theme-active .search-panel,
+body.secret-theme-active .nearby-panel,
+body.secret-theme-active .category-section,
+body.secret-theme-active .tips-list__item,
+body.secret-theme-active .menu-tile,
+body.secret-theme-active .poster-tile,
+body.secret-theme-active .home-banner,
+body.secret-theme-active .bottom-nav,
+body.secret-theme-active .filter-panel-shell,
+body.secret-theme-active .chip,
+body.secret-theme-active .field select,
+body.secret-theme-active .field input,
+body.secret-theme-active .field textarea,
+body.secret-theme-active .owner-summary-card,
+body.secret-theme-active .owner-category-card,
+body.secret-theme-active .owner-dashboard,
+body.secret-theme-active .owner-login-card {
+  border-color: rgba(255, 218, 173, 0.12) !important;
+  background: linear-gradient(180deg, rgba(27, 12, 18, 0.9), rgba(15, 7, 12, 0.88)) !important;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.32);
+}
+
+body.secret-theme-active .section-heading--poster h2,
+body.secret-theme-active .page-header h1,
+body.secret-theme-active .home-section-title,
+body.secret-theme-active .category-list__row-text strong,
+body.secret-theme-active .place-card__title,
+body.secret-theme-active .detail-page__title {
+  text-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+}
+
+body.secret-theme-active .chip,
+body.secret-theme-active .filter-chip,
+body.secret-theme-active .button,
+body.secret-theme-active button,
+body.secret-theme-active .page-button,
+body.secret-theme-active .place-card__action,
+body.secret-theme-active .detail-page__action {
+  border-color: rgba(255, 214, 173, 0.14);
+}
+
+body.secret-theme-active .chip.is-active,
+body.secret-theme-active .filter-chip.is-active,
+body.secret-theme-active .bottom-nav__item.is-active,
+body.secret-theme-active .page-button--primary,
+body.secret-theme-active button.button--primary,
+body.secret-theme-active .place-card__action--primary,
+body.secret-theme-active .detail-page__action--primary {
+  background: linear-gradient(180deg, rgba(221, 70, 86, 0.92), rgba(138, 27, 44, 0.96)) !important;
+  color: #fff8f2 !important;
+  box-shadow: 0 12px 22px rgba(112, 18, 31, 0.28);
+}
+
+body.secret-theme-active .bottom-nav {
+  backdrop-filter: blur(22px);
+}
+
+body.secret-theme-active .bottom-nav__item::before {
+  background: linear-gradient(90deg, rgba(255, 205, 99, 0.18), rgba(217, 65, 82, 0.26), rgba(255, 205, 99, 0.18));
+}
+
+body.secret-theme-active .category-list__row {
+  border-bottom-color: rgba(255, 215, 186, 0.1);
+}
+
+body.secret-theme-active .category-list__row:first-child {
+  border-top-color: rgba(255, 215, 186, 0.1);
+}
+
+body.secret-theme-active .category-list__thumb {
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+}
+
+body.secret-theme-active .app-logo-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 205, 99, 0.22);
+}
+
+body.secret-theme-active .section-heading .eyebrow,
+body.secret-theme-active .page-header__eyebrow,
+body.secret-theme-active .eyebrow {
+  color: #ffcd63;
+}
+
+body.secret-theme-active .place-card__media::after,
+body.secret-theme-active .home-banner::after,
+body.secret-theme-active .poster-tile::after {
+  background: linear-gradient(180deg, rgba(12, 4, 8, 0.06), rgba(15, 5, 10, 0.78));
+}
+
+body.secret-theme-active .hero__brand::after {
+  content: '';
+  position: absolute;
+  inset: auto 10% -6% 10%;
+  height: 28%;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(217, 65, 82, 0.28), transparent 72%);
+  filter: blur(24px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+body.secret-theme-active .hero__brand {
+  position: relative;
+}
+
+body.secret-theme-active .hero__logo,
+body.secret-theme-active .secret-logo {
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 980px) {
+  body.secret-theme-active .app-main {
+    max-width: 1440px;
+  }
+}
