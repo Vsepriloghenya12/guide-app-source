@@ -1,13 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { FilterPanel } from '../common/FilterPanel';
 import { PlaceholderCard } from '../common/PlaceholderCard';
-import { PageHeader } from '../layout/PageHeader';
 import { defaultCategories } from '../../data/categories';
 import { useGuideContent } from '../../hooks/useGuideContent';
 import { usePageMeta } from '../../hooks/usePageMeta';
 import { comparePlacesByPriority } from '../../utils/places';
-import type { GuideCategory, GuideCategoryId, GuidePlace, GuideTip, GuideCollection } from '../../types';
+import type { GuideCategory, GuideCategoryId, GuidePlace } from '../../types';
 
 type CategoryExplorerProps = {
   categoryId?: GuideCategoryId;
@@ -75,19 +73,6 @@ function toLabel(filterKey: string) {
   return map[filterKey] || filterKey;
 }
 
-function isGenericCategoryDescription(value: string | undefined) {
-  const text = String(value || '').trim().toLowerCase();
-  if (!text) return true;
-  return [
-    'раздел открыт и готов к наполнению.',
-    'раздел открыт и готов к наполнению',
-    'скоро здесь появятся новые места и полезные адреса.',
-    'скоро здесь появятся новые места и полезные адреса',
-    'здесь собраны места и полезная информация по разделу.',
-    'подборка мест и полезной информации по этому разделу.'
-  ].includes(text);
-}
-
 function sortPlaces<T extends GuidePlace>(places: T[], sortMode: SortMode): T[] {
   if (sortMode === 'priority') {
     return [...places].sort(comparePlacesByPriority);
@@ -151,7 +136,7 @@ function matchesBinaryFilter(value: boolean, filter: BinaryFilter) {
 
 export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerProps) {
   const [filters, setFilters] = useState<FiltersState>(initialFilters);
-  const { categories, places, tips, collections, loading, error } = useGuideContent();
+  const { categories, places, loading, error } = useGuideContent();
 
   const rawCategory = useMemo(
     () =>
@@ -194,7 +179,14 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
     [categoryPlaces]
   );
   const hotelStarsOptions = useMemo(
-    () => Array.from(new Set(categoryPlaces.map((item) => item.hotelStars).filter((value): value is number => typeof value === 'number' && Number.isFinite(value)))).sort((a, b) => b - a),
+    () =>
+      Array.from(
+        new Set(
+          categoryPlaces
+            .map((item) => item.hotelStars)
+            .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+        )
+      ).sort((a, b) => b - a),
     [categoryPlaces]
   );
   const serviceOptions = useMemo(
@@ -272,249 +264,191 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
     Number(filters.hotelSpa !== 'all') +
     Number(filters.petFriendly !== 'all');
 
-  const relatedTips = useMemo(
-    () =>
-      tips.filter((tip: GuideTip) => tip.active && category && (tip.linkPath === category.path || tip.linkPath.endsWith(`/${category.slug}`) || tip.linkPath.endsWith(`/${category.id}`))).slice(0, 2),
-    [tips, category]
-  );
-
-  const relatedCollections = useMemo(
-    () =>
-      collections.filter((collection: GuideCollection) => category && collection.active && (collection.linkPath === category.path || collection.linkPath.endsWith(`/${category.slug}`) || collection.linkPath.endsWith(`/${category.id}`))).slice(0, 2),
-    [collections, category]
-  );
-
   if (!category) {
     return (
-      <div className="page-stack">
-        <PageHeader title="Раздел не найден" subtitle="Возможно, категория скрыта или ещё не создана." showBack />
+      <div className="page-stack category-explorer-page">
+        <header className="page-header card card--blur category-page-header">
+          <div className="page-header__content">
+            <h1>Раздел не найден</h1>
+          </div>
+        </header>
       </div>
     );
   }
 
-  const eventHighlights = category.id === 'events' ? sortPlaces(categoryPlaces, 'priority').slice(0, 3) : [];
+  const filterTitle = category.shortTitle || category.title;
 
   return (
     <div className="page-stack category-explorer-page">
-      <PageHeader
-        title={category.title}
-        subtitle={undefined}
-        showBack
-      />
+      <header className="page-header card card--blur category-page-header">
+        <div className="page-header__content">
+          <h1>{category.title}</h1>
+        </div>
+      </header>
 
-      <section className={`panel category-hero category-hero--${category.accent || 'coast'}`}>
-        <div className="category-hero__content">
-          {category.badge ? (
-            <div className="chip-row chip-row--wrap">
-              <span className="chip chip--soft">{category.badge}</span>
+      <FilterPanel title={`Фильтр · ${filterTitle}`} activeCount={activeFiltersCount}>
+        <div className="filter-stack">
+          <label className="field field--grow">
+            <span>Сортировка</span>
+            <select value={filters.sortMode} onChange={(event) => setFilters((current) => ({ ...current, sortMode: event.target.value as SortMode }))}>
+              <option value="priority">По приоритету</option>
+              <option value="rating">По рейтингу</option>
+              <option value="alphabet">По алфавиту</option>
+              <option value="check-low">Сначала дешевле</option>
+              <option value="check-high">Сначала дороже</option>
+            </select>
+          </label>
+
+          {filterFields.includes('kind') && kindOptions.length > 0 ? (
+            <label className="field field--grow">
+              <span>{toLabel('kind')}</span>
+              <select value={filters.kind} onChange={(event) => setFilters((current) => ({ ...current, kind: event.target.value }))}>
+                <option value="all">Все</option>
+                {kindOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+
+          {filterFields.includes('cuisine') && cuisineOptions.length > 0 ? (
+            <label className="field field--grow">
+              <span>{toLabel('cuisine')}</span>
+              <select value={filters.cuisine} onChange={(event) => setFilters((current) => ({ ...current, cuisine: event.target.value }))}>
+                <option value="all">Все</option>
+                {cuisineOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+
+          {filterFields.includes('district') && districtOptions.length > 0 ? (
+            <label className="field field--grow">
+              <span>{toLabel('district')}</span>
+              <select value={filters.district} onChange={(event) => setFilters((current) => ({ ...current, district: event.target.value }))}>
+                <option value="all">Все районы</option>
+                {districtOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+
+          {filterFields.includes('hotelStars') ? (
+            <label className="field field--grow">
+              <span>{toLabel('hotelStars')}</span>
+              <select value={filters.hotelStars} onChange={(event) => setFilters((current) => ({ ...current, hotelStars: event.target.value }))}>
+                <option value="all">Любое количество</option>
+                {hotelStarsOptions.map((option) => (
+                  <option key={option} value={String(option)}>
+                    {option}★
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+
+          {filterFields.includes('hotelPool') ? (
+            <label className="field field--grow">
+              <span>{toLabel('hotelPool')}</span>
+              <select value={filters.hotelPool} onChange={(event) => setFilters((current) => ({ ...current, hotelPool: event.target.value as BinaryFilter }))}>
+                <option value="all">Неважно</option>
+                <option value="yes">Да</option>
+                <option value="no">Нет</option>
+              </select>
+            </label>
+          ) : null}
+
+          {filterFields.includes('hotelSpa') ? (
+            <label className="field field--grow">
+              <span>{toLabel('hotelSpa')}</span>
+              <select value={filters.hotelSpa} onChange={(event) => setFilters((current) => ({ ...current, hotelSpa: event.target.value as BinaryFilter }))}>
+                <option value="all">Неважно</option>
+                <option value="yes">Да</option>
+                <option value="no">Нет</option>
+              </select>
+            </label>
+          ) : null}
+
+          {filterFields.includes('petFriendly') ? (
+            <label className="field field--grow">
+              <span>{toLabel('petFriendly')}</span>
+              <select value={filters.petFriendly} onChange={(event) => setFilters((current) => ({ ...current, petFriendly: event.target.value as BinaryFilter }))}>
+                <option value="all">Неважно</option>
+                <option value="yes">Да</option>
+                <option value="no">Нет</option>
+              </select>
+            </label>
+          ) : null}
+
+          {filterFields.includes('avgCheck') ? (
+            <div className="filter-grid-two">
+              <label className="field field--grow">
+                <span>Мин. чек</span>
+                <input value={filters.minCheck} onChange={(event) => setFilters((current) => ({ ...current, minCheck: event.target.value }))} inputMode="numeric" placeholder="от" />
+              </label>
+              <label className="field field--grow">
+                <span>Макс. чек</span>
+                <input value={filters.maxCheck} onChange={(event) => setFilters((current) => ({ ...current, maxCheck: event.target.value }))} inputMode="numeric" placeholder="до" />
+              </label>
             </div>
           ) : null}
-          {!isGenericCategoryDescription(category.description) ? <p>{category.description}</p> : null}
-        </div>
 
-        {category.imageSrc ? (
-          <div className="category-hero__cover" style={{ backgroundImage: `url(${category.imageSrc})` }} aria-hidden="true" />
-        ) : (
-          <div className="category-hero__cover category-hero__cover--empty" aria-hidden="true">
-            <span>{category.title}</span>
-          </div>
-        )}
-      </section>
-
-      {category.id === 'events' && eventHighlights.length > 0 ? (
-        <section className="panel event-highlights-panel">
-          <div className="section-headline">
-            <strong>Скоро в городе</strong>
-            <span>Ближайшие события этого раздела.</span>
-          </div>
-          <div className="event-highlight-grid">
-            {eventHighlights.map((event) => (
-              <Link key={event.id} to={`/place/${event.slug || `${event.categoryId}-${event.id}`}`} className="event-highlight-card">
-                <strong>{event.title}</strong>
-                <span>{[event.hours, event.address || event.district].filter(Boolean).join(' · ')}</span>
-                <small>{[event.kind, ...(event.tags || []).slice(0, 2)].filter(Boolean).join(' · ')}</small>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {filterFields.length > 0 ? (
-        <FilterPanel title={`Фильтры · ${category.shortTitle}`}>
-          <div className="filter-stack">
-            {filterFields.includes('kind') && kindOptions.length > 0 ? (
-              <label className="field field--grow">
-                <span>{toLabel('kind')}</span>
-                <select value={filters.kind} onChange={(event) => setFilters((current) => ({ ...current, kind: event.target.value }))}>
-                  <option value="all">Все</option>
-                  {kindOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
-
-            {filterFields.includes('cuisine') && cuisineOptions.length > 0 ? (
-              <label className="field field--grow">
-                <span>{toLabel('cuisine')}</span>
-                <select value={filters.cuisine} onChange={(event) => setFilters((current) => ({ ...current, cuisine: event.target.value }))}>
-                  <option value="all">Все</option>
-                  {cuisineOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
-
-            {filterFields.includes('district') && districtOptions.length > 0 ? (
-              <label className="field field--grow">
-                <span>{toLabel('district')}</span>
-                <select value={filters.district} onChange={(event) => setFilters((current) => ({ ...current, district: event.target.value }))}>
-                  <option value="all">Все районы</option>
-                  {districtOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
-
-            {filterFields.includes('hotelStars') ? (
-              <label className="field field--grow">
-                <span>{toLabel('hotelStars')}</span>
-                <select value={filters.hotelStars} onChange={(event) => setFilters((current) => ({ ...current, hotelStars: event.target.value }))}>
-                  <option value="all">Любое количество</option>
-                  {hotelStarsOptions.map((option) => (
-                    <option key={option} value={String(option)}>
-                      {option}★
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
-
-            {filterFields.includes('hotelPool') ? (
-              <label className="field field--grow">
-                <span>{toLabel('hotelPool')}</span>
-                <select value={filters.hotelPool} onChange={(event) => setFilters((current) => ({ ...current, hotelPool: event.target.value as BinaryFilter }))}>
-                  <option value="all">Неважно</option>
-                  <option value="yes">Да</option>
-                  <option value="no">Нет</option>
-                </select>
-              </label>
-            ) : null}
-
-            {filterFields.includes('hotelSpa') ? (
-              <label className="field field--grow">
-                <span>{toLabel('hotelSpa')}</span>
-                <select value={filters.hotelSpa} onChange={(event) => setFilters((current) => ({ ...current, hotelSpa: event.target.value as BinaryFilter }))}>
-                  <option value="all">Неважно</option>
-                  <option value="yes">Да</option>
-                  <option value="no">Нет</option>
-                </select>
-              </label>
-            ) : null}
-
-            {filterFields.includes('petFriendly') ? (
-              <label className="field field--grow">
-                <span>{toLabel('petFriendly')}</span>
-                <select value={filters.petFriendly} onChange={(event) => setFilters((current) => ({ ...current, petFriendly: event.target.value as BinaryFilter }))}>
-                  <option value="all">Неважно</option>
-                  <option value="yes">Да</option>
-                  <option value="no">Нет</option>
-                </select>
-              </label>
-            ) : null}
-
-            {filterFields.includes('avgCheck') ? (
-              <div className="filter-grid-two">
-                <label className="field field--grow">
-                  <span>Мин. чек</span>
-                  <input value={filters.minCheck} onChange={(event) => setFilters((current) => ({ ...current, minCheck: event.target.value }))} inputMode="numeric" placeholder="от" />
-                </label>
-                <label className="field field--grow">
-                  <span>Макс. чек</span>
-                  <input value={filters.maxCheck} onChange={(event) => setFilters((current) => ({ ...current, maxCheck: event.target.value }))} inputMode="numeric" placeholder="до" />
-                </label>
+          {filterFields.includes('services') && serviceOptions.length > 0 ? (
+            <div className="field-group">
+              <span className="field-group__label">{toLabel('services')}</span>
+              <div className="chip-row chip-row--wrap">
+                {serviceOptions.map((service) => (
+                  <button
+                    key={service}
+                    type="button"
+                    className={`chip chip--action ${filters.selectedServices.includes(service) ? 'is-active' : ''}`}
+                    onClick={() => setFilters((current) => ({ ...current, selectedServices: toggleInArray(current.selectedServices, service) }))}
+                  >
+                    {service}
+                  </button>
+                ))}
               </div>
-            ) : null}
-
-            {filterFields.includes('services') && serviceOptions.length > 0 ? (
-              <div className="field-group">
-                <span className="field-group__label">{toLabel('services')}</span>
-                <div className="chip-row chip-row--wrap">
-                  {serviceOptions.map((service) => (
-                    <button
-                      key={service}
-                      type="button"
-                      className={`chip chip--action ${filters.selectedServices.includes(service) ? 'is-active' : ''}`}
-                      onClick={() => setFilters((current) => ({ ...current, selectedServices: toggleInArray(current.selectedServices, service) }))}
-                    >
-                      {service}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {filterFields.includes('tags') && tagOptions.length > 0 ? (
-              <div className="field-group">
-                <span className="field-group__label">{toLabel('tags')}</span>
-                <div className="chip-row chip-row--wrap">
-                  {tagOptions.map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      className={`chip chip--action ${filters.selectedTags.includes(tag) ? 'is-active' : ''}`}
-                      onClick={() => setFilters((current) => ({ ...current, selectedTags: toggleInArray(current.selectedTags, tag) }))}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            <div className="filter-actions">
-              <button className="button button--ghost" type="button" onClick={() => setFilters(initialFilters)}>
-                Сбросить всё
-              </button>
             </div>
+          ) : null}
+
+          {filterFields.includes('tags') && tagOptions.length > 0 ? (
+            <div className="field-group">
+              <span className="field-group__label">{toLabel('tags')}</span>
+              <div className="chip-row chip-row--wrap">
+                {tagOptions.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    className={`chip chip--action ${filters.selectedTags.includes(tag) ? 'is-active' : ''}`}
+                    onClick={() => setFilters((current) => ({ ...current, selectedTags: toggleInArray(current.selectedTags, tag) }))}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <div className="filter-actions">
+            <button className="button button--ghost" type="button" onClick={() => setFilters(initialFilters)}>
+              Сбросить всё
+            </button>
           </div>
-        </FilterPanel>
-      ) : null}
-
-      <section className="panel category-toolbar">
-        <div className="section-headline section-headline--muted">
-          <strong>{filteredPlaces.length} результатов</strong>
-          {activeFiltersCount > 0 ? <span>Активно фильтров: {activeFiltersCount}</span> : <span>Без активных фильтров</span>}
         </div>
-        <label className="field field--compact">
-          <span>Сортировка</span>
-          <select value={filters.sortMode} onChange={(event) => setFilters((current) => ({ ...current, sortMode: event.target.value as SortMode }))}>
-            <option value="priority">По приоритету</option>
-            <option value="rating">По рейтингу</option>
-            <option value="alphabet">По алфавиту</option>
-            <option value="check-low">Сначала дешевле</option>
-            <option value="check-high">Сначала дороже</option>
-          </select>
-        </label>
-      </section>
+      </FilterPanel>
 
-      {loading ? <div className="panel page-loader">Загружаю карточки раздела…</div> : null}
-      {error ? (
-        <div className="panel empty-state empty-state--left">
-          <strong>Не удалось обновить раздел</strong>
-          <p>{error}</p>
-        </div>
-      ) : null}
+      {loading ? <div className="panel page-loader">Загружаю карточки…</div> : null}
+      {error ? <div className="panel empty-state">Не удалось загрузить раздел</div> : null}
 
-      {!loading && filteredPlaces.length > 0 ? (
+      {!loading && !error && filteredPlaces.length > 0 ? (
         <section className="grid-listing">
           {filteredPlaces.map((item) => (
             <PlaceholderCard
@@ -549,36 +483,9 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
         </section>
       ) : null}
 
-      {!loading && filteredPlaces.length === 0 ? (
-        <section className="panel empty-state empty-state--left">
-          <strong>{categoryPlaces.length > 0 ? 'По выбранным параметрам ничего не найдено' : 'Пока здесь пусто'}</strong>
-          <p>
-            {categoryPlaces.length > 0
-              ? 'Попробуй убрать часть фильтров или сменить сортировку.'
-              : 'Когда владелец добавит места, они появятся здесь.'}
-          </p>
-        </section>
-      ) : null}
-
-      {relatedCollections.length > 0 || relatedTips.length > 0 ? (
-        <section className="panel related-content-panel">
-          <div className="section-headline">
-            <strong>Полезное в этом разделе</strong>
-          </div>
-          <div className="related-content-grid">
-            {relatedCollections.map((collection) => (
-              <Link key={collection.id} to={collection.linkPath} className="related-content-card">
-                <strong>{collection.title}</strong>
-                <span>{collection.description}</span>
-              </Link>
-            ))}
-            {relatedTips.map((tip) => (
-              <Link key={tip.id} to={tip.linkPath} className="related-content-card related-content-card--tip">
-                <strong>{tip.title}</strong>
-                <span>{tip.text}</span>
-              </Link>
-            ))}
-          </div>
+      {!loading && !error && filteredPlaces.length === 0 ? (
+        <section className="panel empty-state">
+          <strong>Ничего не найдено</strong>
         </section>
       ) : null}
     </div>

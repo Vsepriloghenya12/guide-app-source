@@ -2,9 +2,10 @@ import { PropsWithChildren, useEffect, useState } from 'react';
 
 type FilterPanelProps = PropsWithChildren<{
   title: string;
+  activeCount?: number;
 }>;
 
-export function FilterPanel({ title, children }: FilterPanelProps) {
+export function FilterPanel({ title, activeCount = 0, children }: FilterPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export function FilterPanel({ title, children }: FilterPanelProps) {
     <>
       <div className="filter-launcher">
         <button className="button button--ghost filter-launcher__button" type="button" onClick={() => setIsOpen(true)}>
-          Открыть фильтры
+          Фильтр{activeCount > 0 ? ` · ${activeCount}` : ''}
         </button>
       </div>
 
@@ -44,10 +45,7 @@ export function FilterPanel({ title, children }: FilterPanelProps) {
             onClick={(event) => event.stopPropagation()}
           >
             <div className="modal-window__header">
-              <div>
-                <strong>{title}</strong>
-                <small>Все параметры открываются в модальном окне</small>
-              </div>
+              <strong>{title}</strong>
               <button className="modal-window__close" type="button" onClick={() => setIsOpen(false)}>
                 ✕
               </button>
