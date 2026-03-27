@@ -1,6 +1,6 @@
 import { api } from '../api/client';
 
-type UploadKind = 'place' | 'banner' | 'collection' | 'category' | 'general';
+type UploadKind = 'place' | 'banner' | 'collection' | 'category' | 'general' | 'logo';
 
 type CompressOptions = {
   maxWidth?: number;
@@ -83,12 +83,20 @@ export async function compressImage(file: File, options: CompressOptions = {}): 
   return compressed.size < file.size ? compressed : file;
 }
 
+export async function uploadMediaAsset(
+  file: File,
+  kind: UploadKind,
+  options: CompressOptions = {}
+): Promise<string> {
+  const prepared = file.type.startsWith('image/') ? await compressImage(file, options) : file;
+  const response = await api.uploadImage(prepared, { kind });
+  return response.url;
+}
+
 export async function uploadImageAsset(
   file: File,
   kind: UploadKind,
   options: CompressOptions = {}
 ): Promise<string> {
-  const compressed = await compressImage(file, options);
-  const response = await api.uploadImage(compressed, { kind });
-  return response.url;
+  return uploadMediaAsset(file, kind, options);
 }

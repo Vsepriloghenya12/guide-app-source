@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import { ListingCard } from '../components/listing/ListingCard';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -90,6 +91,22 @@ export function SearchPage() {
       />
 
       <section className="panel search-panel">
+        <div className="detail-actions detail-actions--wrap">
+          <Link className="button button--ghost button--small" to="/nearby">Рядом со мной</Link>
+          {(query || categoryFilter !== 'all') ? (
+            <button
+              className="button button--ghost button--small"
+              type="button"
+              onClick={() => {
+                setQuery('');
+                setCategoryFilter('all');
+              }}
+            >
+              Сбросить
+            </button>
+          ) : null}
+        </div>
+
         <div className="search-panel__grid">
           <label className="field field--grow">
             <span>Что ищем</span>

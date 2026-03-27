@@ -1,7 +1,7 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { updateGuideContent } from '../../data/guideContent';
 import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeBanner, HomeContent } from '../../types';
-import { uploadImageAsset } from '../../utils/imageUpload';
+import { uploadImageAsset, uploadMediaAsset } from '../../utils/imageUpload';
 
 type OwnerHomeManagerProps = {
   home: HomeContent;
@@ -79,6 +79,7 @@ export function OwnerHomeManager({
   const [status, setStatus] = useState('');
   const [isBannerUploading, setIsBannerUploading] = useState(false);
   const [isCollectionUploading, setIsCollectionUploading] = useState(false);
+  const [isLogoUploading, setIsLogoUploading] = useState(false);
 
   const updateHome = (updater: (homeState: HomeContent) => HomeContent) => {
     updateGuideContent((current) => ({
@@ -97,6 +98,73 @@ export function OwnerHomeManager({
     }));
   };
 
+
+  const handleLogoMediaField = (field: 'src' | 'posterSrc' | 'alt', value: string) => {
+    updateHome((currentHome) => ({
+      ...currentHome,
+      logoMedia: {
+        type: currentHome.logoMedia?.type === 'video' ? 'video' : 'image',
+        src: field === 'src' ? value : currentHome.logoMedia?.src || '',
+        posterSrc: field === 'posterSrc' ? value : currentHome.logoMedia?.posterSrc || '',
+        alt: field === 'alt' ? value : currentHome.logoMedia?.alt || ''
+      }
+    }));
+  };
+
+  const handleLogoMediaType = (value: 'image' | 'video') => {
+    updateHome((currentHome) => ({
+      ...currentHome,
+      logoMedia: currentHome.logoMedia?.src
+        ? {
+            ...currentHome.logoMedia,
+            type: value
+          }
+        : {
+            type: value,
+            src: '',
+            posterSrc: '',
+            alt: ''
+          }
+    }));
+  };
+
+  const handleLogoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setIsLogoUploading(true);
+    setStatus('Загружаю лого...');
+
+    try {
+      const url = await uploadMediaAsset(file, 'logo', { maxWidth: 1800, maxHeight: 1200, quality: 0.9 });
+      const nextType = file.type.startsWith('video/') ? 'video' : 'image';
+      updateHome((currentHome) => ({
+        ...currentHome,
+        logoMedia: {
+          type: nextType,
+          src: url,
+          posterSrc: nextType === 'video' ? currentHome.logoMedia?.posterSrc || '' : '',
+          alt: currentHome.logoMedia?.alt || ''
+        }
+      }));
+      setStatus(nextType === 'video' ? 'Видео-логотип загружен.' : 'Логотип загружен.');
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Не удалось загрузить логотип.');
+    } finally {
+      setIsLogoUploading(false);
+      event.target.value = '';
+    }
+  };
+
+  const clearLogoMedia = () => {
+    updateHome((currentHome) => ({
+      ...currentHome,
+      logoMedia: undefined
+    }));
+    setStatus('Лого очищено. Будет использоваться файл из public.');
+  };
 
 
   const handleBannerImage = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -286,6 +354,72 @@ export function OwnerHomeManager({
                 onChange={(event) => handleSectionTitle('allCategories', event.target.value)}
               />
             </label>
+          </div>
+
+          <div className="owner-editor-form__grid owner-editor-form__grid--double">
+            <label className="field">
+              <span>Тип логотипа</span>
+              <select
+                value={home.logoMedia?.type || 'image'}
+                onChange={(event) => handleLogoMediaType(event.target.value as 'image' | 'video')}
+              >
+                <option value="image">Картинка</option>
+                <option value="video">Короткое видео</option>
+              </select>
+            </label>
+            <label className="field">
+              <span>Alt-текст логотипа</span>
+              <input
+                value={home.logoMedia?.alt || ''}
+                onChange={(event) => handleLogoMediaField('alt', event.target.value)}
+                placeholder="Например: Логотип Guide"
+              />
+            </label>
+            <label className="field">
+              <span>URL логотипа</span>
+              <input
+                value={home.logoMedia?.src || ''}
+                onChange={(event) => handleLogoMediaField('src', event.target.value)}
+                placeholder="/uploads/logo.mp4 или https://..."
+              />
+            </label>
+            <label className="field">
+              <span>Poster для видео</span>
+              <input
+                value={home.logoMedia?.posterSrc || ''}
+                onChange={(event) => handleLogoMediaField('posterSrc', event.target.value)}
+                placeholder="/uploads/logo-poster.jpg"
+                disabled={(home.logoMedia?.type || 'image') !== 'video'}
+              />
+            </label>
+            <label className="field field--file">
+              <span>{isLogoUploading ? 'Загрузка логотипа...' : 'Загрузить картинку или короткое видео'}</span>
+              <input
+                type="file"
+                accept="image/*,video/mp4,video/webm,video/quicktime"
+                onChange={handleLogoUpload}
+                disabled={isLogoUploading}
+              />
+            </label>
+            <div className="owner-editor-form__actions owner-editor-form__actions--inline">
+              <button className="button button--ghost" type="button" onClick={clearLogoMedia}>
+                Очистить лого
+              </button>
+            </div>
+          </div>
+
+          <div className="owner-inline-card">
+            <strong>Логотип на главной</strong>
+            <p>Теперь можно использовать не только изображение, но и короткое видео в зоне логотипа.</p>
+            {home.logoMedia?.src ? (
+              home.logoMedia.type === 'video' ? (
+                <video className="owner-media-preview" src={home.logoMedia.src} poster={home.logoMedia.posterSrc || undefined} muted loop controls playsInline />
+              ) : (
+                <img className="owner-media-preview" src={home.logoMedia.src} alt={home.logoMedia.alt || 'Логотип'} />
+              )
+            ) : (
+              <span className="panel-helper">Если поле пустое, приложение берёт стандартный логотип из public.</span>
+            )}
           </div>
 
           <div className="owner-selection-grid">

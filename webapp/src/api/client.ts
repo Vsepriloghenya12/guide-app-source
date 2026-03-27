@@ -83,7 +83,7 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ items })
     }),
-  uploadImage: async (file: File, options?: { kind?: 'place' | 'banner' | 'collection' | 'category' | 'general' }) => {
+  uploadImage: async (file: File, options?: { kind?: 'place' | 'banner' | 'collection' | 'category' | 'general' | 'logo' }) => {
     const dataUrl = await fileToDataUrl(file);
     return apiFetch<{ ok: true; url: string; fileName: string; mimeType: string; sizeBytes: number }>('/api/owner/upload', {
       method: 'POST',

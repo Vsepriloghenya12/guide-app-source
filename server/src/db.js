@@ -325,6 +325,14 @@ function normalizeContentStore(input) {
       tipIds: normalizeStringArray(homeInput.tipIds ?? homeDefaults.tipIds),
       bannerIds: normalizeStringArray(homeInput.bannerIds ?? homeDefaults.bannerIds),
       collectionIds: normalizeStringArray(homeInput.collectionIds ?? homeDefaults.collectionIds),
+      logoMedia: String(homeInput.logoMedia?.src || homeDefaults.logoMedia?.src || '').trim()
+        ? {
+            type: String(homeInput.logoMedia?.type || homeDefaults.logoMedia?.type || 'image').trim() === 'video' ? 'video' : 'image',
+            src: String(homeInput.logoMedia?.src || homeDefaults.logoMedia?.src || '').trim(),
+            posterSrc: String(homeInput.logoMedia?.posterSrc || homeDefaults.logoMedia?.posterSrc || '').trim(),
+            alt: String(homeInput.logoMedia?.alt || homeDefaults.logoMedia?.alt || '').trim()
+          }
+        : undefined,
       sectionTitles: {
         popular: String(homeInput.sectionTitles?.popular || homeDefaults.sectionTitles?.popular || 'Популярное').trim(),
         categories: String(homeInput.sectionTitles?.categories || homeDefaults.sectionTitles?.categories || 'Категории').trim(),

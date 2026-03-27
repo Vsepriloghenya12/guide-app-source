@@ -92,6 +92,7 @@ export function NearbyPage() {
             <button className="button button--primary" type="button" onClick={requestLocation} disabled={geoState === 'loading'}>
               {geoState === 'loading' ? 'Определяю…' : userLocation ? 'Обновить геопозицию' : 'Разрешить геолокацию'}
             </button>
+            <Link className="button button--ghost" to="/search">Открыть поиск</Link>
             {userLocation ? (
               <button className="button button--ghost" type="button" onClick={clearLocation}>
                 Очистить

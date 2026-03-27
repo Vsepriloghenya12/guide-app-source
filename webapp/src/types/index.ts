@@ -113,6 +113,13 @@ export type GuideCollection = {
   active: boolean;
 };
 
+export type HomeLogoMedia = {
+  type: 'image' | 'video';
+  src: string;
+  posterSrc?: string;
+  alt?: string;
+};
+
 export type HomeSectionTitles = {
   popular: string;
   categories: string;
@@ -123,6 +130,7 @@ export type HomeSectionTitles = {
 
 export type HomeContent = {
   popularPlaceIds: string[];
+  logoMedia?: HomeLogoMedia;
   featuredCategoryIds: GuideCategoryId[];
   tipIds: string[];
   bannerIds: string[];

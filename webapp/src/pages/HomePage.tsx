@@ -44,7 +44,7 @@ export function HomePage() {
       ) : null}
 
       <section className="home-stage" aria-label="Главный экран Guide">
-        <HomeHero banners={activeBanners} />
+        <HomeHero banners={activeBanners} logoMedia={home.logoMedia} />
         <FeatureGrid
           popularPlaces={popularPlaces}
           featuredCategories={featuredCategories}

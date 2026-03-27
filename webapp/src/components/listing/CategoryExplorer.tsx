@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 import { FilterPanel } from '../common/FilterPanel';
-import { PlaceholderCard } from '../common/PlaceholderCard';
+import { PageHeader } from '../layout/PageHeader';
+import { ListingCard } from './ListingCard';
 import { defaultCategories } from '../../data/categories';
+import { useFavorites } from '../../hooks/useFavorites';
 import { useGuideContent } from '../../hooks/useGuideContent';
 import { usePageMeta } from '../../hooks/usePageMeta';
-import { comparePlacesByPriority } from '../../utils/places';
+import { comparePlacesByPriority, toListingLike } from '../../utils/places';
 import type { GuideCategory, GuideCategoryId, GuidePlace } from '../../types';
 
 type CategoryExplorerProps = {
@@ -27,6 +29,7 @@ type FiltersState = {
   petFriendly: BinaryFilter;
   selectedServices: string[];
   selectedTags: string[];
+  selectedQuickTokens: string[];
   sortMode: SortMode;
 };
 
@@ -42,19 +45,9 @@ const initialFilters: FiltersState = {
   petFriendly: 'all',
   selectedServices: [],
   selectedTags: [],
+  selectedQuickTokens: [],
   sortMode: 'priority'
 };
-
-function compactStrings(values: Array<string | undefined>) {
-  return values.filter((value): value is string => Boolean(value));
-}
-
-function getPlaceImages(item: GuidePlace) {
-  if (Array.isArray(item.imageGallery) && item.imageGallery.length > 0) {
-    return item.imageGallery;
-  }
-  return item.imageSrc ? [item.imageSrc] : [];
-}
 
 function toLabel(filterKey: string) {
   const map: Record<string, string> = {
@@ -100,7 +93,6 @@ function mergeCategoryWithFallback(category?: GuideCategory | null) {
   }
 
   const fallback = defaultCategories.find((item) => item.id === category.id || item.slug === category.slug);
-
   if (!fallback) {
     return category;
   }
@@ -134,8 +126,55 @@ function matchesBinaryFilter(value: boolean, filter: BinaryFilter) {
   return filter === 'yes' ? value : !value;
 }
 
+function normalizeToken(value: string) {
+  return value.toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+function matchesQuickToken(place: GuidePlace, token: string) {
+  const normalized = normalizeToken(token);
+
+  if (!normalized) {
+    return true;
+  }
+
+  if (normalized === 'breakfast') {
+    return Boolean(place.breakfast) || place.tags?.some((tag) => normalizeToken(tag) === normalized) || place.services?.some((service) => normalizeToken(service) === normalized);
+  }
+
+  if (normalized === 'vegan') {
+    return Boolean(place.vegan) || place.tags?.some((tag) => normalizeToken(tag) === normalized) || place.services?.some((service) => normalizeToken(service) === normalized);
+  }
+
+  if (normalized === 'pets') {
+    return Boolean(place.petFriendly ?? place.pets);
+  }
+
+  if (normalized === 'childprograms') {
+    return Boolean(place.childPrograms ?? place.childFriendly);
+  }
+
+  const haystack = [
+    place.title,
+    place.description,
+    place.shortDescription,
+    place.address,
+    place.kind,
+    place.cuisine,
+    place.district,
+    place.hours,
+    place.priceLabel,
+    ...(place.services || []),
+    ...(place.tags || [])
+  ]
+    .filter(Boolean)
+    .map((value) => normalizeToken(String(value)));
+
+  return haystack.some((value) => value.includes(normalized));
+}
+
 export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerProps) {
   const [filters, setFilters] = useState<FiltersState>(initialFilters);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const { categories, places, loading, error } = useGuideContent();
 
   const rawCategory = useMemo(
@@ -181,11 +220,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
   const hotelStarsOptions = useMemo(
     () =>
       Array.from(
-        new Set(
-          categoryPlaces
-            .map((item) => item.hotelStars)
-            .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
-        )
+        new Set(categoryPlaces.map((item) => item.hotelStars).filter((value): value is number => typeof value === 'number' && Number.isFinite(value)))
       ).sort((a, b) => b - a),
     [categoryPlaces]
   );
@@ -197,6 +232,11 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
     () => Array.from(new Set(categoryPlaces.flatMap((item) => item.tags || []).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
     [categoryPlaces]
   );
+
+  const visibleQuickFilters = useMemo(() => {
+    const configured = category?.filterSchema?.quickFilters || [];
+    return configured.filter((token) => categoryPlaces.some((place) => matchesQuickToken(place, token)));
+  }, [category?.filterSchema?.quickFilters, categoryPlaces]);
 
   const filteredPlaces = useMemo(() => {
     const nextPlaces = categoryPlaces.filter((place) => {
@@ -245,6 +285,10 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
         return false;
       }
 
+      if (filters.selectedQuickTokens.length > 0 && !filters.selectedQuickTokens.every((token) => matchesQuickToken(place, token))) {
+        return false;
+      }
+
       return true;
     });
 
@@ -254,6 +298,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
   const activeFiltersCount =
     filters.selectedServices.length +
     filters.selectedTags.length +
+    filters.selectedQuickTokens.length +
     Number(filters.kind !== 'all') +
     Number(filters.cuisine !== 'all') +
     Number(filters.district !== 'all') +
@@ -266,39 +311,45 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
 
   if (!category) {
     return (
-      <div className="page-stack category-explorer-page">
-        <header className="page-header card card--blur category-page-header">
-          <div className="page-header__content">
-            <h1>Раздел не найден</h1>
-          </div>
-        </header>
+      <div className="page-stack">
+        <PageHeader title="Раздел не найден" subtitle="Возможно, категория скрыта или ещё не создана." showBack />
       </div>
     );
   }
 
-  const filterTitle = category.shortTitle || category.title;
-
   return (
-    <div className="page-stack category-explorer-page">
-      <header className="page-header card card--blur category-page-header">
-        <div className="page-header__content">
-          <h1>{category.title}</h1>
-        </div>
-      </header>
+    <div className="page-stack category-explorer-page category-explorer-page--minimal">
+      <PageHeader title={category.title} subtitle={undefined} showBack />
 
-      <FilterPanel title={`Фильтр · ${filterTitle}`} activeCount={activeFiltersCount}>
+      <FilterPanel
+        title={`Фильтр · ${category.shortTitle}`}
+        triggerLabel="Открыть фильтр"
+        activeCount={activeFiltersCount}
+        summary={`${filteredPlaces.length} мест${activeFiltersCount > 0 ? ` · активных фильтров ${activeFiltersCount}` : ''}`}
+        quickActions={
+          visibleQuickFilters.length > 0 ? (
+            <div className="chip-row chip-row--wrap">
+              {visibleQuickFilters.map((token) => (
+                <button
+                  key={token}
+                  type="button"
+                  className={`chip chip--action ${filters.selectedQuickTokens.includes(token) ? 'is-active' : ''}`}
+                  onClick={() =>
+                    setFilters((current) => ({
+                      ...current,
+                      selectedQuickTokens: toggleInArray(current.selectedQuickTokens, token)
+                    }))
+                  }
+                >
+                  {token}
+                </button>
+              ))}
+            </div>
+          ) : null
+        }
+        onReset={() => setFilters(initialFilters)}
+      >
         <div className="filter-stack">
-          <label className="field field--grow">
-            <span>Сортировка</span>
-            <select value={filters.sortMode} onChange={(event) => setFilters((current) => ({ ...current, sortMode: event.target.value as SortMode }))}>
-              <option value="priority">По приоритету</option>
-              <option value="rating">По рейтингу</option>
-              <option value="alphabet">По алфавиту</option>
-              <option value="check-low">Сначала дешевле</option>
-              <option value="check-high">Сначала дороже</option>
-            </select>
-          </label>
-
           {filterFields.includes('kind') && kindOptions.length > 0 ? (
             <label className="field field--grow">
               <span>{toLabel('kind')}</span>
@@ -437,55 +488,52 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
             </div>
           ) : null}
 
-          <div className="filter-actions">
-            <button className="button button--ghost" type="button" onClick={() => setFilters(initialFilters)}>
-              Сбросить всё
-            </button>
-          </div>
+          <label className="field field--grow">
+            <span>Сортировка</span>
+            <select value={filters.sortMode} onChange={(event) => setFilters((current) => ({ ...current, sortMode: event.target.value as SortMode }))}>
+              <option value="priority">По приоритету</option>
+              <option value="rating">По рейтингу</option>
+              <option value="alphabet">По алфавиту</option>
+              <option value="check-low">Сначала дешевле</option>
+              <option value="check-high">Сначала дороже</option>
+            </select>
+          </label>
         </div>
       </FilterPanel>
 
-      {loading ? <div className="panel page-loader">Загружаю карточки…</div> : null}
-      {error ? <div className="panel empty-state">Не удалось загрузить раздел</div> : null}
+      {loading ? <div className="panel page-loader">Загружаю карточки раздела…</div> : null}
+      {error ? (
+        <div className="panel empty-state empty-state--left">
+          <strong>Не удалось обновить раздел</strong>
+          <p>{error}</p>
+        </div>
+      ) : null}
 
-      {!loading && !error && filteredPlaces.length > 0 ? (
-        <section className="grid-listing">
-          {filteredPlaces.map((item) => (
-            <PlaceholderCard
-              key={item.id}
-              title={item.title}
-              address={item.address}
-              description={item.description}
-              rating={item.rating}
-              imageLabel={item.imageLabel}
-              imageSrc={item.imageSrc}
-              imageSources={getPlaceImages(item)}
-              phone={item.phone}
-              website={item.website}
-              hours={item.hours}
-              top={item.top}
-              detailPath={`/place/${item.slug || `${item.categoryId}-${item.id}`}`}
-              analytics={{ placeId: item.id, categoryId: item.categoryId }}
-              meta={compactStrings([
-                item.kind,
-                item.cuisine,
-                typeof item.hotelStars === 'number' ? `${item.hotelStars}★` : undefined,
-                item.hotelPool ? 'Бассейн' : undefined,
-                item.hotelSpa ? 'СПА' : undefined,
-                item.petFriendly || item.pets ? 'С животными' : undefined,
-                item.avgCheck ? `Средний чек ${item.avgCheck}` : undefined,
-                item.district,
-                ...item.services,
-                ...item.tags
-              ])}
-            />
-          ))}
+      {!loading && filteredPlaces.length > 0 ? (
+        <section className="listing-grid">
+          {filteredPlaces.map((item) => {
+            const listing = toListingLike(item);
+            return (
+              <ListingCard
+                key={item.id}
+                listing={listing}
+                accent={category.accent}
+                isFavorite={isFavorite(listing.slug)}
+                onToggleFavorite={toggleFavorite}
+              />
+            );
+          })}
         </section>
       ) : null}
 
-      {!loading && !error && filteredPlaces.length === 0 ? (
-        <section className="panel empty-state">
-          <strong>Ничего не найдено</strong>
+      {!loading && filteredPlaces.length === 0 ? (
+        <section className="panel empty-state empty-state--left">
+          <strong>{categoryPlaces.length > 0 ? 'По выбранным параметрам ничего не найдено' : 'Пока здесь пусто'}</strong>
+          <p>
+            {categoryPlaces.length > 0
+              ? 'Попробуй убрать часть фильтров или сбросить выбранные параметры.'
+              : 'Когда владелец добавит места, они появятся здесь.'}
+          </p>
         </section>
       ) : null}
     </div>

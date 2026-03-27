@@ -1,16 +1,17 @@
 import { AppLogo } from '../common/AppLogo';
-import type { HomeBanner } from '../../types';
+import type { HomeBanner, HomeLogoMedia } from '../../types';
 import { recordGuideAnalytics } from '../../utils/analytics';
 
 type HomeHeroProps = {
   banners: HomeBanner[];
+  logoMedia?: HomeLogoMedia;
 };
 
-export function HomeHero({ banners }: HomeHeroProps) {
+export function HomeHero({ banners, logoMedia }: HomeHeroProps) {
   return (
     <section className="hero hero--poster hero--compact">
       <div className="hero__brand hero__brand--center">
-        <AppLogo className="hero__logo hero__logo--giant" alt="Логотип Guide" />
+        <AppLogo className="hero__logo hero__logo--giant" alt={logoMedia?.alt || 'Логотип Guide'} media={logoMedia} />
       </div>
 
       {banners.length > 0 ? (

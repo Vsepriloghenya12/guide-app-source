@@ -18,13 +18,12 @@ export function CategoryList({ categories, title }: CategoryListProps) {
         </div>
       </div>
 
-      <div className="category-list category-list--plain" role="list">
+      <div className="category-list category-list--grid">
         {categories.map((category) => (
           <Link
             key={category.id}
             to={category.path}
-            className="category-list__row"
-            role="listitem"
+            className="category-list__item category-list__item--clean"
             onClick={() =>
               recordGuideAnalytics({
                 kind: 'category-click',
@@ -35,17 +34,14 @@ export function CategoryList({ categories, title }: CategoryListProps) {
               })
             }
           >
-            <div className="category-list__row-main">
-              <CategoryIcon categoryId={category.id} size="md" className="category-list__row-icon" />
-              <div className="category-list__row-text">
+            {category.imageSrc ? <div className="category-list__cover" style={{ backgroundImage: `url(${category.imageSrc})` }} aria-hidden="true" /> : null}
+            {category.badge ? <span className="category-list__badge category-list__badge--floating">{category.badge}</span> : null}
+            <div className="category-list__main category-list__main--stacked">
+              <CategoryIcon categoryId={category.id} size="lg" className="category-list__icon" />
+              <div className="category-list__text category-list__text--centered">
                 <strong>{category.title}</strong>
                 {category.description ? <span>{category.description}</span> : null}
               </div>
-            </div>
-
-            <div className="category-list__row-side">
-              {category.badge ? <span className="category-list__badge category-list__badge--inline">{category.badge}</span> : null}
-              <span className="category-list__row-arrow" aria-hidden="true">›</span>
             </div>
           </Link>
         ))}

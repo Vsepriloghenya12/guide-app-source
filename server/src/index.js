@@ -67,15 +67,21 @@ function extensionForMimeType(mimeType) {
       return 'png';
     case 'image/webp':
       return 'webp';
+    case 'video/mp4':
+      return 'mp4';
+    case 'video/webm':
+      return 'webm';
+    case 'video/quicktime':
+      return 'mov';
     default:
       return null;
   }
 }
 
-function parseImageDataUrl(dataUrl) {
-  const match = /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/s.exec(String(dataUrl || ''));
+function parseUploadDataUrl(dataUrl) {
+  const match = /^data:((?:image\/(?:jpeg|png|webp))|(?:video\/(?:mp4|webm|quicktime)));base64,(.+)$/s.exec(String(dataUrl || ''));
   if (!match) {
-    throw new Error('Поддерживаются только JPG, PNG и WEBP изображения.');
+    throw new Error('Поддерживаются JPG, PNG, WEBP, MP4, WEBM и MOV файлы.');
   }
 
   return {
@@ -86,15 +92,16 @@ function parseImageDataUrl(dataUrl) {
 
 async function storeUploadedImage({ fileName, dataUrl, kind = 'general' }) {
   ensureUploadsDirectory();
-  const { mimeType, buffer } = parseImageDataUrl(dataUrl);
+  const { mimeType, buffer } = parseUploadDataUrl(dataUrl);
   const extension = extensionForMimeType(mimeType);
 
   if (!extension) {
-    throw new Error('Неподдерживаемый формат изображения.');
+    throw new Error('Неподдерживаемый формат файла.');
   }
 
-  if (buffer.length > 8 * 1024 * 1024) {
-    throw new Error('Файл слишком большой после сжатия. Максимум 8 MB.');
+  const maxBytes = mimeType.startsWith('video/') ? 20 * 1024 * 1024 : 8 * 1024 * 1024;
+  if (buffer.length > maxBytes) {
+    throw new Error(mimeType.startsWith('video/') ? 'Видео слишком большое. Максимум 20 MB.' : 'Файл слишком большой после сжатия. Максимум 8 MB.');
   }
 
   const safeKind = sanitizeSegment(kind, 'general');

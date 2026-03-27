@@ -78,6 +78,10 @@ function createGoogleCalendarLink(listing: Listing) {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
+function detailPathFromSlug(slug: string) {
+  return `/place/${slug}`;
+}
+
 function createCalendarDataUrl(listing: Listing) {
   const parsed = parseEventDateRange(listing.hours || '');
   if (!parsed) {
@@ -180,9 +184,35 @@ export function ListingDetailPage() {
   }
 
   const favoriteActive = isFavorite(listing.slug);
+  const categoryPath = category.id === 'restaurants' ? '/restaurants' : category.id === 'wellness' ? '/wellness' : `/section/${category.slug}`;
+  const phoneLink = listing.phoneNumber || listing.phone;
+  const websiteLink = listing.websiteUrl || listing.website;
 
   const toggleFavoriteState = () => {
     toggleFavorite(listing.slug);
+  };
+
+  const shareListing = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : detailPathFromSlug(listing.slug);
+    const payload = {
+      title: listing.title,
+      text: listing.shortDescription || listing.description || listing.title,
+      url
+    };
+
+    try {
+      if (typeof navigator !== 'undefined' && 'share' in navigator) {
+        await navigator.share(payload);
+        return;
+      }
+
+      const clipboard = typeof window !== 'undefined' ? window.navigator.clipboard : undefined;
+      if (clipboard) {
+        await clipboard.writeText(url);
+      }
+    } catch (_error) {
+      // ignore aborted share
+    }
   };
 
   return (
@@ -192,7 +222,7 @@ export function ListingDetailPage() {
         subtitle={listing.shortDescription}
         showBack
         actionLabel={category.shortTitle}
-        actionPath={category.id === 'restaurants' ? '/restaurants' : category.id === 'wellness' ? '/wellness' : `/section/${category.slug}`}
+        actionPath={categoryPath}
       />
 
       <section className="detail-hero panel">
@@ -250,16 +280,17 @@ export function ListingDetailPage() {
             </div>
           ) : null}
 
-          <div className="detail-actions detail-actions--wrap">
-            {listing.phone ? (
+          <div className="detail-actions detail-actions--wrap detail-actions--primary">
+            <a className="button button--primary" href={googleDirectionsUrl} target="_blank" rel="noreferrer">Маршрут</a>
+            {phoneLink ? (
               <a
                 className="button"
-                href={`tel:${listing.phone}`}
+                href={`tel:${phoneLink}`}
                 onClick={() =>
                   recordGuideAnalytics({
                     kind: 'phone-click',
                     label: `${listing.title} · звонок`,
-                    path: `tel:${listing.phone}`,
+                    path: `tel:${phoneLink}`,
                     entityId: listing.id,
                     categoryId: listing.categoryId
                   })
@@ -267,18 +298,17 @@ export function ListingDetailPage() {
               >
                 Позвонить
               </a>
-            ) : null}
-            {listing.website ? (
+            ) : websiteLink ? (
               <a
                 className="button button--ghost"
-                href={listing.website}
+                href={websiteLink}
                 target="_blank"
                 rel="noreferrer"
                 onClick={() =>
                   recordGuideAnalytics({
                     kind: 'website-click',
                     label: `${listing.title} · сайт`,
-                    path: listing.website,
+                    path: websiteLink,
                     entityId: listing.id,
                     categoryId: listing.categoryId
                   })
@@ -287,8 +317,11 @@ export function ListingDetailPage() {
                 Сайт
               </a>
             ) : null}
+            <button className="button button--ghost" type="button" onClick={shareListing}>
+              Поделиться
+            </button>
             <button className={`button button--ghost${favoriteActive ? ' is-active' : ''}`} type="button" onClick={toggleFavoriteState}>
-              {favoriteActive ? 'Убрать из избранного' : 'В избранное'}
+              {favoriteActive ? 'В избранном' : 'В избранное'}
             </button>
           </div>
 
@@ -386,7 +419,7 @@ export function ListingDetailPage() {
         <section className="panel">
           <div className="section-headline">
             <strong>Похожие места</strong>
-            <Link to={category.id === 'restaurants' ? '/restaurants' : category.id === 'wellness' ? '/wellness' : `/section/${category.slug}`}>Все в разделе</Link>
+            <Link to={categoryPath}>Все в разделе</Link>
           </div>
           <div className="listing-grid listing-grid--compact">
             {similar.map((item) => (
@@ -395,6 +428,19 @@ export function ListingDetailPage() {
           </div>
         </section>
       ) : null}
+
+      <div className="detail-sticky-actions">
+        <a className="button button--primary" href={googleDirectionsUrl} target="_blank" rel="noreferrer">Маршрут</a>
+        {phoneLink ? (
+          <a className="button button--ghost" href={`tel:${phoneLink}`}>Позвонить</a>
+        ) : websiteLink ? (
+          <a className="button button--ghost" href={websiteLink} target="_blank" rel="noreferrer">Сайт</a>
+        ) : null}
+        <button className="button button--ghost" type="button" onClick={shareListing}>Поделиться</button>
+        <button className={`button button--ghost${favoriteActive ? ' is-active' : ''}`} type="button" onClick={toggleFavoriteState}>
+          {favoriteActive ? '♥' : '♡'}
+        </button>
+      </div>
     </div>
   );
 }

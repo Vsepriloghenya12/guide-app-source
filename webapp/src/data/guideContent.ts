@@ -203,6 +203,21 @@ function normalizeStore(parsed: Partial<GuideContentStore>): GuideContentStore {
       tipIds: parsed.home?.tipIds ?? rawDefaults.home.tipIds,
       bannerIds: parsed.home?.bannerIds ?? rawDefaults.home.bannerIds,
       collectionIds: parsed.home?.collectionIds ?? rawDefaults.home.collectionIds,
+      logoMedia: parsed.home?.logoMedia?.src
+        ? {
+            type: parsed.home.logoMedia.type === 'video' ? 'video' : 'image',
+            src: parsed.home.logoMedia.src,
+            posterSrc: parsed.home.logoMedia.posterSrc || '',
+            alt: parsed.home.logoMedia.alt || ''
+          }
+        : rawDefaults.home?.logoMedia?.src
+          ? {
+              type: rawDefaults.home.logoMedia.type === 'video' ? 'video' : 'image',
+              src: rawDefaults.home.logoMedia.src,
+              posterSrc: rawDefaults.home.logoMedia.posterSrc || '',
+              alt: rawDefaults.home.logoMedia.alt || ''
+            }
+          : undefined,
       sectionTitles: {
         popular: parsed.home?.sectionTitles?.popular ?? rawDefaults.home.sectionTitles.popular,
         categories: parsed.home?.sectionTitles?.categories ?? rawDefaults.home.sectionTitles.categories,
