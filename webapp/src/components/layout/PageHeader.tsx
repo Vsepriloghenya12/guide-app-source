@@ -18,26 +18,28 @@ export function PageHeader({
   badgeLabel = 'Guide'
 }: PageHeaderProps) {
   return (
-    <header className="page-header card card--blur">
-      <div className="page-header__top">
+    <header className="page-header travel-header">
+      <div className="travel-header__bar">
         {showBack ? (
-          <Link className="chip-link" to="/">
-            ← Назад
+          <Link className="travel-header__icon" to="/" aria-label="Назад на главную">
+            ←
           </Link>
         ) : (
-          <span className="chip-link chip-link--ghost">{badgeLabel}</span>
+          <span className="travel-header__badge">{badgeLabel}</span>
         )}
 
+        <div className="travel-header__titles">
+          <h1>{title}</h1>
+          {subtitle ? <p>{subtitle}</p> : null}
+        </div>
+
         {actionLabel && actionPath ? (
-          <Link className="chip-link" to={actionPath}>
+          <Link className="travel-header__action" to={actionPath}>
             {actionLabel}
           </Link>
-        ) : null}
-      </div>
-
-      <div className="page-header__content">
-        <h1>{title}</h1>
-        {subtitle ? <p>{subtitle}</p> : null}
+        ) : (
+          <span className="travel-header__spacer" aria-hidden="true" />
+        )}
       </div>
     </header>
   );

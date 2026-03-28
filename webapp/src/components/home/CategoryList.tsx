@@ -10,20 +10,21 @@ type CategoryListProps = {
 
 export function CategoryList({ categories, title }: CategoryListProps) {
   return (
-    <section className="category-section category-section--all">
-      <div className="section-heading section-heading--poster">
+    <section id="all-categories" className="category-section category-section--all travel-directory">
+      <div className="travel-section-header travel-section-header--directory">
         <div>
-          <span className="eyebrow">Навигация</span>
+          <span className="travel-directory__eyebrow">Навигация</span>
           <h2>{title}</h2>
         </div>
+        <span className="travel-directory__meta">{categories.length} разделов</span>
       </div>
 
-      <div className="category-list category-list--plain" role="list">
+      <div className="travel-directory-grid" role="list">
         {categories.map((category) => (
           <Link
             key={category.id}
             to={category.path}
-            className="category-list__row"
+            className="travel-directory-card"
             role="listitem"
             onClick={() =>
               recordGuideAnalytics({
@@ -35,22 +36,20 @@ export function CategoryList({ categories, title }: CategoryListProps) {
               })
             }
           >
-            <div className="category-list__row-main">
-              {category.imageSrc ? (
-                <span className="category-list__thumb" style={{ backgroundImage: `url(${category.imageSrc})` }} aria-hidden="true" />
-              ) : (
-                <CategoryIcon categoryId={category.id} size="md" className="category-list__row-icon" />
-              )}
-              <div className="category-list__row-text">
-                <strong>{category.title}</strong>
-                {category.description ? <span>{category.description}</span> : null}
-              </div>
-            </div>
+            <span
+              className="travel-directory-card__thumb"
+              style={category.imageSrc ? { backgroundImage: `url(${category.imageSrc})` } : undefined}
+              aria-hidden="true"
+            >
+              {!category.imageSrc ? <CategoryIcon categoryId={category.id} size="lg" className="travel-directory-card__icon" /> : null}
+            </span>
 
-            <div className="category-list__row-side">
-              {category.badge ? <span className="category-list__badge category-list__badge--inline">{category.badge}</span> : null}
-              <span className="category-list__row-arrow" aria-hidden="true">›</span>
-            </div>
+            <span className="travel-directory-card__body">
+              <strong>{category.shortTitle || category.title}</strong>
+              <span>{category.description || 'Открой подборку мест и полезной информации по разделу.'}</span>
+            </span>
+
+            <span className="travel-directory-card__arrow" aria-hidden="true">›</span>
           </Link>
         ))}
       </div>
