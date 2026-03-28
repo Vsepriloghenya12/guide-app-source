@@ -1,32 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Russo+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito+Sans:wght@700;800;900&display=swap');
 
 :root {
-  color-scheme: dark;
-  --bg: #050a11;
-  --bg-soft: #0b1118;
-  --surface: rgba(10, 16, 24, 0.3);
-  --surface-solid: #0d1520;
-  --surface-strong: #122031;
-  --surface-light: rgba(255, 255, 255, 0.06);
-  --line: rgba(255, 255, 255, 0.08);
-  --line-strong: rgba(255, 255, 255, 0.14);
-  --text: #fff8ea;
-  --text-soft: rgba(255, 246, 228, 0.82);
-  --text-muted: rgba(255, 244, 224, 0.58);
-  --accent: #f2b35d;
-  --accent-strong: #ffd07a;
-  --accent-violet: #ff7f59;
-  --success: #8cd4a6;
-  --warning: #ffd27a;
-  --shadow-lg: 0 26px 54px rgba(0, 0, 0, 0.34);
-  --shadow-md: 0 16px 34px rgba(0, 0, 0, 0.24);
-  --radius-xl: 28px;
-  --radius-lg: 22px;
-  --radius-md: 16px;
-  --radius-sm: 12px;
+  color-scheme: light;
+  --bg: #dfe6ef;
+  --bg-soft: #edf2f8;
+  --surface: rgba(255, 255, 255, 0.88);
+  --surface-solid: #ffffff;
+  --surface-strong: #eff4fa;
+  --surface-light: rgba(255, 255, 255, 0.74);
+  --line: rgba(26, 48, 74, 0.1);
+  --line-strong: rgba(26, 48, 74, 0.18);
+  --text: #172235;
+  --text-soft: rgba(23, 34, 53, 0.8);
+  --text-muted: rgba(23, 34, 53, 0.56);
+  --accent: #2d84eb;
+  --accent-strong: #ffb93f;
+  --accent-violet: #f5697d;
+  --success: #32b37d;
+  --warning: #ffbb52;
+  --shadow-lg: 0 30px 80px rgba(36, 58, 91, 0.16);
+  --shadow-md: 0 18px 40px rgba(36, 58, 91, 0.12);
+  --radius-xl: 32px;
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 14px;
   --container: 1180px;
   --nav-height: 92px;
-  --heading-font: 'Russo One', 'Arial Black', Impact, sans-serif;
+  --heading-font: 'Nunito Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
   --body-font: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -44,7 +44,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   font-family: var(--body-font);
-  background: linear-gradient(180deg, #060910 0%, #04070c 100%);
+  background: linear-gradient(180deg, #dce5f0 0%, #eef3f8 32%, #edf1f6 100%);
   color: var(--text);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -61,7 +61,8 @@ textarea {
   font: inherit;
 }
 
-img {
+img,
+video {
   display: block;
   max-width: 100%;
 }

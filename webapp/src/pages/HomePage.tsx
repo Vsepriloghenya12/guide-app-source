@@ -34,7 +34,7 @@ export function HomePage() {
     .filter((collection): collection is GuideCollection => Boolean(collection));
 
   return (
-    <div className="page-stack home-page home-page--poster">
+    <div className="page-stack home-page reference-home-page">
       {loading ? <div className="panel page-loader">Загружаю главную страницу…</div> : null}
       {error ? (
         <div className="panel empty-state empty-state--left">
@@ -43,18 +43,15 @@ export function HomePage() {
         </div>
       ) : null}
 
-      <section className="home-stage" aria-label="Главный экран Guide">
-        <HomeHero banners={activeBanners} logoMedia={home.logoMedia} />
-        <FeatureGrid
-          popularPlaces={popularPlaces}
-          featuredCategories={featuredCategories}
-          tips={visibleTips}
-          collections={activeCollections}
-          upcomingEvents={upcomingEvents}
-          sectionTitles={home.sectionTitles}
-        />
-      </section>
-
+      <HomeHero banners={activeBanners} logoMedia={home.logoMedia} />
+      <FeatureGrid
+        popularPlaces={popularPlaces}
+        featuredCategories={featuredCategories}
+        tips={visibleTips}
+        collections={activeCollections}
+        upcomingEvents={upcomingEvents}
+        sectionTitles={home.sectionTitles}
+      />
       <CategoryList categories={activeCategories} title={home.sectionTitles.allCategories} />
     </div>
   );

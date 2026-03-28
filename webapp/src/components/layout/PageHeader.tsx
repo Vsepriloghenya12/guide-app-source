@@ -15,30 +15,32 @@ export function PageHeader({
   showBack = false,
   actionLabel,
   actionPath,
-  badgeLabel = 'Guide'
+  badgeLabel = 'Danang Guide'
 }: PageHeaderProps) {
   return (
-    <header className="page-header travel-header">
-      <div className="travel-header__bar">
+    <header className="page-header reference-header">
+      <div className="reference-header__bar">
         {showBack ? (
-          <Link className="travel-header__icon" to="/" aria-label="Назад на главную">
-            ←
+          <Link className="reference-header__nav reference-header__nav--back" to="/" aria-label="Назад на главную">
+            ‹
           </Link>
         ) : (
-          <span className="travel-header__badge">{badgeLabel}</span>
+          <span className="reference-header__brand">{badgeLabel}</span>
         )}
 
-        <div className="travel-header__titles">
+        <div className="reference-header__titles">
           <h1>{title}</h1>
           {subtitle ? <p>{subtitle}</p> : null}
         </div>
 
         {actionLabel && actionPath ? (
-          <Link className="travel-header__action" to={actionPath}>
+          <Link className="reference-header__nav reference-header__nav--action" to={actionPath}>
             {actionLabel}
           </Link>
         ) : (
-          <span className="travel-header__spacer" aria-hidden="true" />
+          <span className="reference-header__nav reference-header__nav--ghost" aria-hidden="true">
+            •••
+          </span>
         )}
       </div>
     </header>

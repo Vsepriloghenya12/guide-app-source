@@ -43,10 +43,11 @@ export function SearchPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   const searchableListings = useMemo(
-    () => places.filter((place) => place.status === 'published').map((place) => ({
-      ...place,
-      category: categories.find((category) => category.id === place.categoryId)
-    })),
+    () =>
+      places.filter((place) => place.status === 'published').map((place) => ({
+        ...place,
+        category: categories.find((category) => category.id === place.categoryId)
+      })),
     [places, categories]
   );
 
@@ -67,60 +68,44 @@ export function SearchPage() {
   const normalizedQuery = normalizeText(query.trim());
 
   const results = useMemo(() => {
-    return sortPlacesByPriority(searchableListings.filter(({ category, ...place }) => {
-      if (categoryFilter !== 'all' && place.categoryId !== categoryFilter) {
-        return false;
-      }
+    return sortPlacesByPriority(
+      searchableListings.filter(({ category, ...place }) => {
+        if (categoryFilter !== 'all' && place.categoryId !== categoryFilter) {
+          return false;
+        }
 
-      if (!normalizedQuery) {
-        return true;
-      }
+        if (!normalizedQuery) {
+          return true;
+        }
 
-      return createSearchText(place, category).includes(normalizedQuery);
-    }));
+        return createSearchText(place, category).includes(normalizedQuery);
+      })
+    );
   }, [searchableListings, categoryFilter, normalizedQuery]);
 
   const hasQuery = normalizedQuery.length > 0 || categoryFilter !== 'all';
 
   return (
-    <div className="page-stack">
-      <PageHeader
-        title="Глобальный поиск"
-        subtitle="Ищи по названиям, кухням, услугам, тегам и категориям."
-        showBack
-      />
+    <div className="page-stack reference-page reference-page--search">
+      <PageHeader title="Search" subtitle="Find places, food, routes and tips" showBack />
 
-      <section className="panel search-panel">
-        <div className="detail-actions detail-actions--wrap">
-          <Link className="button button--ghost button--small" to="/nearby">Рядом со мной</Link>
-          {(query || categoryFilter !== 'all') ? (
-            <button
-              className="button button--ghost button--small"
-              type="button"
-              onClick={() => {
-                setQuery('');
-                setCategoryFilter('all');
-              }}
-            >
-              Сбросить
-            </button>
-          ) : null}
-        </div>
-
-        <div className="search-panel__grid">
-          <label className="field field--grow">
-            <span>Что ищем</span>
+      <section className="reference-search-panel panel">
+        <div className="reference-search-panel__row reference-search-panel__row--input">
+          <label className="reference-search-input">
+            <span className="reference-search-input__icon" aria-hidden="true">
+              ⌕
+            </span>
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Например: breakfast, spa, rooftop, kids"
+              placeholder="Search for places…"
             />
           </label>
 
-          <label className="field field--grow">
-            <span>Категория</span>
+          <label className="reference-select-field">
+            <span>Category</span>
             <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
-              <option value="all">Все категории</option>
+              <option value="all">All categories</option>
               {categories
                 .filter((category) => category.visible)
                 .map((category) => (
@@ -132,12 +117,33 @@ export function SearchPage() {
           </label>
         </div>
 
-        <div className="search-panel__chips">
+        <div className="reference-search-panel__row reference-search-panel__row--chips">
           {quickTags.map((tag) => (
-            <button key={tag} type="button" className="chip chip--action" onClick={() => setQuery(tag)}>
+            <button key={tag} type="button" className="reference-chip" onClick={() => setQuery(tag)}>
               {tag}
             </button>
           ))}
+        </div>
+
+        <div className="reference-search-panel__row reference-search-panel__row--actions">
+          <strong>{hasQuery ? `${results.length} results` : `${searchableListings.length} places`}</strong>
+          <div className="reference-inline-actions">
+            <Link className="reference-link-pill" to="/nearby">
+              Map view
+            </Link>
+            {(query || categoryFilter !== 'all') ? (
+              <button
+                className="reference-link-pill reference-link-pill--ghost"
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  setCategoryFilter('all');
+                }}
+              >
+                Reset
+              </button>
+            ) : null}
+          </div>
         </div>
       </section>
 
@@ -149,15 +155,8 @@ export function SearchPage() {
         </div>
       ) : null}
 
-      {!loading ? (
-        <div className="section-headline section-headline--muted">
-          <strong>{hasQuery ? `Найдено: ${results.length}` : `Доступно мест: ${searchableListings.length}`}</strong>
-          {categoryFilter !== 'all' ? <span>Фильтр по категории включён</span> : null}
-        </div>
-      ) : null}
-
       {!loading && results.length > 0 ? (
-        <section className="listing-grid">
+        <section className="listing-grid listing-grid--travel-list">
           {results.map(({ category, ...listing }) => (
             <ListingCard
               key={listing.id}

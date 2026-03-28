@@ -29,10 +29,8 @@ export function AppShell() {
   }, [location.pathname]);
 
   return (
-    <div className="app-shell">
-      <div className="app-gradient app-gradient-top" />
-      <div className="app-gradient app-gradient-bottom" />
-      <main className="app-main">
+    <div className="app-shell reference-shell">
+      <main className="app-main reference-main">
         <Outlet />
       </main>
       <PwaUpdatePrompt />
