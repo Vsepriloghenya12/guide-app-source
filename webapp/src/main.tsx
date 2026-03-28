@@ -6,6 +6,7 @@ import { BootGate } from './boot/BootGate';
 import { SecretThemeProvider } from './secretTheme/SecretThemeProvider';
 import './styles/theme.css';
 import './styles/app.css';
+import './styles/reference-rebuild.css';
 import { applyStandaloneModeClass, registerServiceWorker } from './pwa/registerServiceWorker';
 
 applyStandaloneModeClass();

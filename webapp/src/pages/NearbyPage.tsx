@@ -18,24 +18,23 @@ import {
 import type { GuideCategoryId } from '../types';
 
 const nearbyCategoryOptions: Array<{ value: 'all' | GuideCategoryId; label: string }> = [
-  { value: 'all', label: 'Все разделы' },
-  { value: 'restaurants', label: 'Рестораны' },
-  { value: 'wellness', label: 'СПА' },
-  { value: 'routes', label: 'Маршруты' },
-  { value: 'transport', label: 'Транспорт' },
-  { value: 'atm', label: 'Банкоматы' },
-  { value: 'culture', label: 'Культура' },
-  { value: 'photo-spots', label: 'Фото-споты' }
+  { value: 'all', label: 'All categories' },
+  { value: 'restaurants', label: 'Food & Drink' },
+  { value: 'wellness', label: 'Wellness' },
+  { value: 'routes', label: 'Routes' },
+  { value: 'transport', label: 'Transport' },
+  { value: 'culture', label: 'Attractions' },
+  { value: 'photo-spots', label: 'Photo spots' }
 ];
 
 export function NearbyPage() {
   usePageMeta({
-    title: 'Рядом',
-    description: 'Ближайшие места, сортировка по расстоянию, радиусу и категориям с быстрыми маршрутами.'
+    title: 'Map View',
+    description: 'Places near you sorted by distance.'
   });
   const { isFavorite, toggleFavorite } = useFavorites();
   const { places, categories, loading, error } = useGuideContent();
-  const { location: userLocation, state: geoState, message: geoMessage, requestLocation, clearLocation, updatedAtLabel } = useUserLocation();
+  const { location: userLocation, state: geoState, message: geoMessage, requestLocation, clearLocation } = useUserLocation();
   const [radiusKm, setRadiusKm] = useState(5);
   const [categoryFilter, setCategoryFilter] = useState<'all' | GuideCategoryId>('all');
 
@@ -69,17 +68,12 @@ export function NearbyPage() {
   const closestPlaces = nearbyListings.filter((place) => place.distanceKm !== null).slice(0, 3);
 
   return (
-    <div className="page-stack reference-page reference-page--nearby">
-      <PageHeader title="Map View" subtitle="Places near you, sorted by distance" showBack />
+    <div className="page-stack travel-page travel-page--nearby">
+      <PageHeader title="Map View" subtitle="Places near you" showBack />
 
-      <section className="reference-nearby-hero panel">
-        <div className="reference-nearby-hero__copy">
-          <strong>{geoMessage}</strong>
-          <span>{updatedAtLabel ? `Обновлено: ${updatedAtLabel}` : 'Разреши геопозицию, чтобы показать ближайшие места.'}</span>
-        </div>
-
-        <div className="reference-nearby-hero__controls">
-          <label className="reference-select-field">
+      <section className="travel-search-panel travel-search-panel--map">
+        <div className="travel-filter-row">
+          <label className="travel-select">
             <span>Category</span>
             <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value as 'all' | GuideCategoryId)}>
               {nearbyCategoryOptions.map((option) => (
@@ -90,60 +84,63 @@ export function NearbyPage() {
             </select>
           </label>
 
-          <label className="reference-select-field">
+          <label className="travel-select">
             <span>Radius</span>
             <select value={radiusKm} onChange={(event) => setRadiusKm(Number(event.target.value))}>
-              <option value={2}>до 2 км</option>
-              <option value={5}>до 5 км</option>
-              <option value={10}>до 10 км</option>
-              <option value={25}>до 25 км</option>
+              <option value={2}>2 km</option>
+              <option value={5}>5 km</option>
+              <option value={10}>10 km</option>
+              <option value={25}>25 km</option>
             </select>
           </label>
         </div>
 
-        <div className="reference-inline-actions">
-          <button className="reference-link-pill" type="button" onClick={requestLocation} disabled={geoState === 'loading'}>
-            {geoState === 'loading' ? 'Определяю…' : userLocation ? 'Обновить' : 'Включить гео'}
+        <div className="travel-inline-actions">
+          <button className="travel-primary-button" type="button" onClick={requestLocation} disabled={geoState === 'loading'}>
+            {geoState === 'loading' ? 'Locating...' : userLocation ? 'Update location' : 'Enable location'}
           </button>
-          <Link className="reference-link-pill reference-link-pill--ghost" to="/search">
-            Search
-          </Link>
           {userLocation ? (
-            <button className="reference-link-pill reference-link-pill--ghost" type="button" onClick={clearLocation}>
-              Очистить
+            <button className="travel-secondary-button" type="button" onClick={clearLocation}>
+              Clear
             </button>
           ) : null}
+        </div>
+
+        <p className="travel-helper-text">{geoMessage}</p>
+      </section>
+
+      <section className="travel-map-card">
+        <div className="travel-map-card__canvas" />
+        <div className="travel-map-card__overlay">
+          <Link className="travel-primary-button" to="/search">
+            Open Search
+          </Link>
         </div>
       </section>
 
       {closestPlaces.length > 0 ? (
-        <section className="reference-mini-cards">
+        <section className="travel-inline-places">
           {closestPlaces.map((place) => (
             <a
               key={`mini-${place.id}`}
-              className="reference-mini-place"
+              className="travel-inline-place"
               href={createGoogleDirectionsUrl(toListingLike(place), userLocation)}
               target="_blank"
               rel="noreferrer"
             >
               <strong>{place.title}</strong>
               <span>{formatDistance(place.distanceKm)}</span>
-              <small>{estimateTravelTime(place.distanceKm)} на машине</small>
+              <small>{estimateTravelTime(place.distanceKm)} drive</small>
             </a>
           ))}
         </section>
       ) : null}
 
-      {loading ? <div className="panel page-loader">Загружаю места…</div> : null}
-      {error ? (
-        <div className="panel empty-state empty-state--left">
-          <strong>Не удалось загрузить раздел</strong>
-          <p>{error}</p>
-        </div>
-      ) : null}
+      {loading ? <div className="travel-state-card">Loading places...</div> : null}
+      {error ? <div className="travel-state-card">{error}</div> : null}
 
       {!loading && nearbyListings.length > 0 ? (
-        <section className="listing-grid listing-grid--travel-list">
+        <section className="travel-listing-stack">
           {nearbyListings.map(({ category, ...listing }) => (
             <ListingCard
               key={listing.id}
@@ -157,14 +154,9 @@ export function NearbyPage() {
       ) : null}
 
       {!loading && nearbyListings.length === 0 ? (
-        <div className="panel empty-state empty-state--left">
-          <strong>Пока рядом ничего не найдено</strong>
-          <p>Попробуй изменить радиус, открыть все места в поиске или включить геолокацию.</p>
-          <div className="reference-inline-actions">
-            <Link className="reference-link-pill reference-link-pill--ghost" to="/search">
-              Открыть все места
-            </Link>
-          </div>
+        <div className="travel-state-card">
+          <strong>No places found nearby</strong>
+          <p>Try a wider radius or choose another category.</p>
         </div>
       ) : null}
     </div>

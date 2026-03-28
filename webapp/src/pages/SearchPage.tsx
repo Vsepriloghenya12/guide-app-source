@@ -34,8 +34,8 @@ function createSearchText(place: GuidePlace, category?: GuideCategory) {
 
 export function SearchPage() {
   usePageMeta({
-    title: 'Поиск',
-    description: 'Поиск по категориям, тегам, услугам и названиям мест в городе.'
+    title: 'Search',
+    description: 'Find places, beaches, food and tips around Da Nang.'
   });
   const { isFavorite, toggleFavorite } = useFavorites();
   const { places, categories, loading, error } = useGuideContent();
@@ -86,23 +86,17 @@ export function SearchPage() {
   const hasQuery = normalizedQuery.length > 0 || categoryFilter !== 'all';
 
   return (
-    <div className="page-stack reference-page reference-page--search">
-      <PageHeader title="Search" subtitle="Find places, food, routes and tips" showBack />
+    <div className="page-stack travel-page travel-page--search">
+      <PageHeader title="Top Attractions" subtitle={hasQuery ? `${results.length} results` : 'Search places, food, routes and tips'} showBack />
 
-      <section className="reference-search-panel panel">
-        <div className="reference-search-panel__row reference-search-panel__row--input">
-          <label className="reference-search-input">
-            <span className="reference-search-input__icon" aria-hidden="true">
-              ⌕
-            </span>
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search for places…"
-            />
-          </label>
+      <section className="travel-search-panel">
+        <label className="travel-search-input travel-search-input--page">
+          <span className="travel-search-input__icon" aria-hidden="true">⌕</span>
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search for places..." />
+        </label>
 
-          <label className="reference-select-field">
+        <div className="travel-filter-row">
+          <label className="travel-select">
             <span>Category</span>
             <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
               <option value="all">All categories</option>
@@ -110,53 +104,31 @@ export function SearchPage() {
                 .filter((category) => category.visible)
                 .map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.title}
+                    {category.shortTitle || category.title}
                   </option>
                 ))}
             </select>
           </label>
+
+          <Link className="travel-secondary-button" to="/nearby">
+            Map View
+          </Link>
         </div>
 
-        <div className="reference-search-panel__row reference-search-panel__row--chips">
+        <div className="travel-chip-row">
           {quickTags.map((tag) => (
-            <button key={tag} type="button" className="reference-chip" onClick={() => setQuery(tag)}>
+            <button key={tag} type="button" className="travel-chip" onClick={() => setQuery(tag)}>
               {tag}
             </button>
           ))}
         </div>
-
-        <div className="reference-search-panel__row reference-search-panel__row--actions">
-          <strong>{hasQuery ? `${results.length} results` : `${searchableListings.length} places`}</strong>
-          <div className="reference-inline-actions">
-            <Link className="reference-link-pill" to="/nearby">
-              Map view
-            </Link>
-            {(query || categoryFilter !== 'all') ? (
-              <button
-                className="reference-link-pill reference-link-pill--ghost"
-                type="button"
-                onClick={() => {
-                  setQuery('');
-                  setCategoryFilter('all');
-                }}
-              >
-                Reset
-              </button>
-            ) : null}
-          </div>
-        </div>
       </section>
 
-      {loading ? <div className="panel page-loader">Обновляю базу мест…</div> : null}
-      {error ? (
-        <div className="panel empty-state empty-state--left">
-          <strong>Не удалось загрузить поиск</strong>
-          <p>{error}</p>
-        </div>
-      ) : null}
+      {loading ? <div className="travel-state-card">Updating places...</div> : null}
+      {error ? <div className="travel-state-card">{error}</div> : null}
 
       {!loading && results.length > 0 ? (
-        <section className="listing-grid listing-grid--travel-list">
+        <section className="travel-listing-stack">
           {results.map(({ category, ...listing }) => (
             <ListingCard
               key={listing.id}
@@ -170,12 +142,12 @@ export function SearchPage() {
       ) : null}
 
       {!loading && results.length === 0 ? (
-        <div className="panel empty-state">
-          <strong>{hasQuery ? 'Совпадений не нашли' : 'Начни с подсказки или запроса'}</strong>
+        <div className="travel-state-card">
+          <strong>{hasQuery ? 'No matches found' : 'Start with search or quick tags'}</strong>
           <p>
             {hasQuery
-              ? 'Попробуй убрать часть запроса, сменить категорию или выбрать одну из популярных подсказок выше.'
-              : 'Поиск работает по названиям, описаниям, тегам, услугам и кухням.'}
+              ? 'Try a shorter query, switch category or use one of the popular tags above.'
+              : 'Search works by titles, tags, services, cuisine and descriptions.'}
           </p>
         </div>
       ) : null}

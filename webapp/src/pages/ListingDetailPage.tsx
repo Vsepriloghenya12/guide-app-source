@@ -1,125 +1,36 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../api/client';
-import { ListingCard } from '../components/listing/ListingCard';
 import { PageHeader } from '../components/layout/PageHeader';
+import { ListingCard } from '../components/listing/ListingCard';
 import { useFavorites } from '../hooks/useFavorites';
-import { useUserLocation } from '../hooks/useUserLocation';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { recordGuideAnalytics } from '../utils/analytics';
 import {
-  create2GisDirectionsUrl,
-  create2GisUrl,
-  createAppleDirectionsUrl,
-  createAppleMapsUrl,
   createGoogleDirectionsUrl,
   createGoogleMapsUrl,
-  estimateTravelTime,
   formatDistance,
   hasCoordinates,
   haversineDistanceKm,
   sortPlacesByPriority
 } from '../utils/places';
 import type { Category, Listing } from '../types';
-
-function padDatePart(value: number) {
-  return String(value).padStart(2, '0');
-}
-
-function toCalendarUtc(value: Date) {
-  return `${value.getUTCFullYear()}${padDatePart(value.getUTCMonth() + 1)}${padDatePart(value.getUTCDate())}T${padDatePart(value.getUTCHours())}${padDatePart(value.getUTCMinutes())}${padDatePart(value.getUTCSeconds())}Z`;
-}
-
-function parseEventDateRange(value: string) {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return null;
-  }
-
-  const normalized = trimmed.replace(' ', 'T');
-  const start = new Date(normalized);
-  if (Number.isNaN(start.getTime())) {
-    return null;
-  }
-
-  const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
-  return { start, end };
-}
-
-function formatEventDateLabel(value: string) {
-  const parsed = parseEventDateRange(value);
-  if (!parsed) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat('ru-RU', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'long',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(parsed.start);
-}
-
-function createGoogleCalendarLink(listing: Listing) {
-  const parsed = parseEventDateRange(listing.hours || '');
-  if (!parsed) {
-    return '';
-  }
-
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: listing.title,
-    details: listing.description || listing.shortDescription || '',
-    location: listing.address || listing.mapQuery || listing.title,
-    dates: `${toCalendarUtc(parsed.start)}/${toCalendarUtc(parsed.end)}`
-  });
-
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
-
-function detailPathFromSlug(slug: string) {
-  return `/place/${slug}`;
-}
-
-function createCalendarDataUrl(listing: Listing) {
-  const parsed = parseEventDateRange(listing.hours || '');
-  if (!parsed) {
-    return '';
-  }
-
-  const ics = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Danang Guide//Afisha//RU',
-    'BEGIN:VEVENT',
-    `UID:${listing.id}@danangguide.app`,
-    `DTSTAMP:${toCalendarUtc(new Date())}`,
-    `DTSTART:${toCalendarUtc(parsed.start)}`,
-    `DTEND:${toCalendarUtc(parsed.end)}`,
-    `SUMMARY:${listing.title}`,
-    `DESCRIPTION:${(listing.description || '').replace(/\n/g, ' ')}`,
-    `LOCATION:${(listing.address || listing.mapQuery || '').replace(/\n/g, ' ')}`,
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\r\n');
-
-  return `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
-}
+import { useUserLocation } from '../hooks/useUserLocation';
 
 export function ListingDetailPage() {
   const { slug = '' } = useParams();
   const { isFavorite, toggleFavorite } = useFavorites();
-  const { location: userLocation, state: geoState, requestLocation } = useUserLocation();
+  const { location: userLocation } = useUserLocation();
   const [listing, setListing] = useState<Listing | null>(null);
   const [similar, setSimilar] = useState<Listing[]>([]);
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
-  usePageMeta({
-    title: listing?.title || 'Карточка места',
-    description: listing?.shortDescription || listing?.description || 'Подробная карточка места с фото, контактами, похожими местами и быстрыми маршрутами.'
-  });
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  usePageMeta({
+    title: listing?.title || 'Place details',
+    description: listing?.shortDescription || listing?.description || 'Detailed place card.'
+  });
 
   useEffect(() => {
     let active = true;
@@ -147,17 +58,6 @@ export function ListingDetailPage() {
   );
   const activeImage = gallery[activeImageIndex] || gallery[0] || '/danang-clean-poster.png';
 
-  const mapUrl = useMemo(() => (listing ? createGoogleMapsUrl(listing) : '#'), [listing]);
-  const appleMapsUrl = useMemo(() => (listing ? createAppleMapsUrl(listing) : '#'), [listing]);
-  const gisUrl = useMemo(() => (listing ? create2GisUrl(listing) : '#'), [listing]);
-  const googleDirectionsUrl = useMemo(() => (listing ? createGoogleDirectionsUrl(listing, userLocation) : '#'), [listing, userLocation]);
-  const appleDirectionsUrl = useMemo(() => (listing ? createAppleDirectionsUrl(listing, userLocation) : '#'), [listing, userLocation]);
-  const gisDirectionsUrl = useMemo(() => (listing ? create2GisDirectionsUrl(listing, userLocation) : '#'), [listing, userLocation]);
-  const embedUrl = useMemo(() => {
-    if (!listing) return '';
-    return `https://www.google.com/maps?q=${encodeURIComponent(listing.mapQuery || listing.address || listing.title)}&output=embed`;
-  }, [listing]);
-
   const distanceKm = useMemo(() => {
     if (!listing || !userLocation || !hasCoordinates(listing)) {
       return null;
@@ -166,281 +66,172 @@ export function ListingDetailPage() {
     return haversineDistanceKm(userLocation, { lat: listing.lat!, lng: listing.lng! });
   }, [listing, userLocation]);
 
-  const isEvent = category?.id === 'events';
-  const eventDateLabel = useMemo(() => (listing && isEvent ? formatEventDateLabel(listing.hours || '') : ''), [isEvent, listing]);
-  const googleCalendarUrl = useMemo(() => (listing && isEvent ? createGoogleCalendarLink(listing) : ''), [isEvent, listing]);
-  const calendarDataUrl = useMemo(() => (listing && isEvent ? createCalendarDataUrl(listing) : ''), [isEvent, listing]);
-
   if (loading) {
-    return <div className="panel page-loader">Загружаю карточку места…</div>;
+    return <div className="travel-state-card">Loading place...</div>;
   }
 
   if (!listing || !category) {
     return (
-      <div className="page-stack">
-        <PageHeader title="Место не найдено" subtitle="Похоже, карточка скрыта или была удалена." showBack />
+      <div className="page-stack travel-page">
+        <PageHeader title="Place not found" subtitle="This card may be hidden or removed." showBack />
       </div>
     );
   }
 
-  const favoriteActive = isFavorite(listing.slug);
-  const categoryPath = category.id === 'restaurants' ? '/restaurants' : category.id === 'wellness' ? '/wellness' : `/section/${category.slug}`;
-  const phoneLink = listing.phoneNumber || listing.phone;
+  const detailPath = category.id === 'restaurants' ? '/restaurants' : category.id === 'wellness' ? '/wellness' : category.path;
+  const routeUrl = createGoogleDirectionsUrl(listing, userLocation);
+  const mapUrl = createGoogleMapsUrl(listing);
   const websiteLink = listing.websiteUrl || listing.website;
-
-  const toggleFavoriteState = () => {
-    toggleFavorite(listing.slug);
-  };
+  const phoneLink = listing.phoneNumber || listing.phone;
+  const favoriteActive = isFavorite(listing.slug);
+  const quickTags = [listing.listingType, listing.cuisine, ...(listing.services || []), ...(listing.tags || [])].filter(Boolean).slice(0, 4);
 
   const shareListing = async () => {
-    const url = typeof window !== 'undefined' ? window.location.href : detailPathFromSlug(listing.slug);
-    const payload = {
-      title: listing.title,
-      text: listing.shortDescription || listing.description || listing.title,
-      url
-    };
-
+    const url = typeof window !== 'undefined' ? window.location.href : `/place/${listing.slug}`;
     try {
       if (typeof navigator !== 'undefined' && 'share' in navigator) {
-        await navigator.share(payload);
+        await navigator.share({ title: listing.title, text: listing.shortDescription || listing.title, url });
         return;
       }
 
-      const clipboard = typeof window !== 'undefined' ? window.navigator.clipboard : undefined;
-      if (clipboard) {
-        await clipboard.writeText(url);
+      if (typeof window !== 'undefined' && window.navigator?.clipboard) {
+        await window.navigator.clipboard.writeText(url);
       }
-    } catch (_error) {
-      // ignore aborted share
+    } catch {
+      // ignore
     }
   };
 
   return (
-    <div className="page-stack detail-page">
-      <PageHeader
-        title={listing.title}
-        subtitle={listing.shortDescription}
-        showBack
-        actionLabel={category.shortTitle}
-        actionPath={categoryPath}
-      />
+    <div className="page-stack travel-page travel-page--detail">
+      <PageHeader title={listing.title} subtitle={category.shortTitle || category.title} showBack actionLabel="•••" actionPath={detailPath} />
 
-      <section className="detail-hero panel">
-        <div className="detail-hero__media">
-          <div className="detail-hero__image-wrap">
-            <img className="detail-hero__image" src={activeImage} alt={listing.title} loading="lazy" decoding="async" />
-            <div className="detail-hero__overlay">
-              <span className="rating-pill">★ {listing.rating.toFixed(1)}</span>
-              {listing.featured ? <span className="chip">Топ</span> : null}
-              {listing.priceLabel ? <span className="chip">{listing.priceLabel}</span> : null}
-              {distanceKm !== null ? <span className="chip chip--soft">{formatDistance(distanceKm)}</span> : null}
-            </div>
+      <section className="travel-detail-card">
+        <div className="travel-detail-card__media">
+          <img src={activeImage} alt={listing.title} loading="lazy" decoding="async" />
+          <div className="travel-detail-card__rating">
+            <strong>{listing.rating.toFixed(1)}</strong>
+            <span>★★★★★</span>
           </div>
-
-          {gallery.length > 1 ? (
-            <div className="detail-gallery-strip">
-              {gallery.map((imageUrl, index) => (
-                <button
-                  key={`${imageUrl}-${index}`}
-                  type="button"
-                  className={`detail-gallery-strip__thumb ${index === activeImageIndex ? 'is-active' : ''}`}
-                  onClick={() => setActiveImageIndex(index)}
-                >
-                  <img src={imageUrl} alt={`${listing.title} ${index + 1}`} loading="lazy" decoding="async" />
-                </button>
-              ))}
-            </div>
-          ) : null}
         </div>
 
-        <div className="detail-hero__content">
-          <div className="detail-meta-row">
-            <span className="chip">{category.title}</span>
-            {listing.listingType ? <span className="chip chip--soft">{listing.listingType}</span> : null}
-            {listing.cuisine ? <span className="chip chip--soft">{listing.cuisine}</span> : null}
-            {listing.district ? <span className="chip chip--soft">{listing.district}</span> : null}
-          </div>
-
-          <p>{listing.description}</p>
-
-          {distanceKm !== null ? (
-            <div className="detail-distance-banner">
-              <strong>{formatDistance(distanceKm)} от тебя</strong>
-              <span>{estimateTravelTime(distanceKm, 'walk')} пешком · {estimateTravelTime(distanceKm, 'drive')} на машине</span>
-            </div>
-          ) : null}
-
-          {!userLocation ? (
-            <div className="panel panel--soft detail-location-panel">
-              <strong>Маршрут от текущей точки</strong>
-              <p>Разреши геолокацию, и карточка сразу покажет расстояние и быстрые кнопки маршрута.</p>
-              <button className="button button--primary button--small" type="button" onClick={requestLocation} disabled={geoState === 'loading'}>
-                {geoState === 'loading' ? 'Определяю…' : 'Включить геолокацию'}
+        {gallery.length > 1 ? (
+          <div className="travel-detail-thumbs">
+            {gallery.map((imageUrl, index) => (
+              <button
+                key={`${imageUrl}-${index}`}
+                type="button"
+                className={`travel-detail-thumbs__item ${index === activeImageIndex ? 'is-active' : ''}`}
+                onClick={() => setActiveImageIndex(index)}
+              >
+                <img src={imageUrl} alt="" loading="lazy" decoding="async" />
               </button>
-            </div>
-          ) : null}
+            ))}
+          </div>
+        ) : null}
 
-          <div className="detail-actions detail-actions--wrap detail-actions--primary">
-            <a className="button button--primary" href={googleDirectionsUrl} target="_blank" rel="noreferrer">Маршрут</a>
+        <div className="travel-detail-actions">
+          <a className="travel-primary-button" href={routeUrl} target="_blank" rel="noreferrer">
+            Directions
+          </a>
+          <button className={`travel-secondary-button${favoriteActive ? ' is-active' : ''}`} type="button" onClick={() => toggleFavorite(listing.slug)}>
+            {favoriteActive ? '♥ Save' : '♡ Save'}
+          </button>
+        </div>
+
+        <div className="travel-detail-section">
+          <h3>About</h3>
+          <p>{listing.description}</p>
+          <div className="travel-info-lines">
+            {distanceKm !== null ? <span>{formatDistance(distanceKm)} away</span> : null}
+            {listing.address ? <span>{listing.address}</span> : null}
+            {listing.hours ? <span>{listing.hours}</span> : null}
+          </div>
+        </div>
+
+        {quickTags.length > 0 ? (
+          <div className="travel-detail-section">
+            <h3>Things to Do</h3>
+            <div className="travel-tag-pills">
+              {quickTags.map((item) => (
+                <span key={item} className="travel-tag-pill">{item}</span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <div className="travel-detail-section">
+          <h3>Traveler Info</h3>
+          <div className="travel-detail-info-list">
+            {listing.priceLabel ? (
+              <div className="travel-detail-info-item">
+                <strong>Price</strong>
+                <span>{listing.priceLabel}</span>
+              </div>
+            ) : null}
             {phoneLink ? (
               <a
-                className="button"
+                className="travel-detail-info-item"
                 href={`tel:${phoneLink}`}
                 onClick={() =>
                   recordGuideAnalytics({
                     kind: 'phone-click',
-                    label: `${listing.title} · звонок`,
+                    label: `${listing.title} · call`,
                     path: `tel:${phoneLink}`,
                     entityId: listing.id,
                     categoryId: listing.categoryId
                   })
                 }
               >
-                Позвонить
+                <strong>Phone</strong>
+                <span>{phoneLink}</span>
               </a>
-            ) : websiteLink ? (
+            ) : null}
+            {websiteLink ? (
               <a
-                className="button button--ghost"
+                className="travel-detail-info-item"
                 href={websiteLink}
                 target="_blank"
                 rel="noreferrer"
                 onClick={() =>
                   recordGuideAnalytics({
                     kind: 'website-click',
-                    label: `${listing.title} · сайт`,
+                    label: `${listing.title} · website`,
                     path: websiteLink,
                     entityId: listing.id,
                     categoryId: listing.categoryId
                   })
                 }
               >
-                Сайт
+                <strong>Website</strong>
+                <span>Open website</span>
               </a>
             ) : null}
-            <button className="button button--ghost" type="button" onClick={shareListing}>
-              Поделиться
+            <a className="travel-detail-info-item" href={mapUrl} target="_blank" rel="noreferrer">
+              <strong>Map</strong>
+              <span>Open on Google Maps</span>
+            </a>
+            <button className="travel-detail-info-item" type="button" onClick={shareListing}>
+              <strong>Share</strong>
+              <span>Send this place</span>
             </button>
-            <button className={`button button--ghost${favoriteActive ? ' is-active' : ''}`} type="button" onClick={toggleFavoriteState}>
-              {favoriteActive ? 'В избранном' : 'В избранное'}
-            </button>
           </div>
-
-          <div className="detail-actions detail-actions--wrap detail-actions--maps">
-            <a className="button button--primary" href={googleDirectionsUrl} target="_blank" rel="noreferrer">Маршрут · Google</a>
-            <a className="button button--ghost" href={appleDirectionsUrl} target="_blank" rel="noreferrer">Apple Maps</a>
-            <a className="button button--ghost" href={gisDirectionsUrl} target="_blank" rel="noreferrer">2GIS</a>
-          </div>
-
-          <div className="detail-actions detail-actions--wrap detail-actions--maps">
-            <a className="button button--ghost" href={mapUrl} target="_blank" rel="noreferrer">Открыть точку · Google</a>
-            <a className="button button--ghost" href={appleMapsUrl} target="_blank" rel="noreferrer">Apple Maps</a>
-            <a className="button button--ghost" href={gisUrl} target="_blank" rel="noreferrer">2GIS</a>
-          </div>
-        </div>
-      </section>
-
-      {isEvent ? (
-        <section className="detail-grid detail-grid--event">
-          <article className="panel info-card">
-            <strong>Афиша</strong>
-            <ul className="info-list">
-              <li><span>Дата и время</span><strong>{eventDateLabel || listing.hours || 'Уточняется'}</strong></li>
-              <li><span>Тип события</span><strong>{listing.listingType || listing.kind || 'Событие'}</strong></li>
-              <li><span>Локация</span><strong>{listing.address || listing.district || 'Уточняется'}</strong></li>
-              <li><span>Стоимость</span><strong>{listing.priceLabel || 'Смотри описание'}</strong></li>
-            </ul>
-          </article>
-          <article className="panel info-card">
-            <strong>Добавить в календарь</strong>
-            <p>Если дата и время события указаны полностью, его можно добавить в календарь одним нажатием.</p>
-            <div className="detail-actions detail-actions--wrap">
-              {googleCalendarUrl ? <a className="button button--primary" href={googleCalendarUrl} target="_blank" rel="noreferrer">Google Calendar</a> : null}
-              {calendarDataUrl ? <a className="button button--ghost" href={calendarDataUrl} download={`${listing.slug || listing.id}.ics`}>Скачать .ics</a> : null}
-              {!googleCalendarUrl && !calendarDataUrl ? <span className="detail-helper-note">Добавление в календарь станет доступно, когда для события будут указаны дата и время.</span> : null}
-            </div>
-          </article>
-        </section>
-      ) : null}
-
-      <section className="detail-grid">
-        <article className="panel info-card">
-          <strong>Основная информация</strong>
-          <ul className="info-list">
-            <li><span>Адрес</span><strong>{listing.address || 'Уточняется'}</strong></li>
-            <li><span>Часы работы</span><strong>{listing.hours || 'Уточняется'}</strong></li>
-            <li><span>Стоимость</span><strong>{listing.priceLabel || 'Смотри описание'}</strong></li>
-            {listing.categoryId === 'hotels' ? <li><span>Звёзды</span><strong>{typeof listing.hotelStars === 'number' ? `${listing.hotelStars}★` : 'Не указано'}</strong></li> : null}
-            {listing.categoryId === 'hotels' ? <li><span>Бассейн</span><strong>{listing.hotelPool ? 'Да' : 'Нет'}</strong></li> : null}
-            {listing.categoryId === 'hotels' ? <li><span>СПА</span><strong>{listing.hotelSpa ? 'Да' : 'Нет'}</strong></li> : null}
-            <li><span>Можно с детьми</span><strong>{listing.childFriendly ? 'Да' : 'Не указано'}</strong></li>
-            <li><span>Можно с животными</span><strong>{listing.petFriendly ? 'Да' : 'Не указано'}</strong></li>
-          </ul>
-        </article>
-
-        <article className="panel info-card">
-          <strong>Особенности</strong>
-          <div className="chip-row">
-            {listing.listingType ? <span className="chip">{listing.listingType}</span> : null}
-            {listing.cuisine ? <span className="chip">{listing.cuisine}</span> : null}
-            {listing.categoryId === 'hotels' && typeof listing.hotelStars === 'number' ? <span className="chip">{listing.hotelStars}★</span> : null}
-            {listing.categoryId === 'hotels' && listing.hotelPool ? <span className="chip">Бассейн</span> : null}
-            {listing.categoryId === 'hotels' && listing.hotelSpa ? <span className="chip">СПА</span> : null}
-            {listing.services.map((service) => (
-              <span key={service} className="chip">{service}</span>
-            ))}
-            {listing.tags.map((tag) => (
-              <span key={tag} className="chip chip--soft">{tag}</span>
-            ))}
-          </div>
-          {listing.extra.length > 0 ? (
-            <div className="extra-grid">
-              {listing.extra.map((value) => (
-                <div key={value} className="extra-grid__item">
-                  <span>Дополнительно</span>
-                  <strong>{value}</strong>
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </article>
-      </section>
-
-      <section className="panel">
-        <div className="section-headline">
-          <strong>Карта</strong>
-          <a href={googleDirectionsUrl} target="_blank" rel="noreferrer">Открыть маршрут</a>
-        </div>
-        <div className="map-frame-wrap">
-          <iframe title={`Карта ${listing.title}`} src={embedUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
         </div>
       </section>
 
       {similar.length > 0 ? (
-        <section className="panel">
-          <div className="section-headline">
-            <strong>Похожие места</strong>
-            <Link to={categoryPath}>Все в разделе</Link>
+        <section className="travel-section">
+          <div className="travel-section__header">
+            <h2>More Like This</h2>
+            <Link to={detailPath}>Open category</Link>
           </div>
-          <div className="listing-grid listing-grid--compact">
-            {similar.map((item) => (
-              <ListingCard key={item.id} listing={item} accent={category.accent} isFavorite={isFavorite(item.slug)} onToggleFavorite={toggleFavorite} />
+          <div className="travel-listing-stack">
+            {similar.slice(0, 3).map((item) => (
+              <ListingCard key={item.id} listing={item} isFavorite={isFavorite(item.slug)} onToggleFavorite={toggleFavorite} />
             ))}
           </div>
         </section>
       ) : null}
-
-      <div className="detail-sticky-actions">
-        <a className="button button--primary" href={googleDirectionsUrl} target="_blank" rel="noreferrer">Маршрут</a>
-        {phoneLink ? (
-          <a className="button button--ghost" href={`tel:${phoneLink}`}>Позвонить</a>
-        ) : websiteLink ? (
-          <a className="button button--ghost" href={websiteLink} target="_blank" rel="noreferrer">Сайт</a>
-        ) : null}
-        <button className="button button--ghost" type="button" onClick={shareListing}>Поделиться</button>
-        <button className={`button button--ghost${favoriteActive ? ' is-active' : ''}`} type="button" onClick={toggleFavoriteState}>
-          {favoriteActive ? '♥' : '♡'}
-        </button>
-      </div>
     </div>
   );
 }

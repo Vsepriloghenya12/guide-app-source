@@ -12,31 +12,34 @@ export function HomeHero({ banners, logoMedia }: HomeHeroProps) {
   const heroImage = primaryBanner?.imageSrc || '/danang-clean-poster.png';
 
   return (
-    <section className="reference-hero" aria-label="Главный экран Guide">
-      <div className="reference-hero__media" style={{ backgroundImage: `url(${heroImage})` }} />
-      <div className="reference-hero__shade" />
+    <section className="travel-hero" aria-label="Главный экран">
+      <div className="travel-hero__media" style={{ backgroundImage: `url(${heroImage})` }} />
+      <div className="travel-hero__overlay" />
 
-      <div className="reference-hero__content">
-        <div className="reference-hero__brand-row">
-          <AppLogo className="reference-hero__logo" alt={logoMedia?.alt || 'Логотип Guide'} media={logoMedia} animated />
-        </div>
-
-        <div className="reference-hero__copy">
-          <span className="reference-hero__eyebrow">Your ultimate guide to the city</span>
+      <div className="travel-hero__content">
+        <div className="travel-hero__copy">
           <h1>
             <span>Discover</span>
             <strong>Da Nang</strong>
           </h1>
-          <p>Места, пляжи, еда, маршруты и советы в одном понятном travel-приложении.</p>
+          <p>Your ultimate guide to the city</p>
         </div>
 
-        <Link className="reference-searchbar" to="/search" aria-label="Открыть поиск по местам">
-          <span className="reference-searchbar__icon" aria-hidden="true">
-            ⌕
+        <div className="travel-hero__logo-wrap">
+          <AppLogo className="travel-hero__logo" alt={logoMedia?.alt || 'Danang Guide'} media={logoMedia} animated />
+        </div>
+
+        <Link className="travel-searchbar" to="/search" aria-label="Открыть поиск по местам">
+          <span className="travel-searchbar__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M10.75 4a6.75 6.75 0 1 0 4.19 12.05l3.5 3.5a1 1 0 1 0 1.41-1.41l-3.5-3.5A6.75 6.75 0 0 0 10.75 4Zm0 2a4.75 4.75 0 1 1 0 9.5 4.75 4.75 0 0 1 0-9.5Z" fill="currentColor"/>
+            </svg>
           </span>
-          <span className="reference-searchbar__text">Search for places…</span>
-          <span className="reference-searchbar__action" aria-hidden="true">
-            ◉
+          <span className="travel-searchbar__text">Search for places...</span>
+          <span className="travel-searchbar__voice" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 15a3 3 0 0 0 3-3V7a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Zm5-3a1 1 0 0 1 2 0 7 7 0 0 1-6 6.93V21h2a1 1 0 1 1 0 2H9a1 1 0 0 1 0-2h2v-2.07A7 7 0 0 1 5 12a1 1 0 0 1 2 0 5 5 0 1 0 10 0Z" fill="currentColor"/>
+            </svg>
           </span>
         </Link>
       </div>

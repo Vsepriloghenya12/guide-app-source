@@ -10,21 +10,18 @@ type CategoryListProps = {
 
 export function CategoryList({ categories, title }: CategoryListProps) {
   return (
-    <section id="all-categories" className="reference-directory">
-      <div className="reference-section__header reference-section__header--directory">
-        <div>
-          <span className="reference-section__eyebrow">Navigation</span>
-          <h2>{title}</h2>
-        </div>
-        <span className="reference-directory__meta">{categories.length} categories</span>
+    <section className="travel-section travel-section--directory" id="all-categories">
+      <div className="travel-section__header">
+        <h2>{title}</h2>
+        <span>{categories.length}</span>
       </div>
 
-      <div className="reference-directory-grid" role="list">
+      <div className="travel-directory-list" role="list">
         {categories.map((category) => (
           <Link
             key={category.id}
             to={category.path}
-            className="reference-directory-card"
+            className="travel-directory-item"
             role="listitem"
             onClick={() =>
               recordGuideAnalytics({
@@ -36,22 +33,14 @@ export function CategoryList({ categories, title }: CategoryListProps) {
               })
             }
           >
-            <span
-              className="reference-directory-card__thumb"
-              style={category.imageSrc ? { backgroundImage: `url(${category.imageSrc})` } : undefined}
-              aria-hidden="true"
-            >
-              {!category.imageSrc ? <CategoryIcon categoryId={category.id} size="lg" className="reference-directory-card__icon" /> : null}
+            <span className="travel-directory-item__thumb" aria-hidden="true">
+              {category.imageSrc ? <img src={category.imageSrc} alt="" loading="lazy" decoding="async" /> : <CategoryIcon categoryId={category.id} size="lg" />}
             </span>
-
-            <span className="reference-directory-card__body">
+            <span className="travel-directory-item__body">
               <strong>{category.shortTitle || category.title}</strong>
-              <span>{category.description || 'Открой подборку мест и полезной информации по разделу.'}</span>
+              <span>{category.description || 'Open places and useful tips in this section.'}</span>
             </span>
-
-            <span className="reference-directory-card__arrow" aria-hidden="true">
-              ›
-            </span>
+            <span className="travel-directory-item__arrow" aria-hidden="true">›</span>
           </Link>
         ))}
       </div>

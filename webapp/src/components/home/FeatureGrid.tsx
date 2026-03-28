@@ -21,7 +21,7 @@ type StoryCard = {
   kind: 'tip' | 'collection' | 'event';
 };
 
-const tones = ['blue', 'orange', 'teal', 'pink', 'indigo', 'gold'] as const;
+const tones = ['blue', 'orange', 'teal', 'pink'] as const;
 
 function getPlacePath(place: GuidePlace) {
   return `/place/${place.slug || `${place.categoryId}-${place.id}`}`;
@@ -47,35 +47,28 @@ function buildStoryCards(tips: GuideTip[], collections: GuideCollection[], upcom
     ...upcomingEvents.map((event) => ({
       id: event.id,
       title: event.title,
-      text: [event.shortDescription, event.hours, event.address || event.district].filter(Boolean).join(' · '),
+      text: [event.shortDescription, event.address || event.district, event.hours].filter(Boolean).join(' · '),
       path: getPlacePath(event),
       imageSrc: event.imageGallery?.[0] || event.imageSrc,
       kind: 'event' as const
     }))
-  ].slice(0, 5);
+  ].slice(0, 4);
 }
 
-export function FeatureGrid({
-  popularPlaces,
-  featuredCategories,
-  tips,
-  collections,
-  upcomingEvents,
-  sectionTitles
-}: FeatureGridProps) {
+export function FeatureGrid({ popularPlaces, featuredCategories, tips, collections, upcomingEvents }: FeatureGridProps) {
   const quickCategories = featuredCategories.slice(0, 4);
   const storyCards = buildStoryCards(tips, collections, upcomingEvents);
 
   return (
-    <section className="reference-home">
+    <section className="travel-home-sections">
       {quickCategories.length > 0 ? (
-        <section className="reference-section reference-section--categories" aria-label={sectionTitles.categories}>
-          <div className="reference-category-grid">
+        <section className="travel-section" aria-label="Быстрые категории">
+          <div className="travel-quick-grid">
             {quickCategories.map((category, index) => (
               <Link
                 key={category.id}
                 to={category.path}
-                className={`reference-category-tile reference-category-tile--${tones[index % tones.length]}`}
+                className={`travel-quick-tile travel-quick-tile--${tones[index % tones.length]}`}
                 onClick={() =>
                   recordGuideAnalytics({
                     kind: 'category-click',
@@ -86,23 +79,23 @@ export function FeatureGrid({
                   })
                 }
               >
-                <span className="reference-category-tile__icon" aria-hidden="true">
+                <span className="travel-quick-tile__icon" aria-hidden="true">
                   <CategoryIcon categoryId={category.id} size="lg" />
                 </span>
-                <span className="reference-category-tile__label">{category.shortTitle || category.title}</span>
+                <span className="travel-quick-tile__label">{category.shortTitle || category.title}</span>
               </Link>
             ))}
           </div>
         </section>
       ) : null}
 
-      <section className="reference-section">
-        <div className="reference-section__header">
-          <h2>{sectionTitles.popular}</h2>
-          <Link to="/search">See All ›</Link>
+      <section className="travel-section">
+        <div className="travel-section__header">
+          <h2>Top Picks</h2>
+          <Link to="/search">See All</Link>
         </div>
 
-        <div className="reference-picks-grid">
+        <div className="travel-picks-row">
           {popularPlaces.slice(0, 3).map((place) => {
             const imageSrc = place.imageGallery?.[0] || place.imageSrc || '/danang-clean-poster.png';
             const detailPath = getPlacePath(place);
@@ -110,7 +103,7 @@ export function FeatureGrid({
               <Link
                 key={place.id}
                 to={detailPath}
-                className="reference-pick-card"
+                className="travel-pick-card"
                 style={{ backgroundImage: `url(${imageSrc})` }}
                 onClick={() =>
                   recordGuideAnalytics({
@@ -122,10 +115,10 @@ export function FeatureGrid({
                   })
                 }
               >
-                <span className="reference-pick-card__shade" />
-                <span className="reference-pick-card__content">
+                <span className="travel-pick-card__shade" />
+                <span className="travel-pick-card__content">
                   <strong>{place.title}</strong>
-                  <span>{place.imageLabel || place.shortDescription || 'Top Pick'}</span>
+                  <span>{place.imageLabel || place.shortDescription || 'Top pick'}</span>
                 </span>
               </Link>
             );
@@ -134,18 +127,18 @@ export function FeatureGrid({
       </section>
 
       {storyCards.length > 0 ? (
-        <section className="reference-section">
-          <div className="reference-section__header">
-            <h2>{sectionTitles.tips}</h2>
-            <Link to="/help">Open ›</Link>
+        <section className="travel-section">
+          <div className="travel-section__header">
+            <h2>Featured Articles</h2>
+            <Link to="/help">Open</Link>
           </div>
 
-          <div className="reference-story-list">
+          <div className="travel-story-list">
             {storyCards.map((item, index) => (
               <Link
                 key={item.id}
                 to={item.path}
-                className="reference-story-card"
+                className="travel-story-card"
                 onClick={() =>
                   recordGuideAnalytics({
                     kind: item.kind === 'collection' ? 'collection-click' : item.kind === 'event' ? 'place-click' : 'tip-click',
@@ -156,17 +149,15 @@ export function FeatureGrid({
                 }
               >
                 <span
-                  className={`reference-story-card__thumb reference-story-card__thumb--${tones[index % tones.length]}`}
+                  className={`travel-story-card__thumb travel-story-card__thumb--${tones[index % tones.length]}`}
                   style={item.imageSrc ? { backgroundImage: `url(${item.imageSrc})` } : undefined}
                   aria-hidden="true"
                 />
-                <span className="reference-story-card__content">
+                <span className="travel-story-card__body">
                   <strong>{item.title}</strong>
                   <span>{item.text}</span>
                 </span>
-                <span className="reference-story-card__arrow" aria-hidden="true">
-                  ›
-                </span>
+                <span className="travel-story-card__arrow" aria-hidden="true">›</span>
               </Link>
             ))}
           </div>

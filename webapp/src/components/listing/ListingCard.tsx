@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { Listing } from '../../types';
 import { recordGuideAnalytics } from '../../utils/analytics';
-import { createGoogleDirectionsUrl } from '../../utils/places';
+
 
 type ListingCardProps = {
   listing: Listing;
@@ -12,23 +12,24 @@ type ListingCardProps = {
 
 function buildMeta(listing: Listing) {
   return [
-    listing.listingType || listing.type,
+    listing.shortDescription,
+    listing.hours ? `Open ${listing.hours}` : '',
     listing.district || listing.address,
-    typeof listing.hotelStars === 'number' ? `${listing.hotelStars}★` : '',
     listing.priceLabel || ''
-  ].filter(Boolean).slice(0, 3);
+  ]
+    .filter(Boolean)
+    .slice(0, 2);
 }
 
-export function ListingCard({ listing, accent = 'orange', isFavorite, onToggleFavorite }: ListingCardProps) {
+export function ListingCard({ listing, isFavorite, onToggleFavorite }: ListingCardProps) {
   const image = listing.imageUrls[0] || '/danang-clean-poster.png';
   const detailPath = `/place/${listing.slug}`;
-  const routeUrl = createGoogleDirectionsUrl(listing);
   const meta = buildMeta(listing);
 
   return (
-    <article className={`reference-listing-card reference-listing-card--${accent}`}>
+    <article className="travel-list-card">
       <Link
-        className="reference-listing-card__main"
+        className="travel-list-card__main"
         to={detailPath}
         onClick={() =>
           recordGuideAnalytics({
@@ -40,43 +41,37 @@ export function ListingCard({ listing, accent = 'orange', isFavorite, onToggleFa
           })
         }
       >
-        <span className="reference-listing-card__thumb-wrap">
-          <img className="reference-listing-card__thumb" src={image} alt={listing.title} loading="lazy" decoding="async" />
+        <span className="travel-list-card__thumb-wrap">
+          <img className="travel-list-card__thumb" src={image} alt={listing.title} loading="lazy" decoding="async" />
         </span>
 
-        <span className="reference-listing-card__body">
-          <span className="reference-listing-card__title-row">
-            <strong>{listing.title}</strong>
-            <span className="reference-listing-card__rating">{listing.rating.toFixed(1)}</span>
+        <span className="travel-list-card__body">
+          <strong>{listing.title}</strong>
+          {meta[0] ? <span className="travel-list-card__subtitle">{meta[0]}</span> : null}
+          <span className="travel-list-card__meta">
+            {listing.rating ? <span>{listing.rating.toFixed(1)} ★</span> : null}
+            {meta[1] ? <span>{meta[1]}</span> : null}
           </span>
-          <span className="reference-listing-card__summary">{listing.shortDescription}</span>
-          {meta.length > 0 ? <span className="reference-listing-card__meta">{meta.join(' · ')}</span> : null}
         </span>
 
-        <span className="reference-listing-card__arrow" aria-hidden="true">
-          ›
+        <span className="travel-list-card__right">
+          {onToggleFavorite ? (
+            <button
+              className={`travel-list-card__save${isFavorite ? ' is-active' : ''}`}
+              type="button"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onToggleFavorite(listing.slug);
+              }}
+              aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+            >
+              {isFavorite ? '♥' : '♡'}
+            </button>
+          ) : null}
+          <span className="travel-list-card__arrow" aria-hidden="true">›</span>
         </span>
       </Link>
-
-      <div className="reference-listing-card__actions">
-        <a className="reference-mini-button reference-mini-button--primary" href={routeUrl} target="_blank" rel="noreferrer">
-          Directions
-        </a>
-
-        {onToggleFavorite ? (
-          <button
-            className={`reference-mini-button reference-mini-button--ghost${isFavorite ? ' is-active' : ''}`}
-            type="button"
-            onClick={() => onToggleFavorite(listing.slug)}
-          >
-            {isFavorite ? '♥ Saved' : '♡ Save'}
-          </button>
-        ) : listing.websiteUrl ? (
-          <a className="reference-mini-button reference-mini-button--ghost" href={listing.websiteUrl} target="_blank" rel="noreferrer">
-            Website
-          </a>
-        ) : null}
-      </div>
     </article>
   );
 }
