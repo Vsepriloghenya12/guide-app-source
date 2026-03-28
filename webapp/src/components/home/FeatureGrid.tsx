@@ -53,15 +53,18 @@ function buildStoryCards(tips: GuideTip[], collections: GuideCollection[], upcom
   ].slice(0, 5);
 }
 
+const QUICK_CATEGORY_ORDER = ['restaurants', 'events', 'routes', 'transport'] as const;
+
 export function FeatureGrid({ popularPlaces, featuredCategories, tips, collections, upcomingEvents, sectionTitles }: FeatureGridProps) {
-  const quickCategories = featuredCategories.slice(0, 5);
+  const quickCategoryMap = new Map(featuredCategories.map((category) => [category.id, category]));
+  const quickCategories = QUICK_CATEGORY_ORDER.map((id) => quickCategoryMap.get(id)).filter((category): category is GuideCategory => Boolean(category));
   const storyCards = buildStoryCards(tips, collections, upcomingEvents);
 
   return (
     <section className="travel-home-sections">
       {quickCategories.length > 0 ? (
         <section className="travel-section travel-section--quick" aria-label="Быстрые рубрики">
-          <div className="travel-quick-grid">
+          <div className="travel-quick-grid travel-quick-grid--four">
             {quickCategories.map((category, index) => (
               <Link
                 key={category.id}

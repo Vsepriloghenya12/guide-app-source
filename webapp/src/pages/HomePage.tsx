@@ -23,7 +23,8 @@ export function HomePage() {
   const fallbackPopularPlaces = sortPlacesByPriority(places.filter((place: GuidePlace) => place.top)).slice(0, 4);
   const popularPlaces = activePopularPlaces.length > 0 ? activePopularPlaces : fallbackPopularPlaces;
   const upcomingEvents = sortPlacesByPriority(places.filter((place: GuidePlace) => place.categoryId === 'events')).slice(0, 4);
-  const featuredCategories = home.featuredCategoryIds
+  const featuredCategoryIds = ['restaurants', 'events', 'routes', 'transport'];
+  const featuredCategories = featuredCategoryIds
     .map((id) => activeCategories.find((category: GuideCategory) => category.id === id))
     .filter((category): category is GuideCategory => Boolean(category));
   const visibleTips = home.tipIds
@@ -43,7 +44,9 @@ export function HomePage() {
         </div>
       ) : null}
 
-      <HomeHero banners={activeBanners} logoMedia={home.logoMedia} />
+      <div className="home-hero-bleed">
+        <HomeHero banners={activeBanners} logoMedia={home.logoMedia} />
+      </div>
       <FeatureGrid
         popularPlaces={popularPlaces}
         featuredCategories={featuredCategories}
