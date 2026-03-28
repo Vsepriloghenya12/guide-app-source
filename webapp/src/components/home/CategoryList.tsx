@@ -19,22 +19,21 @@ function resolveCategoryImage(category: GuideCategory, places: GuidePlace[]) {
 
 export function CategoryList({ categories, places, title }: CategoryListProps) {
   return (
-    <section className="travel-section travel-section--directory" id="all-categories">
-      <div className="travel-section__header">
+    <section className="travel-home-section travel-home-section--categories" id="all-categories">
+      <div className="travel-home-section__header">
         <h2>{title}</h2>
       </div>
 
-      <div className="travel-directory-list" role="list">
+      <div className="travel-category-photo-grid" role="list">
         {categories.map((category) => {
           const imageSrc = resolveCategoryImage(category, places);
-          const placesCount = places.filter((item) => item.categoryId === category.id && item.status === 'published').length;
-          const meta = category.description || (placesCount > 0 ? `${placesCount} мест в разделе` : 'Раздел пока наполняется');
           return (
             <Link
               key={category.id}
               to={category.path}
-              className="travel-directory-item"
+              className="travel-category-photo-card"
               role="listitem"
+              style={{ backgroundImage: `url(${imageSrc})` }}
               onClick={() =>
                 recordGuideAnalytics({
                   kind: 'category-click',
@@ -45,16 +44,8 @@ export function CategoryList({ categories, places, title }: CategoryListProps) {
                 })
               }
             >
-              <span className="travel-directory-item__thumb" aria-hidden="true">
-                <img src={imageSrc} alt="" loading="lazy" decoding="async" />
-              </span>
-              <span className="travel-directory-item__body">
-                <strong>{category.shortTitle || category.title}</strong>
-                <span>{meta}</span>
-              </span>
-              <span className="travel-directory-item__arrow" aria-hidden="true">
-                ›
-              </span>
+              <span className="travel-category-photo-card__shade" />
+              <span className="travel-category-photo-card__label">{category.shortTitle || category.title}</span>
             </Link>
           );
         })}

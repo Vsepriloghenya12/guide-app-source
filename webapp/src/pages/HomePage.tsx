@@ -27,10 +27,6 @@ export function HomePage() {
   const featuredCategories = home.featuredCategoryIds
     .map((id) => activeCategories.find((category: GuideCategory) => category.id === id))
     .filter((category): category is GuideCategory => Boolean(category));
-  const quickCategories = [
-    ...featuredCategories,
-    ...activeCategories.filter((category) => !featuredCategories.some((item) => item.id === category.id))
-  ].slice(0, 4);
   const visibleTips = home.tipIds
     .map((id: string) => tips.find((tip: GuideTip) => tip.id === id && tip.active))
     .filter((tip): tip is GuideTip => Boolean(tip));
@@ -48,10 +44,10 @@ export function HomePage() {
         </div>
       ) : null}
 
-      <HomeHero banners={activeBanners} />
+      <HomeHero banners={activeBanners} logoMedia={home.logoMedia} />
       <FeatureGrid
         popularPlaces={popularPlaces}
-        featuredCategories={quickCategories}
+        featuredCategories={featuredCategories}
         tips={visibleTips}
         collections={activeCollections}
         upcomingEvents={upcomingEvents}
