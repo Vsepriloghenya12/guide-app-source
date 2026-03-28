@@ -4,11 +4,11 @@ import { useSecretTheme } from '../../secretTheme/SecretThemeProvider';
 type NavIconName = 'home' | 'search' | 'heart' | 'nearby' | 'contacts';
 
 const items: Array<{ to: string; label: string; icon: NavIconName }> = [
-  { to: '/', label: 'Home', icon: 'home' },
-  { to: '/search', label: 'Search', icon: 'search' },
-  { to: '/favorites', label: 'Saved', icon: 'heart' },
-  { to: '/nearby', label: 'Map', icon: 'nearby' },
-  { to: '/contacts', label: 'Info', icon: 'contacts' }
+  { to: '/', label: 'Главная', icon: 'home' },
+  { to: '/search', label: 'Поиск', icon: 'search' },
+  { to: '/favorites', label: 'Избранное', icon: 'heart' },
+  { to: '/nearby', label: 'Карта', icon: 'nearby' },
+  { to: '/contacts', label: 'Контакты', icon: 'contacts' }
 ];
 
 const secretNavGlyphs: Record<NavIconName, string> = {

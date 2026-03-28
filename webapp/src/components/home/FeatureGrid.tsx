@@ -27,6 +27,16 @@ function getPlacePath(place: GuidePlace) {
   return `/place/${place.slug || `${place.categoryId}-${place.id}`}`;
 }
 
+function getPickSubtitle(place: GuidePlace) {
+  return (
+    place.shortDescription ||
+    [place.kind, place.cuisine].filter(Boolean).join(' · ') ||
+    place.district ||
+    place.address ||
+    'Интересное место'
+  );
+}
+
 function buildStoryCards(tips: GuideTip[], collections: GuideCollection[], upcomingEvents: GuidePlace[]): StoryCard[] {
   return [
     ...tips.map((tip) => ({
@@ -52,7 +62,7 @@ function buildStoryCards(tips: GuideTip[], collections: GuideCollection[], upcom
       imageSrc: event.imageGallery?.[0] || event.imageSrc,
       kind: 'event' as const
     }))
-  ].slice(0, 5);
+  ].slice(0, 2);
 }
 
 export function FeatureGrid({
@@ -67,15 +77,15 @@ export function FeatureGrid({
   const storyCards = buildStoryCards(tips, collections, upcomingEvents);
 
   return (
-    <div className="travel-home-flow">
+    <div className="travel-home-sections">
       {quickCategories.length > 0 ? (
-        <section className="travel-quick-menu" aria-label="Быстрые рубрики">
-          <div className="travel-quick-menu__grid">
+        <section className="travel-section travel-section--quick" aria-label="Быстрые рубрики">
+          <div className="travel-quick-grid">
             {quickCategories.map((category, index) => (
               <Link
                 key={category.id}
                 to={category.path}
-                className={`travel-quick-menu__item travel-quick-menu__item--${tones[index % tones.length]}`}
+                className={`travel-quick-tile travel-quick-tile--${tones[index % tones.length]}`}
                 onClick={() =>
                   recordGuideAnalytics({
                     kind: 'category-click',
@@ -86,23 +96,23 @@ export function FeatureGrid({
                   })
                 }
               >
-                <span className="travel-quick-menu__icon" aria-hidden="true">
+                <span className="travel-quick-tile__icon" aria-hidden="true">
                   <CategoryIcon categoryId={category.id} size="lg" />
                 </span>
-                <span className="travel-quick-menu__label">{category.shortTitle || category.title}</span>
+                <span className="travel-quick-tile__label">{category.shortTitle || category.title}</span>
               </Link>
             ))}
           </div>
         </section>
       ) : null}
 
-      <section className="travel-home-section travel-home-section--top">
-        <div className="travel-home-section__header">
+      <section className="travel-section">
+        <div className="travel-section__header">
           <h2>{sectionTitles.popular || 'Топ мест'}</h2>
-          <Link to="/search">Смотреть все</Link>
+          <Link to="/search">Все</Link>
         </div>
 
-        <div className="travel-top-row">
+        <div className="travel-picks-row">
           {popularPlaces.slice(0, 3).map((place) => {
             const imageSrc = place.imageGallery?.[0] || place.imageSrc || '/danang-clean-poster.png';
             const detailPath = getPlacePath(place);
@@ -110,7 +120,7 @@ export function FeatureGrid({
               <Link
                 key={place.id}
                 to={detailPath}
-                className="travel-top-card"
+                className="travel-pick-card"
                 style={{ backgroundImage: `url(${imageSrc})` }}
                 onClick={() =>
                   recordGuideAnalytics({
@@ -122,8 +132,11 @@ export function FeatureGrid({
                   })
                 }
               >
-                <span className="travel-top-card__shade" />
-                <span className="travel-top-card__title">{place.title}</span>
+                <span className="travel-pick-card__shade" />
+                <span className="travel-pick-card__content">
+                  <strong>{place.title}</strong>
+                  <span>{getPickSubtitle(place)}</span>
+                </span>
               </Link>
             );
           })}
@@ -131,9 +144,9 @@ export function FeatureGrid({
       </section>
 
       {storyCards.length > 0 ? (
-        <section className="travel-home-section travel-home-section--tips">
-          <div className="travel-home-section__header">
-            <h2>{sectionTitles.tips || 'Советы'}</h2>
+        <section className="travel-section">
+          <div className="travel-section__header">
+            <h2>{sectionTitles.tips || 'Полезное'}</h2>
           </div>
 
           <div className="travel-story-list">
