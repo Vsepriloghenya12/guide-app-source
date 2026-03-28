@@ -9,9 +9,8 @@ import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeBanner }
 export function HomePage() {
   usePageMeta({
     title: 'Danang Guide',
-    description: 'Главная страница с местами, категориями, советами и подборками в Дананге.'
+    description: 'Главная страница с местами, категориями, советами, подборками и событиями в Дананге.'
   });
-
   const { places, categories, tips, banners, collections, home, loading, error } = useGuideContent();
 
   const activeCategories = categories.filter((category: GuideCategory) => category.visible);
@@ -21,7 +20,7 @@ export function HomePage() {
   const activePopularPlaces = home.popularPlaceIds
     .map((id: string) => places.find((place: GuidePlace) => place.id === id))
     .filter((place): place is GuidePlace => Boolean(place));
-  const fallbackPopularPlaces = sortPlacesByPriority(places.filter((place: GuidePlace) => place.top)).slice(0, 6);
+  const fallbackPopularPlaces = sortPlacesByPriority(places.filter((place: GuidePlace) => place.top)).slice(0, 4);
   const popularPlaces = activePopularPlaces.length > 0 ? activePopularPlaces : fallbackPopularPlaces;
   const upcomingEvents = sortPlacesByPriority(places.filter((place: GuidePlace) => place.categoryId === 'events')).slice(0, 4);
   const featuredCategories = home.featuredCategoryIds
@@ -35,7 +34,7 @@ export function HomePage() {
     .filter((collection): collection is GuideCollection => Boolean(collection));
 
   return (
-    <div className="page-stack home-page home-page--rebuild">
+    <div className="page-stack home-page reference-home-page">
       {loading ? <div className="panel page-loader">Загружаю главную страницу…</div> : null}
       {error ? (
         <div className="panel empty-state empty-state--left">
@@ -53,7 +52,7 @@ export function HomePage() {
         upcomingEvents={upcomingEvents}
         sectionTitles={home.sectionTitles}
       />
-      <CategoryList categories={activeCategories} places={places} title={home.sectionTitles.allCategories || 'Все рубрики'} />
+      <CategoryList categories={activeCategories} title={home.sectionTitles.allCategories} />
     </div>
   );
 }
