@@ -1675,6 +1675,9 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__content-
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__brand-logo--hero-only {
   width: min(100%, 672px);
+  max-width: none;
+  transform: scale(2);
+  transform-origin: top center;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__brand-logo--hero-only .app-logo-media {
