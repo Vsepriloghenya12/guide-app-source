@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FilterPanel } from '../common/FilterPanel';
 import { PageHeader } from '../layout/PageHeader';
 import { ListingCard } from './ListingCard';
@@ -18,6 +18,8 @@ type SortMode = 'priority' | 'rating' | 'alphabet' | 'check-low' | 'check-high';
 type BinaryFilter = 'all' | 'yes' | 'no';
 
 type FiltersState = {
+  breakfast: BinaryFilter;
+  vegan: BinaryFilter;
   kind: string;
   cuisine: string;
   district: string;
@@ -34,6 +36,8 @@ type FiltersState = {
 };
 
 const initialFilters: FiltersState = {
+  breakfast: 'all',
+  vegan: 'all',
   kind: 'all',
   cuisine: 'all',
   district: 'all',
@@ -48,6 +52,8 @@ const initialFilters: FiltersState = {
   selectedQuickTokens: [],
   sortMode: 'priority'
 };
+
+const restaurantQuickFilters = ['Морепродукты', 'Вьетнамская', 'Европейская'];
 
 function toLabel(filterKey: string) {
   const map: Record<string, string> = {
@@ -174,8 +180,30 @@ function matchesQuickToken(place: GuidePlace, token: string) {
 
 export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerProps) {
   const [filters, setFilters] = useState<FiltersState>(initialFilters);
+  const [isRestaurantFilterOpen, setRestaurantFilterOpen] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { categories, places, loading, error } = useGuideContent();
+
+  useEffect(() => {
+    if (!isRestaurantFilterOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setRestaurantFilterOpen(false);
+      }
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isRestaurantFilterOpen]);
 
   const rawCategory = useMemo(
     () =>
@@ -240,6 +268,14 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
 
   const filteredPlaces = useMemo(() => {
     const nextPlaces = categoryPlaces.filter((place) => {
+      if (!matchesBinaryFilter(Boolean(place.breakfast), filters.breakfast)) {
+        return false;
+      }
+
+      if (!matchesBinaryFilter(Boolean(place.vegan), filters.vegan)) {
+        return false;
+      }
+
       if (filters.kind !== 'all' && place.kind !== filters.kind) {
         return false;
       }
@@ -299,6 +335,8 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
     filters.selectedServices.length +
     filters.selectedTags.length +
     filters.selectedQuickTokens.length +
+    Number(filters.breakfast !== 'all') +
+    Number(filters.vegan !== 'all') +
     Number(filters.kind !== 'all') +
     Number(filters.cuisine !== 'all') +
     Number(filters.district !== 'all') +
@@ -313,6 +351,149 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
     return (
       <div className="page-stack">
         <PageHeader title="Раздел не найден" subtitle="Возможно, категория скрыта или ещё не создана." showBack />
+      </div>
+    );
+  }
+
+  if (category.id === 'restaurants') {
+    const restaurantHeroImage = category.imageSrc || '/home-hero-background.png';
+
+    return (
+      <div className="page-stack category-explorer-page category-explorer-page--restaurants">
+        <section className="restaurant-category-hero" style={{ backgroundImage: `url(${restaurantHeroImage})` }}>
+          <div className="restaurant-category-hero__overlay" />
+          <div className="restaurant-category-hero__content">
+            <h1>{category.shortTitle || 'Рестораны'}</h1>
+          </div>
+        </section>
+
+        <section className="restaurant-filters-shell">
+          <div className="restaurant-filters-row" role="toolbar" aria-label="Быстрые фильтры ресторанов">
+            {restaurantQuickFilters.map((token) => (
+              <button
+                key={token}
+                type="button"
+                className={`restaurant-quick-filter ${filters.selectedQuickTokens.includes(token) ? 'is-active' : ''}`}
+                onClick={() =>
+                  setFilters((current) => ({
+                    ...current,
+                    selectedQuickTokens: current.selectedQuickTokens.includes(token) ? [] : [token]
+                  }))
+                }
+              >
+                {token}
+              </button>
+            ))}
+
+            <button className="restaurant-filter-button" type="button" onClick={() => setRestaurantFilterOpen(true)}>
+              Фильтры
+              {activeFiltersCount > 0 ? <span className="restaurant-filter-button__badge">{activeFiltersCount}</span> : null}
+            </button>
+          </div>
+        </section>
+
+        {isRestaurantFilterOpen ? (
+          <div className="modal-backdrop" role="presentation" onClick={() => setRestaurantFilterOpen(false)}>
+            <section
+              className="modal-window filter-modal restaurant-filter-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Фильтры ресторанов"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="modal-window__header">
+                <div>
+                  <strong>Фильтры ресторанов</strong>
+                </div>
+                <button className="modal-window__close" type="button" onClick={() => setRestaurantFilterOpen(false)}>
+                  ✕
+                </button>
+              </div>
+
+              <div className="modal-window__body">
+                <div className="filter-stack restaurant-filter-stack">
+                  <label className="field field--grow">
+                    <span>Кухня</span>
+                    <select value={filters.cuisine} onChange={(event) => setFilters((current) => ({ ...current, cuisine: event.target.value }))}>
+                      <option value="all">Все</option>
+                      {cuisineOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="field field--grow">
+                    <span>Завтраки</span>
+                    <select value={filters.breakfast} onChange={(event) => setFilters((current) => ({ ...current, breakfast: event.target.value as BinaryFilter }))}>
+                      <option value="all">Не важно</option>
+                      <option value="yes">Да</option>
+                      <option value="no">Нет</option>
+                    </select>
+                  </label>
+
+                  <label className="field field--grow">
+                    <span>Веганское меню</span>
+                    <select value={filters.vegan} onChange={(event) => setFilters((current) => ({ ...current, vegan: event.target.value as BinaryFilter }))}>
+                      <option value="all">Не важно</option>
+                      <option value="yes">Да</option>
+                      <option value="no">Нет</option>
+                    </select>
+                  </label>
+
+                  <label className="field field--grow">
+                    <span>Можно с животными</span>
+                    <select value={filters.petFriendly} onChange={(event) => setFilters((current) => ({ ...current, petFriendly: event.target.value as BinaryFilter }))}>
+                      <option value="all">Не важно</option>
+                      <option value="yes">Да</option>
+                      <option value="no">Нет</option>
+                    </select>
+                  </label>
+
+                  <div className="filter-grid-two">
+                    <label className="field field--grow">
+                      <span>Средний чек от</span>
+                      <input value={filters.minCheck} onChange={(event) => setFilters((current) => ({ ...current, minCheck: event.target.value }))} inputMode="numeric" placeholder="от" />
+                    </label>
+                    <label className="field field--grow">
+                      <span>Средний чек до</span>
+                      <input value={filters.maxCheck} onChange={(event) => setFilters((current) => ({ ...current, maxCheck: event.target.value }))} inputMode="numeric" placeholder="до" />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        ) : null}
+
+        {loading ? <div className="travel-state-card">Загружаю рестораны…</div> : null}
+        {error ? (
+          <div className="travel-state-card">
+            <strong>Не удалось обновить список</strong>
+            <p>{error}</p>
+          </div>
+        ) : null}
+
+        {!loading && filteredPlaces.length > 0 ? (
+          <section className="restaurant-list">
+            {filteredPlaces.map((item) => {
+              const listing = toListingLike(item);
+              return <ListingCard key={item.id} listing={listing} accent={category.accent} variant="restaurant" />;
+            })}
+          </section>
+        ) : null}
+
+        {!loading && filteredPlaces.length === 0 ? (
+          <section className="travel-state-card">
+            <strong>{categoryPlaces.length > 0 ? 'По выбранным параметрам ничего не найдено' : 'Пока здесь пусто'}</strong>
+            <p>
+              {categoryPlaces.length > 0
+                ? 'Попробуй убрать часть фильтров или изменить выбранные параметры.'
+                : 'Когда владелец добавит рестораны, они появятся здесь.'}
+            </p>
+          </section>
+        ) : null}
       </div>
     );
   }

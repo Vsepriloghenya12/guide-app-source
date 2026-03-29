@@ -8,6 +8,7 @@ type ListingCardProps = {
   accent?: string;
   isFavorite?: boolean;
   onToggleFavorite?: (slug: string) => void;
+  variant?: 'default' | 'restaurant';
 };
 
 function buildMeta(listing: Listing) {
@@ -31,12 +32,48 @@ function buildBadgeLabel(listing: Listing) {
   return listing.listingType || listing.kind || listing.cuisine || 'Место';
 }
 
-export function ListingCard({ listing, accent, isFavorite, onToggleFavorite }: ListingCardProps) {
+export function ListingCard({ listing, accent, isFavorite, onToggleFavorite, variant = 'default' }: ListingCardProps) {
   const image = listing.imageUrls[0] || '/home-hero-background.png';
   const detailPath = `/place/${listing.slug}`;
   const meta = buildMeta(listing);
   const pills = buildPills(listing);
   const badgeLabel = buildBadgeLabel(listing);
+  const averageCheckLabel =
+    listing.priceLabel || (typeof listing.avgCheck === 'number' && Number.isFinite(listing.avgCheck) ? `от ${listing.avgCheck}` : 'не указан');
+  const workingHoursLabel = listing.hours || 'не указано';
+
+  if (variant === 'restaurant') {
+    return (
+      <article className="travel-list-card travel-list-card--restaurant" data-tone={accent || 'coast'}>
+        <Link
+          className="travel-list-card__main travel-list-card__main--restaurant"
+          to={detailPath}
+          onClick={() =>
+            recordGuideAnalytics({
+              kind: 'place-click',
+              label: listing.title,
+              path: detailPath,
+              entityId: listing.id,
+              categoryId: listing.categoryId
+            })
+          }
+        >
+          <span className="travel-list-card__thumb-wrap travel-list-card__thumb-wrap--restaurant">
+            <img className="travel-list-card__thumb" src={image} alt={listing.title} loading="lazy" decoding="async" />
+          </span>
+
+          <span className="travel-list-card__body travel-list-card__body--restaurant">
+            <strong>{listing.title}</strong>
+            {meta[0] ? <span className="travel-list-card__subtitle travel-list-card__subtitle--restaurant">{meta[0]}</span> : null}
+            <span className="travel-list-card__restaurant-meta">
+              <span>Средний чек: {averageCheckLabel}</span>
+              <span>Время работы: {workingHoursLabel}</span>
+            </span>
+          </span>
+        </Link>
+      </article>
+    );
+  }
 
   return (
     <article className="travel-list-card" data-tone={accent || 'coast'}>

@@ -2536,3 +2536,189 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-page--nearby .
     grid-template-columns: 1fr;
   }
 }
+
+/* Restaurant page refresh v1 */
+body:not(.secret-theme-active) .app-shell.reference-shell .category-explorer-page--restaurants {
+  gap: 0;
+  padding-bottom: 12px;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-hero {
+  position: relative;
+  min-height: 220px;
+  margin: 0 16px 16px;
+  border-radius: 28px;
+  overflow: hidden;
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 20px 38px rgba(24, 43, 74, 0.2);
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(9, 18, 33, 0.08) 0%, rgba(9, 18, 33, 0.26) 40%, rgba(9, 18, 33, 0.8) 100%),
+    linear-gradient(135deg, transparent 0%, rgba(42, 114, 216, 0.14) 100%);
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-hero__content {
+  position: relative;
+  z-index: 1;
+  min-height: 220px;
+  padding: 18px 18px 20px;
+  display: flex;
+  align-items: flex-end;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-hero__content h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.9rem, 6vw, 2.45rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  text-shadow: 0 12px 24px rgba(6, 14, 28, 0.28);
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filters-shell {
+  padding: 0 16px 16px;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filters-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filters-row::-webkit-scrollbar {
+  display: none;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-quick-filter,
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-button {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(214, 223, 235, 0.94);
+  background: #fff;
+  color: #324660;
+  font-size: 0.84rem;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 10px 18px rgba(40, 58, 88, 0.08);
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-quick-filter.is-active {
+  background: linear-gradient(180deg, #2b78dd 0%, #1f63c7 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 12px 22px rgba(33, 95, 187, 0.22);
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-button {
+  margin-left: auto;
+  color: #1f63c7;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-button__badge {
+  min-width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  background: #1f63c7;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-modal {
+  border-radius: 28px !important;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-stack {
+  display: grid;
+  gap: 14px;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-list {
+  display: grid;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card--restaurant {
+  border-radius: 24px !important;
+  background: linear-gradient(180deg, #fff 0%, #fbfdff 100%) !important;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card--restaurant::before {
+  display: none;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__main--restaurant {
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 14px;
+  padding: 12px;
+  align-items: start;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__thumb-wrap--restaurant {
+  width: 108px;
+  height: 108px;
+  border-radius: 18px;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__body--restaurant {
+  gap: 6px;
+  padding-top: 0;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__body--restaurant strong {
+  font-size: 1.06rem;
+  line-height: 1.12;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__subtitle--restaurant {
+  color: #41546f;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__restaurant-meta {
+  display: grid;
+  gap: 6px;
+  padding-top: 2px;
+  color: #5a708b;
+  font-size: 0.82rem;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__restaurant-meta span {
+  line-height: 1.36;
+}
+
+@media (max-width: 420px) {
+  body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-hero {
+    min-height: 204px;
+  }
+
+  body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-hero__content {
+    min-height: 204px;
+  }
+
+  body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__main--restaurant {
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__thumb-wrap--restaurant {
+    width: 92px;
+    height: 92px;
+  }
+}
