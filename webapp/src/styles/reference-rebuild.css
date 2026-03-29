@@ -1629,7 +1629,13 @@ body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__item.is-a
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__item.is-active .bottom-nav__icon-wrap {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(10, 36, 84, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__item.is-active .bottom-nav__icon-svg,
+body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__item.is-active .bottom-nav__icon-kanji {
+  color: #fff;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__label {
@@ -1655,6 +1661,23 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero--clean .t
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 30%, rgba(11, 21, 38, 0.28) 66%, rgba(8, 15, 28, 0.82) 100%),
     linear-gradient(135deg, transparent 0%, var(--travel-tone-soft) 100%);
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__content--logo-only {
+  min-height: 100%;
+  padding: 24px 16px 34px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__brand-logo--hero-only {
+  width: min(100%, 336px);
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__brand-logo--hero-only .app-logo-media {
+  width: 100%;
+  max-height: none;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__content--featured {
@@ -1792,20 +1815,20 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-quick-photo__l
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-picks-row {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-pick-card {
-  min-height: 178px;
+  min-height: 168px;
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 16px 30px rgba(34, 52, 83, 0.18);
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-pick-card:first-child {
-  grid-column: 1 / -1;
-  min-height: 220px;
+  grid-column: auto;
+  min-height: 168px;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-pick-card__shade {
@@ -2199,7 +2222,7 @@ body:not(.secret-theme-active) .app-shell.reference-shell .filter-launcher {
 
 @media (max-width: 420px) {
   body:not(.secret-theme-active) .app-shell.reference-shell .travel-pick-card:first-child {
-    min-height: 196px;
+    min-height: 168px;
   }
 
   body:not(.secret-theme-active) .app-shell.reference-shell .travel-detail-info-list {
@@ -2223,6 +2246,15 @@ body:not(.secret-theme-active) .app-shell.reference-shell .filter-launcher {
 }
 
 @media (min-width: 920px) {
+  body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__content--logo-only {
+    padding: 30px clamp(24px, 4vw, 38px) 40px;
+    justify-content: center;
+  }
+
+  body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__brand-logo--hero-only {
+    width: min(100%, 364px);
+  }
+
   body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__content--featured {
     padding: 34px clamp(28px, 4vw, 42px) 36px;
   }

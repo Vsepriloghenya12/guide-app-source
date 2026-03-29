@@ -4,32 +4,34 @@ import { HomeHero } from '../components/home/HomeHero';
 import { useGuideContent } from '../hooks/useGuideContent';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { sortPlacesByPriority } from '../utils/places';
-import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeBanner } from '../types';
+import type { GuideCategory, GuideCollection, GuidePlace, GuideTip } from '../types';
 
 export function HomePage() {
   usePageMeta({
     title: 'Danang Guide',
     description: 'Главная страница с местами, категориями, советами, подборками и событиями в Дананге.'
   });
-  const { places, categories, tips, banners, collections, home, loading, error } = useGuideContent();
+  const { places, categories, tips, collections, home, loading, error } = useGuideContent();
 
   const activeCategories = categories.filter((category: GuideCategory) => category.visible);
-  const activeBanners = home.bannerIds
-    .map((id: string) => banners.find((banner: HomeBanner) => banner.id === id && banner.active))
-    .filter((banner): banner is HomeBanner => Boolean(banner));
   const activePopularPlaces = home.popularPlaceIds
     .map((id: string) => places.find((place: GuidePlace) => place.id === id))
     .filter((place): place is GuidePlace => Boolean(place));
   const fallbackPopularPlaces = sortPlacesByPriority(places.filter((place: GuidePlace) => place.top)).slice(0, 4);
   const popularPlaces = activePopularPlaces.length > 0 ? activePopularPlaces : fallbackPopularPlaces;
   const upcomingEvents = sortPlacesByPriority(places.filter((place: GuidePlace) => place.categoryId === 'events')).slice(0, 4);
-  const featuredCategoryIds = home.featuredCategoryIds?.length
-    ? home.featuredCategoryIds
-    : ['restaurants', 'events', 'routes', 'transport'];
-  const featuredCategories = featuredCategoryIds
-    .slice(0, 4)
+  const featuredCategories = ['restaurants', 'events', 'hotels', 'culture']
     .map((id) => activeCategories.find((category: GuideCategory) => category.id === id))
-    .filter((category): category is GuideCategory => Boolean(category));
+    .filter((category): category is GuideCategory => Boolean(category))
+    .map((category) =>
+      category.id === 'culture'
+        ? {
+            ...category,
+            title: 'Достопримечательности',
+            shortTitle: 'Достопримечательности'
+          }
+        : category
+    );
   const visibleTips = home.tipIds
     .map((id: string) => tips.find((tip: GuideTip) => tip.id === id && tip.active))
     .filter((tip): tip is GuideTip => Boolean(tip));
@@ -48,7 +50,7 @@ export function HomePage() {
       ) : null}
 
       <div className="home-hero-bleed">
-        <HomeHero banners={activeBanners} logoMedia={home.logoMedia} />
+        <HomeHero />
       </div>
       <FeatureGrid
         popularPlaces={popularPlaces}
