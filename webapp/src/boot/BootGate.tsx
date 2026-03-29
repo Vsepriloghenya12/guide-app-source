@@ -32,8 +32,8 @@ function collectBootAssets(store: GuideContentStore) {
     }
   };
 
-  push('/danang-clean-poster.png');
-  push('/danang-guide-logo.png');
+  push('/home-hero-background.png');
+  push('/home-hero-logo.png');
   push('/logo.png');
   push('/logo.svg');
   push('/secret-theme/secret-bg-anime.png');
@@ -179,7 +179,7 @@ export function BootGate({ children }: PropsWithChildren) {
               className="boot-splash__logo"
               alt="Danang Guide"
               animated
-              media={{ type: 'image', src: '/danang-guide-logo.png', alt: 'Danang Guide' }}
+              media={{ type: 'image', src: '/home-hero-logo.png', alt: 'Danang Guide' }}
             />
           </div>
           <div className="boot-splash__meta">

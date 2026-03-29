@@ -19,7 +19,7 @@ const LOGO_CANDIDATES: LogoCandidate[] = [
   { type: 'video', src: '/logo.mp4', posterSrc: '/logo-poster.png' },
   { type: 'video', src: '/logo.webm', posterSrc: '/logo-poster.png' },
   { type: 'video', src: '/logo.mov', posterSrc: '/logo-poster.png' },
-  { type: 'image', src: '/danang-guide-logo.png' },
+  { type: 'image', src: '/home-hero-logo.png' },
   { type: 'image', src: '/logo.png' },
   { type: 'image', src: '/logo.svg' },
   { type: 'image', src: '/logo.jpg' },
@@ -142,7 +142,7 @@ function CinematicLogoMedia({
   onError: () => void;
   variant: 'default' | 'secret';
 }) {
-  const posterSrc = asset.type === 'video' ? asset.posterSrc || '/danang-guide-logo.png' : asset.src;
+  const posterSrc = asset.type === 'video' ? asset.posterSrc || '/home-hero-logo.png' : asset.src;
 
   return (
     <span className={`logo-cinematic logo-cinematic--${variant} logo-cinematic--${asset.type}`} aria-label={alt}>

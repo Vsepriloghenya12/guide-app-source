@@ -56,7 +56,7 @@ export function ListingDetailPage() {
     () => (listing?.imageUrls?.length ? listing.imageUrls : listing?.coverImageUrl ? [listing.coverImageUrl] : []),
     [listing]
   );
-  const activeImage = gallery[activeImageIndex] || gallery[0] || '/danang-clean-poster.png';
+  const activeImage = gallery[activeImageIndex] || gallery[0] || '/home-hero-background.png';
 
   const distanceKm = useMemo(() => {
     if (!listing || !userLocation || !hasCoordinates(listing)) {
@@ -67,13 +67,13 @@ export function ListingDetailPage() {
   }, [listing, userLocation]);
 
   if (loading) {
-    return <div className="travel-state-card">Loading place...</div>;
+    return <div className="travel-state-card">Загружаю карточку места…</div>;
   }
 
   if (!listing || !category) {
     return (
       <div className="page-stack travel-page">
-        <PageHeader title="Place not found" subtitle="This card may be hidden or removed." showBack />
+        <PageHeader title="Место не найдено" subtitle="Карточка могла быть скрыта или удалена." showBack />
       </div>
     );
   }
@@ -85,6 +85,15 @@ export function ListingDetailPage() {
   const phoneLink = listing.phoneNumber || listing.phone;
   const favoriteActive = isFavorite(listing.slug);
   const quickTags = [listing.listingType, listing.cuisine, ...(listing.services || []), ...(listing.tags || [])].filter(Boolean).slice(0, 4);
+  const summaryText = listing.shortDescription && listing.shortDescription !== listing.description ? listing.shortDescription : '';
+  const summaryFacts = [
+    distanceKm !== null ? `${formatDistance(distanceKm)} от вас` : '',
+    listing.priceLabel || '',
+    listing.hours || '',
+    listing.district || ''
+  ]
+    .filter(Boolean)
+    .slice(0, 4);
 
   const shareListing = async () => {
     const url = typeof window !== 'undefined' ? window.location.href : `/place/${listing.slug}`;
@@ -104,11 +113,12 @@ export function ListingDetailPage() {
 
   return (
     <div className="page-stack travel-page travel-page--detail">
-      <PageHeader title={listing.title} subtitle={category.shortTitle || category.title} showBack actionLabel="•••" actionPath={detailPath} />
+      <PageHeader title={listing.title} subtitle={category.shortTitle || category.title} showBack actionLabel="К списку" actionPath={detailPath} />
 
-      <section className="travel-detail-card">
+      <section className="travel-detail-card" data-tone={category.accent || 'coast'}>
         <div className="travel-detail-card__media">
           <img src={activeImage} alt={listing.title} loading="lazy" decoding="async" />
+          <span className="travel-detail-card__category">{category.shortTitle || category.title}</span>
           <div className="travel-detail-card__rating">
             <strong>{listing.rating.toFixed(1)}</strong>
             <span>★★★★★</span>
@@ -130,20 +140,33 @@ export function ListingDetailPage() {
           </div>
         ) : null}
 
+        {summaryText || summaryFacts.length > 0 ? (
+          <div className="travel-detail-card__summary">
+            {summaryText ? <p className="travel-detail-card__summary-text">{summaryText}</p> : null}
+            {summaryFacts.length > 0 ? (
+              <div className="travel-detail-glance">
+                {summaryFacts.map((item, index) => (
+                  <span key={`${item}-${index}`} className="travel-detail-glance__pill">{item}</span>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
         <div className="travel-detail-actions">
           <a className="travel-primary-button" href={routeUrl} target="_blank" rel="noreferrer">
-            Directions
+            Построить маршрут
           </a>
           <button className={`travel-secondary-button${favoriteActive ? ' is-active' : ''}`} type="button" onClick={() => toggleFavorite(listing.slug)}>
-            {favoriteActive ? '♥ Save' : '♡ Save'}
+            {favoriteActive ? '♥ Сохранено' : '♡ Сохранить'}
           </button>
         </div>
 
         <div className="travel-detail-section">
-          <h3>About</h3>
+          <h3>О месте</h3>
           <p>{listing.description}</p>
           <div className="travel-info-lines">
-            {distanceKm !== null ? <span>{formatDistance(distanceKm)} away</span> : null}
+            {distanceKm !== null ? <span>{formatDistance(distanceKm)} от вас</span> : null}
             {listing.address ? <span>{listing.address}</span> : null}
             {listing.hours ? <span>{listing.hours}</span> : null}
           </div>
@@ -151,7 +174,7 @@ export function ListingDetailPage() {
 
         {quickTags.length > 0 ? (
           <div className="travel-detail-section">
-            <h3>Things to Do</h3>
+            <h3>Особенности</h3>
             <div className="travel-tag-pills">
               {quickTags.map((item) => (
                 <span key={item} className="travel-tag-pill">{item}</span>
@@ -161,11 +184,11 @@ export function ListingDetailPage() {
         ) : null}
 
         <div className="travel-detail-section">
-          <h3>Traveler Info</h3>
+          <h3>Полезно знать</h3>
           <div className="travel-detail-info-list">
             {listing.priceLabel ? (
               <div className="travel-detail-info-item">
-                <strong>Price</strong>
+                <strong>Цена</strong>
                 <span>{listing.priceLabel}</span>
               </div>
             ) : null}
@@ -183,7 +206,7 @@ export function ListingDetailPage() {
                   })
                 }
               >
-                <strong>Phone</strong>
+                <strong>Телефон</strong>
                 <span>{phoneLink}</span>
               </a>
             ) : null}
@@ -203,17 +226,17 @@ export function ListingDetailPage() {
                   })
                 }
               >
-                <strong>Website</strong>
-                <span>Open website</span>
+                <strong>Сайт</strong>
+                <span>Открыть сайт</span>
               </a>
             ) : null}
             <a className="travel-detail-info-item" href={mapUrl} target="_blank" rel="noreferrer">
-              <strong>Map</strong>
-              <span>Open on Google Maps</span>
+              <strong>Карта</strong>
+              <span>Открыть в Google Maps</span>
             </a>
             <button className="travel-detail-info-item" type="button" onClick={shareListing}>
-              <strong>Share</strong>
-              <span>Send this place</span>
+              <strong>Поделиться</strong>
+              <span>Скопировать или отправить ссылку</span>
             </button>
           </div>
         </div>
@@ -222,12 +245,18 @@ export function ListingDetailPage() {
       {similar.length > 0 ? (
         <section className="travel-section">
           <div className="travel-section__header">
-            <h2>More Like This</h2>
-            <Link to={detailPath}>Open category</Link>
+            <h2>Похожие места</h2>
+            <Link to={detailPath}>Открыть раздел</Link>
           </div>
           <div className="travel-listing-stack">
             {similar.slice(0, 3).map((item) => (
-              <ListingCard key={item.id} listing={item} isFavorite={isFavorite(item.slug)} onToggleFavorite={toggleFavorite} />
+              <ListingCard
+                key={item.id}
+                listing={item}
+                accent={category.accent}
+                isFavorite={isFavorite(item.slug)}
+                onToggleFavorite={toggleFavorite}
+              />
             ))}
           </div>
         </section>

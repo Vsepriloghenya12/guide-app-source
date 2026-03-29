@@ -31,7 +31,7 @@ export function RequireOwner({ children }: PropsWithChildren) {
       <div className="page-stack owner-login-page">
         <section className="owner-login-card">
           <div className="owner-login-card__intro">
-            <span className="eyebrow">Owner access</span>
+            <span className="eyebrow">Owner CMS</span>
             <h2>Проверяем доступ</h2>
             <p>Сессия владельца проверяется на сервере.</p>
           </div>

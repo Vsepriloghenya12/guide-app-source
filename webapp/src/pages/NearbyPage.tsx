@@ -18,19 +18,19 @@ import {
 import type { GuideCategoryId } from '../types';
 
 const nearbyCategoryOptions: Array<{ value: 'all' | GuideCategoryId; label: string }> = [
-  { value: 'all', label: 'All categories' },
-  { value: 'restaurants', label: 'Food & Drink' },
+  { value: 'all', label: 'Все категории' },
+  { value: 'restaurants', label: 'Еда и напитки' },
   { value: 'wellness', label: 'Wellness' },
-  { value: 'routes', label: 'Routes' },
-  { value: 'transport', label: 'Transport' },
-  { value: 'culture', label: 'Attractions' },
-  { value: 'photo-spots', label: 'Photo spots' }
+  { value: 'routes', label: 'Маршруты' },
+  { value: 'transport', label: 'Транспорт' },
+  { value: 'culture', label: 'Достопримечательности' },
+  { value: 'photo-spots', label: 'Фотоспоты' }
 ];
 
 export function NearbyPage() {
   usePageMeta({
-    title: 'Map View',
-    description: 'Places near you sorted by distance.'
+    title: 'Рядом',
+    description: 'Ближайшие места рядом с пользователем с фильтром по категориям и радиусу.'
   });
   const { isFavorite, toggleFavorite } = useFavorites();
   const { places, categories, loading, error } = useGuideContent();
@@ -69,12 +69,12 @@ export function NearbyPage() {
 
   return (
     <div className="page-stack travel-page travel-page--nearby">
-      <PageHeader title="Map View" subtitle="Places near you" showBack />
+      <PageHeader title="Рядом" subtitle="Ближайшие места вокруг вас с быстрым фильтром по категории и радиусу." showBack />
 
       <section className="travel-search-panel travel-search-panel--map">
         <div className="travel-filter-row">
           <label className="travel-select">
-            <span>Category</span>
+            <span>Категория</span>
             <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value as 'all' | GuideCategoryId)}>
               {nearbyCategoryOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -85,23 +85,23 @@ export function NearbyPage() {
           </label>
 
           <label className="travel-select">
-            <span>Radius</span>
+            <span>Радиус</span>
             <select value={radiusKm} onChange={(event) => setRadiusKm(Number(event.target.value))}>
-              <option value={2}>2 km</option>
-              <option value={5}>5 km</option>
-              <option value={10}>10 km</option>
-              <option value={25}>25 km</option>
+              <option value={2}>2 км</option>
+              <option value={5}>5 км</option>
+              <option value={10}>10 км</option>
+              <option value={25}>25 км</option>
             </select>
           </label>
         </div>
 
         <div className="travel-inline-actions">
           <button className="travel-primary-button" type="button" onClick={requestLocation} disabled={geoState === 'loading'}>
-            {geoState === 'loading' ? 'Locating...' : userLocation ? 'Update location' : 'Enable location'}
+            {geoState === 'loading' ? 'Определяю геопозицию…' : userLocation ? 'Обновить геопозицию' : 'Включить геолокацию'}
           </button>
           {userLocation ? (
             <button className="travel-secondary-button" type="button" onClick={clearLocation}>
-              Clear
+              Очистить
             </button>
           ) : null}
         </div>
@@ -113,30 +113,37 @@ export function NearbyPage() {
         <div className="travel-map-card__canvas" />
         <div className="travel-map-card__overlay">
           <Link className="travel-primary-button" to="/search">
-            Open Search
+            Открыть поиск
           </Link>
         </div>
       </section>
 
       {closestPlaces.length > 0 ? (
-        <section className="travel-inline-places">
-          {closestPlaces.map((place) => (
-            <a
-              key={`mini-${place.id}`}
-              className="travel-inline-place"
-              href={createGoogleDirectionsUrl(toListingLike(place), userLocation)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <strong>{place.title}</strong>
-              <span>{formatDistance(place.distanceKm)}</span>
-              <small>{estimateTravelTime(place.distanceKm)} drive</small>
-            </a>
-          ))}
+        <section className="travel-section travel-section--nearby-summary">
+          <div className="travel-section__header">
+            <h2>Ближе всего</h2>
+            <Link to="/search">Смотреть все</Link>
+          </div>
+
+          <div className="travel-inline-places">
+            {closestPlaces.map((place) => (
+              <a
+                key={`mini-${place.id}`}
+                className="travel-inline-place"
+                href={createGoogleDirectionsUrl(toListingLike(place), userLocation)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <strong>{place.title}</strong>
+                <span>{formatDistance(place.distanceKm)}</span>
+                <small>{estimateTravelTime(place.distanceKm)} на машине</small>
+              </a>
+            ))}
+          </div>
         </section>
       ) : null}
 
-      {loading ? <div className="travel-state-card">Loading places...</div> : null}
+      {loading ? <div className="travel-state-card">Ищу места рядом…</div> : null}
       {error ? <div className="travel-state-card">{error}</div> : null}
 
       {!loading && nearbyListings.length > 0 ? (
@@ -155,8 +162,8 @@ export function NearbyPage() {
 
       {!loading && nearbyListings.length === 0 ? (
         <div className="travel-state-card">
-          <strong>No places found nearby</strong>
-          <p>Try a wider radius or choose another category.</p>
+          <strong>Рядом пока ничего не найдено</strong>
+          <p>Попробуйте увеличить радиус или выбрать другую категорию.</p>
         </div>
       ) : null}
     </div>

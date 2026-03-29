@@ -34,8 +34,8 @@ function createSearchText(place: GuidePlace, category?: GuideCategory) {
 
 export function SearchPage() {
   usePageMeta({
-    title: 'Search',
-    description: 'Find places, beaches, food and tips around Da Nang.'
+    title: 'Поиск',
+    description: 'Поиск мест, категорий, кухни и полезных локаций по всему приложению.'
   });
   const { isFavorite, toggleFavorite } = useFavorites();
   const { places, categories, loading, error } = useGuideContent();
@@ -87,19 +87,19 @@ export function SearchPage() {
 
   return (
     <div className="page-stack travel-page travel-page--search">
-      <PageHeader title="Top Attractions" subtitle={hasQuery ? `${results.length} results` : 'Search places, food, routes and tips'} showBack />
+      <PageHeader title="Поиск" subtitle={hasQuery ? `Найдено: ${results.length}` : 'Ищите места, еду, маршруты и полезные локации'} showBack />
 
       <section className="travel-search-panel">
         <label className="travel-search-input travel-search-input--page">
           <span className="travel-search-input__icon" aria-hidden="true">⌕</span>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search for places..." />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Найти место, кухню или район..." />
         </label>
 
         <div className="travel-filter-row">
           <label className="travel-select">
-            <span>Category</span>
+            <span>Категория</span>
             <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
-              <option value="all">All categories</option>
+              <option value="all">Все категории</option>
               {categories
                 .filter((category) => category.visible)
                 .map((category) => (
@@ -111,7 +111,7 @@ export function SearchPage() {
           </label>
 
           <Link className="travel-secondary-button" to="/nearby">
-            Map View
+            Рядом
           </Link>
         </div>
 
@@ -124,7 +124,7 @@ export function SearchPage() {
         </div>
       </section>
 
-      {loading ? <div className="travel-state-card">Updating places...</div> : null}
+      {loading ? <div className="travel-state-card">Обновляю список мест…</div> : null}
       {error ? <div className="travel-state-card">{error}</div> : null}
 
       {!loading && results.length > 0 ? (
@@ -143,11 +143,11 @@ export function SearchPage() {
 
       {!loading && results.length === 0 ? (
         <div className="travel-state-card">
-          <strong>{hasQuery ? 'No matches found' : 'Start with search or quick tags'}</strong>
+          <strong>{hasQuery ? 'Ничего не найдено' : 'Начните с поиска или быстрых тегов'}</strong>
           <p>
             {hasQuery
-              ? 'Try a shorter query, switch category or use one of the popular tags above.'
-              : 'Search works by titles, tags, services, cuisine and descriptions.'}
+              ? 'Попробуйте сократить запрос, сменить категорию или выбрать один из популярных тегов выше.'
+              : 'Поиск работает по названиям, тегам, услугам, кухне и описаниям карточек.'}
           </p>
         </div>
       ) : null}

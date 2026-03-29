@@ -23,8 +23,11 @@ export function HomePage() {
   const fallbackPopularPlaces = sortPlacesByPriority(places.filter((place: GuidePlace) => place.top)).slice(0, 4);
   const popularPlaces = activePopularPlaces.length > 0 ? activePopularPlaces : fallbackPopularPlaces;
   const upcomingEvents = sortPlacesByPriority(places.filter((place: GuidePlace) => place.categoryId === 'events')).slice(0, 4);
-  const featuredCategoryIds = ['restaurants', 'events', 'routes', 'transport'];
+  const featuredCategoryIds = home.featuredCategoryIds?.length
+    ? home.featuredCategoryIds
+    : ['restaurants', 'events', 'routes', 'transport'];
   const featuredCategories = featuredCategoryIds
+    .slice(0, 4)
     .map((id) => activeCategories.find((category: GuideCategory) => category.id === id))
     .filter((category): category is GuideCategory => Boolean(category));
   const visibleTips = home.tipIds

@@ -4,11 +4,11 @@ import { useSecretTheme } from '../../secretTheme/SecretThemeProvider';
 type NavIconName = 'home' | 'search' | 'heart' | 'nearby' | 'contacts';
 
 const items: Array<{ to: string; label: string; icon: NavIconName }> = [
-  { to: '/', label: 'Home', icon: 'home' },
-  { to: '/search', label: 'Search', icon: 'search' },
-  { to: '/favorites', label: 'Saved', icon: 'heart' },
-  { to: '/nearby', label: 'Map', icon: 'nearby' },
-  { to: '/contacts', label: 'Info', icon: 'contacts' }
+  { to: '/', label: 'Главная', icon: 'home' },
+  { to: '/search', label: 'Поиск', icon: 'search' },
+  { to: '/favorites', label: 'Избранное', icon: 'heart' },
+  { to: '/nearby', label: 'Рядом', icon: 'nearby' },
+  { to: '/contacts', label: 'Контакты', icon: 'contacts' }
 ];
 
 const secretNavGlyphs: Record<NavIconName, string> = {
@@ -70,7 +70,9 @@ export function BottomNav() {
     <nav className="bottom-nav" aria-label="Нижняя навигация">
       {items.map((item) => (
         <NavLink key={item.to} to={item.to} className={({ isActive }) => `bottom-nav__item${isActive ? ' is-active' : ''}`} end={item.to === '/'}>
-          <BottomNavIcon name={item.icon} />
+          <span className="bottom-nav__icon-wrap">
+            <BottomNavIcon name={item.icon} />
+          </span>
           <span className="bottom-nav__label">{item.label}</span>
         </NavLink>
       ))}

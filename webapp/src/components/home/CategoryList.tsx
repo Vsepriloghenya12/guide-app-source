@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { GuideCategory } from '../../types';
 import { recordGuideAnalytics } from '../../utils/analytics';
-import { getCategoryListImage } from './homeVisuals';
+import { getCategoryListImage, getCategoryTone } from './homeVisuals';
 
 type CategoryListProps = {
   categories: GuideCategory[];
@@ -21,6 +21,7 @@ export function CategoryList({ categories, title }: CategoryListProps) {
             key={category.id}
             to={category.path}
             className="travel-directory-row"
+            data-tone={getCategoryTone(category)}
             role="listitem"
             onClick={() =>
               recordGuideAnalytics({
@@ -32,7 +33,11 @@ export function CategoryList({ categories, title }: CategoryListProps) {
               })
             }
           >
-            <span className="travel-directory-row__title">{category.shortTitle || category.title}</span>
+            <span className="travel-directory-row__body">
+              {category.badge ? <span className="travel-directory-row__eyebrow">{category.badge}</span> : null}
+              <span className="travel-directory-row__title">{category.shortTitle || category.title}</span>
+              {category.description ? <span className="travel-directory-row__text">{category.description}</span> : null}
+            </span>
             <span className="travel-directory-row__media" aria-hidden="true">
               <img src={getCategoryListImage(category, index)} alt="" loading="lazy" decoding="async" />
             </span>

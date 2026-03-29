@@ -15,7 +15,7 @@ export function PageHeader({
   showBack = false,
   actionLabel,
   actionPath,
-  badgeLabel = 'Danang Guide'
+  badgeLabel = 'Гид Дананга'
 }: PageHeaderProps) {
   return (
     <header className="travel-topbar">

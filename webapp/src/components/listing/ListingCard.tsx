@@ -12,22 +12,34 @@ type ListingCardProps = {
 
 function buildMeta(listing: Listing) {
   return [
-    listing.shortDescription,
-    listing.hours ? `Open ${listing.hours}` : '',
-    listing.district || listing.address,
-    listing.priceLabel || ''
-  ]
-    .filter(Boolean)
-    .slice(0, 2);
+    listing.shortDescription || listing.description,
+    listing.district || listing.address
+  ].filter(Boolean);
 }
 
-export function ListingCard({ listing, isFavorite, onToggleFavorite }: ListingCardProps) {
-  const image = listing.imageUrls[0] || '/danang-clean-poster.png';
+function buildPills(listing: Listing) {
+  return [
+    listing.rating ? `${listing.rating.toFixed(1)} ★` : '',
+    listing.priceLabel || '',
+    listing.hours ? `Открыто ${listing.hours}` : ''
+  ]
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
+function buildBadgeLabel(listing: Listing) {
+  return listing.listingType || listing.kind || listing.cuisine || 'Место';
+}
+
+export function ListingCard({ listing, accent, isFavorite, onToggleFavorite }: ListingCardProps) {
+  const image = listing.imageUrls[0] || '/home-hero-background.png';
   const detailPath = `/place/${listing.slug}`;
   const meta = buildMeta(listing);
+  const pills = buildPills(listing);
+  const badgeLabel = buildBadgeLabel(listing);
 
   return (
-    <article className="travel-list-card">
+    <article className="travel-list-card" data-tone={accent || 'coast'}>
       <Link
         className="travel-list-card__main"
         to={detailPath}
@@ -43,15 +55,20 @@ export function ListingCard({ listing, isFavorite, onToggleFavorite }: ListingCa
       >
         <span className="travel-list-card__thumb-wrap">
           <img className="travel-list-card__thumb" src={image} alt={listing.title} loading="lazy" decoding="async" />
+          <span className="travel-list-card__thumb-badge">{badgeLabel}</span>
         </span>
 
         <span className="travel-list-card__body">
           <strong>{listing.title}</strong>
           {meta[0] ? <span className="travel-list-card__subtitle">{meta[0]}</span> : null}
-          <span className="travel-list-card__meta">
-            {listing.rating ? <span>{listing.rating.toFixed(1)} ★</span> : null}
-            {meta[1] ? <span>{meta[1]}</span> : null}
-          </span>
+          {pills.length > 0 ? (
+            <span className="travel-list-card__pills">
+              {pills.map((item, index) => (
+                <span key={`${item}-${index}`} className="travel-list-card__pill">{item}</span>
+              ))}
+            </span>
+          ) : null}
+          {meta[1] ? <span className="travel-list-card__meta">{meta[1]}</span> : null}
         </span>
 
         <span className="travel-list-card__right">

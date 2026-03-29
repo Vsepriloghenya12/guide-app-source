@@ -43,7 +43,7 @@ export function OwnerLoginPage() {
 
       <section className="owner-login-card">
         <div className="owner-login-card__intro">
-          <span className="eyebrow">Owner access</span>
+          <span className="eyebrow">Owner CMS</span>
           <h2>Управление наполнением приложения</h2>
           <p>
             Вход владельца теперь проверяется на сервере, а сессия хранится в cookie. Пароль удобно

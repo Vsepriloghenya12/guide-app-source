@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeSectionTitles } from '../../types';
 import { recordGuideAnalytics } from '../../utils/analytics';
-import { getQuickMenuImage } from './homeVisuals';
+import { getCategoryTone, getPlaceTone, getQuickMenuImage } from './homeVisuals';
 
 type FeatureGridProps = {
   popularPlaces: GuidePlace[];
@@ -52,12 +52,14 @@ function buildStoryCards(tips: GuideTip[], collections: GuideCollection[], upcom
     }))
   ].slice(0, 5);
 }
-
-const QUICK_CATEGORY_ORDER = ['restaurants', 'events', 'routes', 'transport'] as const;
+const storyKindLabel: Record<StoryCard['kind'], string> = {
+  tip: 'Совет',
+  collection: 'Подборка',
+  event: 'Событие'
+};
 
 export function FeatureGrid({ popularPlaces, featuredCategories, tips, collections, upcomingEvents, sectionTitles }: FeatureGridProps) {
-  const quickCategoryMap = new Map(featuredCategories.map((category) => [category.id, category]));
-  const quickCategories = QUICK_CATEGORY_ORDER.map((id) => quickCategoryMap.get(id)).filter((category): category is GuideCategory => Boolean(category));
+  const quickCategories = featuredCategories.slice(0, 4);
   const storyCards = buildStoryCards(tips, collections, upcomingEvents);
 
   return (
@@ -70,6 +72,7 @@ export function FeatureGrid({ popularPlaces, featuredCategories, tips, collectio
                 key={category.id}
                 to={category.path}
                 className="travel-quick-photo"
+                data-tone={getCategoryTone(category)}
                 onClick={() =>
                   recordGuideAnalytics({
                     kind: 'category-click',
@@ -79,52 +82,61 @@ export function FeatureGrid({ popularPlaces, featuredCategories, tips, collectio
                     categoryId: category.id
                   })
                 }
-              >
-                <span className="travel-quick-photo__disc" aria-hidden="true">
-                  <img src={getQuickMenuImage(category, index)} alt="" loading="lazy" decoding="async" />
-                </span>
-                <span className="travel-quick-photo__label">{category.shortTitle || category.title}</span>
-              </Link>
-            ))}
+                >
+                  <span className="travel-quick-photo__disc" aria-hidden="true">
+                    <img src={getQuickMenuImage(category, index)} alt="" loading="lazy" decoding="async" />
+                  </span>
+                  {category.badge ? <span className="travel-quick-photo__meta">{category.badge}</span> : null}
+                  <span className="travel-quick-photo__label">{category.shortTitle || category.title}</span>
+                </Link>
+              ))}
           </div>
         </section>
       ) : null}
 
-      <section className="travel-section">
-        <div className="travel-section__header">
-          <h2>{sectionTitles.popular || 'Топ'}</h2>
-          <Link to="/search">Смотреть все</Link>
-        </div>
+      {popularPlaces.length > 0 ? (
+        <section className="travel-section">
+          <div className="travel-section__header">
+            <h2>{sectionTitles.popular || 'Топ'}</h2>
+            <Link to="/search">Смотреть все</Link>
+          </div>
 
-        <div className="travel-picks-row">
-          {popularPlaces.slice(0, 3).map((place) => {
-            const imageSrc = place.imageGallery?.[0] || place.imageSrc || '/danang-clean-poster.png';
-            const detailPath = getPlacePath(place);
-            return (
-              <Link
-                key={place.id}
-                to={detailPath}
-                className="travel-pick-card"
-                style={{ backgroundImage: `url(${imageSrc})` }}
-                onClick={() =>
-                  recordGuideAnalytics({
-                    kind: 'place-click',
-                    label: place.title,
-                    path: detailPath,
-                    entityId: place.id,
-                    categoryId: place.categoryId
-                  })
-                }
-              >
-                <span className="travel-pick-card__shade" />
-                <span className="travel-pick-card__content">
-                  <strong>{place.title}</strong>
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+          <div className="travel-picks-row">
+            {popularPlaces.slice(0, 3).map((place) => {
+              const imageSrc = place.imageGallery?.[0] || place.imageSrc || '/home-hero-background.png';
+              const detailPath = getPlacePath(place);
+              const badgeLabel = place.listingType || place.kind || place.cuisine || 'Место';
+              const metaLabel = place.district || place.priceLabel || place.hours || place.shortDescription || '';
+              return (
+                <Link
+                  key={place.id}
+                  to={detailPath}
+                  className="travel-pick-card"
+                  data-tone={getPlaceTone(place.categoryId)}
+                  style={{ backgroundImage: `url(${imageSrc})` }}
+                  onClick={() =>
+                    recordGuideAnalytics({
+                      kind: 'place-click',
+                      label: place.title,
+                      path: detailPath,
+                      entityId: place.id,
+                      categoryId: place.categoryId
+                    })
+                  }
+                >
+                  <span className="travel-pick-card__shade" />
+                  {place.rating ? <span className="travel-pick-card__rating">{place.rating.toFixed(1)} ★</span> : null}
+                  <span className="travel-pick-card__content">
+                    <span className="travel-pick-card__eyebrow">{badgeLabel}</span>
+                    <strong>{place.title}</strong>
+                    {metaLabel ? <span>{metaLabel}</span> : null}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
       {storyCards.length > 0 ? (
         <section className="travel-section">
@@ -139,6 +151,7 @@ export function FeatureGrid({ popularPlaces, featuredCategories, tips, collectio
                 key={item.id}
                 to={item.path}
                 className="travel-story-row"
+                data-tone={item.kind === 'collection' ? 'bridge' : item.kind === 'event' ? getPlaceTone('events') : 'emerald'}
                 onClick={() =>
                   recordGuideAnalytics({
                     kind: item.kind === 'collection' ? 'collection-click' : item.kind === 'event' ? 'place-click' : 'tip-click',
@@ -150,10 +163,11 @@ export function FeatureGrid({ popularPlaces, featuredCategories, tips, collectio
               >
                 <span
                   className="travel-story-row__thumb"
-                  style={item.imageSrc ? { backgroundImage: `url(${item.imageSrc})` } : { backgroundImage: 'url(/danang-clean-poster.png)' }}
+                  style={item.imageSrc ? { backgroundImage: `url(${item.imageSrc})` } : { backgroundImage: 'url(/home-hero-background.png)' }}
                   aria-hidden="true"
                 />
                 <span className="travel-story-row__body">
+                  <span className="travel-story-row__eyebrow">{storyKindLabel[item.kind]}</span>
                   <strong>{item.title}</strong>
                   <span>{item.text}</span>
                 </span>

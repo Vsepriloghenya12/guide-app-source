@@ -26,10 +26,27 @@ const orderedQuickIcons = [
 ];
 
 const accentFallback: Record<string, string> = {
-  coast: '/danang-home-poster.png',
-  sunset: '/danang-clean-poster.png',
+  coast: '/home-hero-background.png',
+  sunset: '/home-hero-background.png',
   bridge: '/home-icons/attractions.png',
   emerald: '/home-icons/leisure.png'
+};
+
+const toneByCategoryId: Partial<Record<GuideCategory['id'], string>> = {
+  restaurants: 'sunset',
+  wellness: 'emerald',
+  'active-rest': 'sunset',
+  routes: 'bridge',
+  hotels: 'coast',
+  events: 'sunset',
+  transport: 'bridge',
+  atm: 'emerald',
+  shops: 'sunset',
+  culture: 'coast',
+  kids: 'emerald',
+  medicine: 'emerald',
+  'photo-spots': 'sunset',
+  'car-rental': 'bridge'
 };
 
 export function getQuickMenuImage(category: GuideCategory, index: number): string {
@@ -42,4 +59,12 @@ export function getCategoryListImage(category: GuideCategory, index: number): st
   }
 
   return quickIconsById[category.id] || accentFallback[category.accent] || orderedQuickIcons[index % orderedQuickIcons.length];
+}
+
+export function getCategoryTone(category: Pick<GuideCategory, 'id' | 'accent'>): string {
+  return category.accent || toneByCategoryId[category.id] || 'coast';
+}
+
+export function getPlaceTone(categoryId: GuideCategory['id']): string {
+  return toneByCategoryId[categoryId] || 'coast';
 }
