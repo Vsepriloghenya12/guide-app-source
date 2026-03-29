@@ -1622,20 +1622,24 @@ body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__icon-wrap
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__item.is-active {
-  background: linear-gradient(180deg, #2b78dd 0%, #1f63c7 100%);
-  color: #fff;
+  background: linear-gradient(180deg, rgba(43, 120, 221, 0.18) 0%, rgba(31, 99, 199, 0.08) 100%);
+  color: #1f63c7;
   transform: translateY(-6px);
   box-shadow: 0 14px 24px rgba(33, 95, 187, 0.22);
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__item.is-active .bottom-nav__icon-wrap {
-  background: rgba(10, 36, 84, 0.34);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: #1f63c7;
+  border: 1px solid rgba(31, 99, 199, 0.14);
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__item.is-active .bottom-nav__icon-svg,
 body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__item.is-active .bottom-nav__icon-kanji {
   color: #fff;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__item.is-active .bottom-nav__label {
+  color: #1f63c7;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__label {
@@ -1676,13 +1680,16 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__content-
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__brand-logo--hero-only {
   width: min(100%, 672px);
   max-width: none;
-  transform: scale(2);
+  transform: scale(1.333333);
   transform-origin: top center;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__brand-logo--hero-only .app-logo-media {
   width: 100%;
   max-height: none;
+  filter:
+    drop-shadow(0 14px 24px rgba(4, 18, 44, 0.48))
+    drop-shadow(0 0 18px rgba(255, 255, 255, 0.18));
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__content--featured {

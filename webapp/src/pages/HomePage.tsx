@@ -20,18 +20,9 @@ export function HomePage() {
   const fallbackPopularPlaces = sortPlacesByPriority(places.filter((place: GuidePlace) => place.top)).slice(0, 4);
   const popularPlaces = activePopularPlaces.length > 0 ? activePopularPlaces : fallbackPopularPlaces;
   const upcomingEvents = sortPlacesByPriority(places.filter((place: GuidePlace) => place.categoryId === 'events')).slice(0, 4);
-  const featuredCategories = ['restaurants', 'events', 'hotels', 'culture']
+  const featuredCategories = ['restaurants', 'events', 'hotels', 'shops']
     .map((id) => activeCategories.find((category: GuideCategory) => category.id === id))
-    .filter((category): category is GuideCategory => Boolean(category))
-    .map((category) =>
-      category.id === 'culture'
-        ? {
-            ...category,
-            title: 'Достопримечательности',
-            shortTitle: 'Достопримечательности'
-          }
-        : category
-    );
+    .filter((category): category is GuideCategory => Boolean(category));
   const visibleTips = home.tipIds
     .map((id: string) => tips.find((tip: GuideTip) => tip.id === id && tip.active))
     .filter((tip): tip is GuideTip => Boolean(tip));
