@@ -2557,7 +2557,7 @@ body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-h
   max-width: 100%;
   min-width: 0;
   min-height: 220px;
-  margin: 0 0 12px;
+  margin: -22px calc(var(--page-inline-padding, 14px) * -1) 12px;
   border-radius: 0;
   overflow: hidden;
   background-position: center;
