@@ -385,9 +385,17 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
               </button>
             ))}
 
-            <button className="restaurant-filter-button" type="button" onClick={() => setRestaurantFilterOpen(true)}>
-              Фильтры
-              {activeFiltersCount > 0 ? <span className="restaurant-filter-button__badge">{activeFiltersCount}</span> : null}
+            <button className="restaurant-filter-button" type="button" onClick={() => setRestaurantFilterOpen(true)} aria-label="Фильтры">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 7h16M7 12h10m-7 5h4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.9"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
           </div>
         </section>

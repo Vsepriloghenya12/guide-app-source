@@ -2601,14 +2601,12 @@ body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filters-sh
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filters-row {
-  display: flex;
+  display: grid;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  flex-wrap: wrap;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) 42px;
   gap: 8px;
-  overflow: visible;
-  padding-bottom: 0;
   box-sizing: border-box;
 }
 
@@ -2622,7 +2620,7 @@ body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-but
   color: #324660;
   font-size: 0.76rem;
   font-weight: 800;
-  white-space: normal;
+  white-space: nowrap;
   text-align: center;
   box-shadow: none;
 }
@@ -2635,22 +2633,16 @@ body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-quick-filt
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-button {
-  flex: 0 1 auto;
-  margin-left: 0;
+  width: 42px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
   color: #1f63c7;
 }
 
-body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-button__badge {
-  min-width: 20px;
-  height: 20px;
-  margin-left: 8px;
-  border-radius: 999px;
-  display: inline-grid;
-  place-items: center;
-  background: #1f63c7;
-  color: #fff;
-  font-size: 0.68rem;
-  font-weight: 800;
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-button svg {
+  width: 18px;
+  height: 18px;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-modal {
