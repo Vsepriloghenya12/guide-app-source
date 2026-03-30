@@ -1519,6 +1519,10 @@ body:not(.secret-theme-active) .app-shell.reference-shell [data-tone='emerald'] 
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .app-main.reference-main {
+  width: var(--travel-shell-width);
+  max-width: var(--travel-shell-width);
+  box-sizing: border-box;
+  margin: 0 auto;
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.72), transparent 28%),
     linear-gradient(180deg, #f7fafe 0%, #f4f7fb 28%, #eef3f8 100%);
@@ -2540,17 +2544,25 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-page--nearby .
 /* Restaurant page refresh v1 */
 body:not(.secret-theme-active) .app-shell.reference-shell .category-explorer-page--restaurants {
   gap: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding-bottom: 12px;
+  box-sizing: border-box;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-hero {
   position: relative;
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
   min-height: 220px;
   margin: 0 16px 16px;
   border-radius: 28px;
   overflow: hidden;
   background-position: center;
   background-size: cover;
+  box-sizing: border-box;
   box-shadow: 0 20px 38px rgba(24, 43, 74, 0.2);
 }
 
@@ -2581,14 +2593,22 @@ body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-h
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filters-shell {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 0 16px 16px;
+  box-sizing: border-box;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filters-row {
   display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   gap: 10px;
   overflow-x: auto;
   padding-bottom: 4px;
+  box-sizing: border-box;
   scrollbar-width: none;
 }
 
@@ -2618,6 +2638,7 @@ body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-quick-filt
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-button {
+  flex: 0 0 auto;
   margin-left: auto;
   color: #1f63c7;
 }
@@ -2646,11 +2667,19 @@ body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-sta
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-list {
   display: grid;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   gap: 12px;
   padding: 0 16px 16px;
+  box-sizing: border-box;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card--restaurant {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   border-radius: 24px !important;
   background: linear-gradient(180deg, #fff 0%, #fbfdff 100%) !important;
 }
@@ -2660,6 +2689,9 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card--res
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__main--restaurant {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   grid-template-columns: 108px minmax(0, 1fr);
   gap: 14px;
   padding: 12px;
