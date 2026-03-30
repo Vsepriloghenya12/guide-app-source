@@ -63,11 +63,17 @@ export function ListingCard({ listing, accent, isFavorite, onToggleFavorite, var
           </span>
 
           <span className="travel-list-card__body travel-list-card__body--restaurant">
-            <strong>{listing.title}</strong>
+            <strong className="travel-list-card__title--restaurant">{listing.title}</strong>
             {meta[0] ? <span className="travel-list-card__subtitle travel-list-card__subtitle--restaurant">{meta[0]}</span> : null}
             <span className="travel-list-card__restaurant-meta">
-              <span>Средний чек: {averageCheckLabel}</span>
-              <span>Время работы: {workingHoursLabel}</span>
+              <span className="travel-list-card__restaurant-fact travel-list-card__restaurant-fact--check">
+                <span className="travel-list-card__restaurant-fact-label">Средний чек</span>
+                <span className="travel-list-card__restaurant-fact-value">{averageCheckLabel}</span>
+              </span>
+              <span className="travel-list-card__restaurant-fact travel-list-card__restaurant-fact--hours">
+                <span className="travel-list-card__restaurant-fact-label">Время работы</span>
+                <span className="travel-list-card__restaurant-fact-value">{workingHoursLabel}</span>
+              </span>
             </span>
           </span>
         </Link>
