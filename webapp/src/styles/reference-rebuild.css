@@ -1682,18 +1682,33 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__content-
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__brand-logo--hero-only {
+  position: relative;
+  isolation: isolate;
   width: min(100%, 672px);
   max-width: none;
   transform: scale(1.333333);
   transform-origin: top center;
 }
 
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__brand-logo--hero-only::before {
+  content: '';
+  position: absolute;
+  inset: 6% 4% 10%;
+  border-radius: 42px;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.74) 0%, rgba(237, 244, 254, 0.58) 28%, rgba(120, 163, 225, 0.22) 58%, rgba(13, 31, 64, 0.16) 82%, transparent 100%);
+  filter: blur(18px);
+  z-index: -1;
+  pointer-events: none;
+}
+
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__brand-logo--hero-only .app-logo-media {
   width: 100%;
   max-height: none;
   filter:
-    drop-shadow(0 14px 24px rgba(4, 18, 44, 0.48))
-    drop-shadow(0 0 18px rgba(255, 255, 255, 0.18));
+    drop-shadow(0 18px 30px rgba(4, 18, 44, 0.46))
+    drop-shadow(0 0 22px rgba(255, 255, 255, 0.28))
+    drop-shadow(0 0 14px rgba(71, 130, 220, 0.26));
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__content--featured {
@@ -1942,17 +1957,22 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-story-row__arr
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-directory-list--stripes {
-  gap: 12px;
+  gap: 0;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-directory-row {
-  grid-template-columns: minmax(0, 1fr) 98px;
-  gap: 16px;
-  padding: 14px;
-  border-radius: 22px;
-  background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
-  border: 1px solid rgba(215, 222, 233, 0.92);
-  box-shadow: 0 12px 24px rgba(41, 60, 92, 0.08);
+  grid-template-columns: minmax(0, 1fr) 92px;
+  gap: 14px;
+  padding: 12px 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(23, 37, 64, 0.09);
+  box-shadow: none;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-directory-row:last-child {
+  border-bottom: 0;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-directory-row__body {
@@ -1987,11 +2007,11 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-directory-row_
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-directory-row__media {
-  width: 98px;
-  height: 78px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.84);
-  box-shadow: 0 12px 20px rgba(41, 60, 92, 0.12);
+  width: 92px;
+  height: 64px;
+  border-radius: 14px;
+  border: 0;
+  box-shadow: none;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-listing-stack,
