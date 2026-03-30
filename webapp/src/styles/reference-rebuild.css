@@ -2553,8 +2553,8 @@ body:not(.secret-theme-active) .app-shell.reference-shell .category-explorer-pag
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-hero {
   position: relative;
-  width: auto;
-  max-width: 100%;
+  width: calc(100% + (var(--page-inline-padding, 14px) * 2));
+  max-width: none;
   min-width: 0;
   min-height: 220px;
   margin: -22px calc(var(--page-inline-padding, 14px) * -1) 12px;
