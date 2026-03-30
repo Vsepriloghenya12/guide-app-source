@@ -1653,6 +1653,33 @@ body:not(.secret-theme-active) .app-shell.reference-shell .bottom-nav__label {
   font-size: 0.68rem;
 }
 
+@media (max-width: 919px) {
+  body:not(.secret-theme-active),
+  body:not(.secret-theme-active) #root,
+  body:not(.secret-theme-active) .app-shell.reference-shell {
+    background: var(--travel-shell) !important;
+  }
+
+  body:not(.secret-theme-active) .app-shell.reference-shell {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  body:not(.secret-theme-active) .app-shell.reference-shell .app-main.reference-main {
+    width: 100vw;
+    max-width: 100vw;
+    min-height: 100vh;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.72), transparent 28%),
+      linear-gradient(180deg, #f7fafe 0%, #f4f7fb 28%, #eef3f8 100%);
+  }
+}
+
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-home-sections {
   margin-top: -82px;
   padding-top: 22px;
