@@ -32,6 +32,31 @@ function buildBadgeLabel(listing: Listing) {
   return listing.listingType || listing.kind || listing.cuisine || 'Место';
 }
 
+function buildUnifiedFacts(listing: Listing, averageCheckLabel: string, workingHoursLabel: string) {
+  const primaryFact =
+    listing.categoryId === 'restaurants'
+      ? { tone: 'check', label: 'Средний чек', value: averageCheckLabel }
+      : typeof listing.hotelStars === 'number' && Number.isFinite(listing.hotelStars)
+        ? { tone: 'check', label: 'Уровень', value: `${listing.hotelStars}★` }
+        : listing.cuisine
+          ? { tone: 'check', label: 'Кухня', value: listing.cuisine }
+          : listing.listingType || listing.kind
+            ? { tone: 'check', label: 'Формат', value: listing.listingType || listing.kind }
+            : listing.priceLabel
+              ? { tone: 'check', label: 'Цена', value: listing.priceLabel }
+              : null;
+
+  const secondaryFact = listing.hours
+    ? { tone: 'hours', label: 'Время работы', value: workingHoursLabel }
+    : listing.district
+      ? { tone: 'hours', label: 'Район', value: listing.district }
+      : listing.address
+        ? { tone: 'hours', label: 'Адрес', value: listing.address }
+        : null;
+
+  return [primaryFact, secondaryFact].filter((fact): fact is { tone: 'check' | 'hours'; label: string; value: string } => Boolean(fact));
+}
+
 export function ListingCard({ listing, accent, isFavorite, onToggleFavorite, variant = 'default' }: ListingCardProps) {
   const image = listing.imageUrls[0] || '/home-hero-background.png';
   const detailPath = `/place/${listing.slug}`;
@@ -41,6 +66,7 @@ export function ListingCard({ listing, accent, isFavorite, onToggleFavorite, var
   const averageCheckLabel =
     listing.priceLabel || (typeof listing.avgCheck === 'number' && Number.isFinite(listing.avgCheck) ? `от ${listing.avgCheck}` : 'не указан');
   const workingHoursLabel = listing.hours || 'не указано';
+  const unifiedFacts = buildUnifiedFacts(listing, averageCheckLabel, workingHoursLabel);
 
   if (variant === 'restaurant') {
     return (
@@ -66,14 +92,12 @@ export function ListingCard({ listing, accent, isFavorite, onToggleFavorite, var
             <strong className="travel-list-card__title--restaurant">{listing.title}</strong>
             {meta[0] ? <span className="travel-list-card__subtitle travel-list-card__subtitle--restaurant">{meta[0]}</span> : null}
             <span className="travel-list-card__restaurant-meta">
-              <span className="travel-list-card__restaurant-fact travel-list-card__restaurant-fact--check">
-                <span className="travel-list-card__restaurant-fact-label">Средний чек</span>
-                <span className="travel-list-card__restaurant-fact-value">{averageCheckLabel}</span>
-              </span>
-              <span className="travel-list-card__restaurant-fact travel-list-card__restaurant-fact--hours">
-                <span className="travel-list-card__restaurant-fact-label">Время работы</span>
-                <span className="travel-list-card__restaurant-fact-value">{workingHoursLabel}</span>
-              </span>
+              {unifiedFacts.map((fact) => (
+                <span key={`${fact.label}-${fact.value}`} className={`travel-list-card__restaurant-fact travel-list-card__restaurant-fact--${fact.tone}`}>
+                  <span className="travel-list-card__restaurant-fact-label">{fact.label}</span>
+                  <span className="travel-list-card__restaurant-fact-value">{fact.value}</span>
+                </span>
+              ))}
             </span>
           </span>
         </Link>
