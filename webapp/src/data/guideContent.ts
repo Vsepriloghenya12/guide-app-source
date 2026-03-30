@@ -5,6 +5,7 @@ import { notifyOwnerAuthRequired } from '../utils/ownerEvents';
 
 const GUIDE_CONTENT_KEY = 'guide-content-store-v4';
 const LEGACY_GUIDE_CONTENT_KEY = 'guide-content-store-v2';
+const GUIDE_CONTENT_PENDING_KEY = 'guide-content-store-v4-pending';
 const GUIDE_CONTENT_PUBLIC_ENDPOINT = '/api/public/content';
 const GUIDE_CONTENT_OWNER_ENDPOINT = '/api/owner/bootstrap';
 const GUIDE_CONTENT_WRITE_ENDPOINT = '/api/content';
@@ -12,8 +13,11 @@ const GUIDE_CONTENT_RESET_ENDPOINT = '/api/content/reset';
 
 export const GUIDE_CONTENT_EVENT = 'guide-content-updated';
 
-let persistQueue: Promise<unknown> = Promise.resolve();
+let persistQueue: Promise<GuideContentStore | null> | null = null;
+let queuedPersistStore: GuideContentStore | null = null;
 let serverSyncPromises: Partial<Record<GuideContentScope, Promise<GuideContentStore>>> = {};
+let lastLocalWriteAt = 0;
+let lastLocalWriteVersion = 0;
 
 export type GuideContentScope = 'public' | 'owner';
 
@@ -23,6 +27,31 @@ function cloneRawDefaultStore(): GuideContentStore {
 
 function canUseStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+}
+
+function hasPendingPersist() {
+  return canUseStorage() && window.localStorage.getItem(GUIDE_CONTENT_PENDING_KEY) === '1';
+}
+
+function markPendingPersist() {
+  if (!canUseStorage()) {
+    return;
+  }
+
+  window.localStorage.setItem(GUIDE_CONTENT_PENDING_KEY, '1');
+}
+
+function clearPendingPersist() {
+  if (!canUseStorage()) {
+    return;
+  }
+
+  window.localStorage.removeItem(GUIDE_CONTENT_PENDING_KEY);
+}
+
+function markLocalWrite() {
+  lastLocalWriteAt = Date.now();
+  lastLocalWriteVersion += 1;
 }
 
 function createMigratedPlace(item: {
@@ -283,14 +312,54 @@ async function pushContentToServer(store: GuideContentStore) {
   return normalizeStore(payload.content);
 }
 
+async function flushPersistQueue() {
+  let lastRemoteStore: GuideContentStore | null = null;
+
+  while (queuedPersistStore) {
+    const storeToPersist = queuedPersistStore;
+    const persistStartedVersion = lastLocalWriteVersion;
+    queuedPersistStore = null;
+
+    try {
+      const remoteStore = await pushContentToServer(storeToPersist);
+
+      if (queuedPersistStore || lastLocalWriteVersion > persistStartedVersion) {
+        lastRemoteStore = readGuideContent();
+        continue;
+      }
+
+      lastRemoteStore = writeGuideContent(remoteStore, { persist: false, emit: true, source: 'remote' });
+    } catch (error) {
+      queuedPersistStore = storeToPersist;
+      throw error;
+    }
+  }
+
+  clearPendingPersist();
+  return lastRemoteStore;
+}
+
 function queuePersist(store: GuideContentStore) {
-  persistQueue = persistQueue
-    .catch(() => undefined)
-    .then(async () => {
-      const remoteStore = await pushContentToServer(store);
-      writeGuideContent(remoteStore, { persist: false, emit: true });
-      return remoteStore;
-    });
+  queuedPersistStore = store;
+  markPendingPersist();
+
+  if (!persistQueue) {
+    let completed = false;
+
+    persistQueue = flushPersistQueue()
+      .then((result) => {
+        completed = true;
+        return result;
+      })
+      .catch(() => null)
+      .finally(() => {
+        persistQueue = null;
+
+        if (completed && queuedPersistStore) {
+          void queuePersist(queuedPersistStore);
+        }
+      });
+  }
 
   return persistQueue;
 }
@@ -327,12 +396,18 @@ export function writeGuideContent(
   options: {
     persist?: boolean;
     emit?: boolean;
+    source?: 'local' | 'remote';
   } = {}
 ) {
   const nextStore = normalizeStore(store);
+  const source = options.source ?? 'local';
 
   if (canUseStorage()) {
     window.localStorage.setItem(GUIDE_CONTENT_KEY, JSON.stringify(nextStore));
+  }
+
+  if (source === 'local') {
+    markLocalWrite();
   }
 
   if (options.emit !== false) {
@@ -364,9 +439,23 @@ export async function syncGuideContentFromServer(scope: GuideContentScope = 'pub
     return cloneDefaultStore();
   }
 
+  if (scope === 'owner' && hasPendingPersist()) {
+    const localStore = readGuideContent();
+    void queuePersist(localStore);
+    return localStore;
+  }
+
   if (!serverSyncPromises[scope]) {
+    const syncStartedAt = Date.now();
+    const syncStartedVersion = lastLocalWriteVersion;
     serverSyncPromises[scope] = fetchContentFromServer(scope)
-      .then((remoteStore) => writeGuideContent(remoteStore, { persist: false, emit: true }))
+      .then((remoteStore) => {
+        if (hasPendingPersist() || lastLocalWriteVersion > syncStartedVersion || lastLocalWriteAt > syncStartedAt) {
+          return readGuideContent();
+        }
+
+        return writeGuideContent(remoteStore, { persist: false, emit: true, source: 'remote' });
+      })
       .catch(() => readGuideContent())
       .finally(() => {
         delete serverSyncPromises[scope];
@@ -377,6 +466,7 @@ export async function syncGuideContentFromServer(scope: GuideContentScope = 'pub
 }
 
 export async function resetGuideContent() {
+  clearPendingPersist();
   const localReset = writeGuideContent(cloneDefaultStore(), { persist: false, emit: true });
 
   try {

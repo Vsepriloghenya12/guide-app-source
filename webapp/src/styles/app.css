@@ -6649,3 +6649,182 @@ body:not(.secret-theme-active) .boot-progress__bar {
     width: 100%;
   }
 }
+
+.owner-shell,
+.owner-shell *,
+.owner-shell *::before,
+.owner-shell *::after {
+  box-sizing: border-box;
+}
+
+.owner-shell__main,
+.owner-page,
+.owner-login-page,
+.owner-dashboard,
+.owner-dashboard__hero,
+.owner-cms-section,
+.owner-login-card,
+.owner-summary-card,
+.owner-editor-card,
+.owner-category-card,
+.owner-subsection,
+.owner-selection-card,
+.owner-inline-card,
+.owner-item-card,
+.owner-media-card,
+.owner-item-list,
+.owner-category-list,
+.owner-stack-list,
+.owner-editor-form,
+.owner-editor-form__grid,
+.owner-panel-tabs,
+.owner-panel-tab,
+.owner-selection-grid,
+.owner-summary-grid,
+.owner-cms-layout,
+.owner-cms-layout--stack,
+.owner-media-grid,
+.owner-shell .travel-topbar,
+.owner-shell .travel-topbar__inner,
+.owner-shell .travel-topbar__titles,
+.owner-shell .travel-topbar__titles h1,
+.owner-shell .travel-topbar__titles p {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.owner-shell .travel-topbar__inner,
+.owner-dashboard__hero,
+.owner-cms-section__header,
+.owner-panel-tab,
+.owner-item-card,
+.owner-category-card,
+.owner-subsection,
+.owner-inline-card,
+.owner-media-card__body,
+.owner-editor-list__head,
+.owner-editor-list__head strong,
+.owner-editor-list__head span {
+  overflow-wrap: anywhere;
+}
+
+.owner-shell .travel-topbar__inner {
+  width: 100%;
+}
+
+.owner-shell .travel-topbar__titles p {
+  max-width: 70ch;
+}
+
+.owner-summary-grid--compact {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.owner-cms-layout {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+}
+
+.owner-panel-tabs {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.owner-selection-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.owner-media-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.owner-shell .field input,
+.owner-shell .field select,
+.owner-shell .field textarea,
+.owner-panel-tab {
+  width: 100%;
+}
+
+.owner-media-card__actions,
+.owner-item-card__actions,
+.owner-dashboard__actions,
+.owner-login-form__actions,
+.owner-editor-form__actions,
+.owner-checkbox-grid,
+.owner-inline-tabs {
+  align-items: stretch;
+}
+
+.owner-panel-tab {
+  min-height: 118px;
+}
+
+.owner-shell .travel-topbar__button--ghost {
+  flex-shrink: 0;
+}
+
+@media (max-width: 980px) {
+  .owner-shell__main {
+    padding: 16px 14px 34px;
+  }
+
+  .owner-cms-layout,
+  .owner-summary-grid--compact,
+  .owner-panel-tabs,
+  .owner-selection-grid,
+  .owner-contacts-layout--wide,
+  .owner-editor-form__grid--double,
+  .owner-editor-form__grid--triple,
+  .owner-stack-list--contacts-single .owner-editor-form__grid,
+  .owner-stack-list--emergency-single .owner-editor-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-dashboard__hero,
+  .owner-cms-section__header,
+  .owner-item-card__top,
+  .owner-category-card__top {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .owner-media-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .owner-shell .travel-topbar__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .owner-shell .travel-topbar__badge,
+  .owner-shell .travel-topbar__button,
+  .owner-shell .travel-topbar__button--action,
+  .owner-shell .travel-topbar__button--ghost {
+    width: fit-content;
+  }
+
+  .owner-shell .travel-topbar__button--ghost {
+    justify-self: end;
+  }
+
+  .owner-editor-list__head,
+  .owner-dashboard__actions,
+  .owner-login-form__actions,
+  .owner-editor-form__actions,
+  .owner-media-card__actions,
+  .owner-item-card__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .owner-dashboard__actions .button,
+  .owner-login-form__actions .button,
+  .owner-editor-form__actions .button,
+  .owner-media-card__actions .button,
+  .owner-item-card__actions .button {
+    width: 100%;
+  }
+}
