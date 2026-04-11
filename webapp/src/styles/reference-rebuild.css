@@ -1689,7 +1689,7 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-home-sections 
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero--clean {
-  min-height: clamp(430px, 118vw, 760px);
+  min-height: clamp(140px, 32vw, 190px);
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero--clean .travel-hero__overlay {
@@ -2313,6 +2313,10 @@ body:not(.secret-theme-active) .app-shell.reference-shell .filter-launcher {
     inset: 18px 0 auto;
     padding: 0 clamp(24px, 4vw, 38px);
     justify-content: center;
+  }
+
+  body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero--clean {
+    min-height: 180px;
   }
 
   body:not(.secret-theme-active) .app-shell.reference-shell .travel-hero__brand-logo--hero-only {
