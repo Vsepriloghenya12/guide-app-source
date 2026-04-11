@@ -1,71 +1,52 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeSectionTitles } from '../../types';
+import { stayPrograms } from '../../data/programs';
+import type { GuideCategory, GuidePlace, GuideTip, HomeSectionTitles } from '../../types';
 import { recordGuideAnalytics } from '../../utils/analytics';
-import { getCategoryTone, getPlaceTone, getQuickMenuImage } from './homeVisuals';
+import { getCategoryListImage, getCategoryTone, getPlaceTone, getQuickMenuImage } from './homeVisuals';
 
 type FeatureGridProps = {
   popularPlaces: GuidePlace[];
   featuredCategories: GuideCategory[];
+  allCategories: GuideCategory[];
   tips: GuideTip[];
-  collections: GuideCollection[];
-  upcomingEvents: GuidePlace[];
   sectionTitles: HomeSectionTitles;
-};
-
-type StoryCard = {
-  id: string;
-  title: string;
-  text: string;
-  path: string;
-  imageSrc?: string;
-  kind: 'tip' | 'collection' | 'event';
 };
 
 function getPlacePath(place: GuidePlace) {
   return `/place/${place.slug || `${place.categoryId}-${place.id}`}`;
 }
 
-function buildStoryCards(tips: GuideTip[], collections: GuideCollection[], upcomingEvents: GuidePlace[]): StoryCard[] {
-  return [
-    ...tips.map((tip) => ({
-      id: tip.id,
-      title: tip.title,
-      text: tip.text,
-      path: tip.linkPath,
-      kind: 'tip' as const
-    })),
-    ...collections.map((collection) => ({
-      id: collection.id,
-      title: collection.title,
-      text: collection.description,
-      path: collection.linkPath,
-      imageSrc: collection.imageSrc,
-      kind: 'collection' as const
-    })),
-    ...upcomingEvents.map((event) => ({
-      id: event.id,
-      title: event.title,
-      text: [event.shortDescription, event.address || event.district, event.hours].filter(Boolean).join(' · '),
-      path: getPlacePath(event),
-      imageSrc: event.imageGallery?.[0] || event.imageSrc,
-      kind: 'event' as const
-    }))
-  ].slice(0, 5);
-}
-const storyKindLabel: Record<StoryCard['kind'], string> = {
-  tip: 'Совет',
-  collection: 'Подборка',
-  event: 'Событие'
-};
-
-export function FeatureGrid({ popularPlaces, featuredCategories, tips, collections, upcomingEvents, sectionTitles }: FeatureGridProps) {
+export function FeatureGrid({
+  popularPlaces,
+  featuredCategories,
+  allCategories,
+  tips,
+  sectionTitles
+}: FeatureGridProps) {
+  const [showAllCategories, setShowAllCategories] = useState(false);
   const quickCategories = featuredCategories.slice(0, 4);
-  const storyCards = buildStoryCards(tips, collections, upcomingEvents);
+  const visibleTips = tips.slice(0, 5);
+  const programDurations = stayPrograms.slice(0, 3);
 
   return (
     <section className="travel-home-sections">
       {quickCategories.length > 0 ? (
-        <section className="travel-section travel-section--quick" aria-label="Быстрые рубрики">
+        <section className="travel-section travel-section--quick travel-section--quick-home" aria-label="Быстрые рубрики">
+          <div className="travel-section__header travel-section__header--home travel-section__header--home-categories">
+            <span className="travel-section__toggle-spacer" aria-hidden="true" />
+            <h2>{sectionTitles.categories || 'Категории'}</h2>
+            <button
+              type="button"
+              className={`travel-section__toggle${showAllCategories ? ' is-active' : ''}`}
+              aria-expanded={showAllCategories}
+              aria-controls="home-categories-expanded"
+              onClick={() => setShowAllCategories((value) => !value)}
+            >
+              {showAllCategories ? 'Скрыть' : 'Все'}
+            </button>
+          </div>
+
           <div className="travel-quick-grid travel-quick-grid--four">
             {quickCategories.map((category, index) => (
               <Link
@@ -82,21 +63,84 @@ export function FeatureGrid({ popularPlaces, featuredCategories, tips, collectio
                     categoryId: category.id
                   })
                 }
-                >
-                  <span className="travel-quick-photo__disc" aria-hidden="true">
-                    <img src={getQuickMenuImage(category, index)} alt="" loading="lazy" decoding="async" />
-                  </span>
+              >
+                <span className="travel-quick-photo__disc" aria-hidden="true">
+                  <img src={getQuickMenuImage(category, index)} alt="" loading="lazy" decoding="async" />
+                </span>
+                <span className="travel-quick-photo__body">
                   {category.badge ? <span className="travel-quick-photo__meta">{category.badge}</span> : null}
                   <span className="travel-quick-photo__label">{category.shortTitle || category.title}</span>
-                </Link>
-              ))}
+                </span>
+                <span className="travel-quick-photo__arrow" aria-hidden="true">›</span>
+              </Link>
+            ))}
+          </div>
+
+          <div
+            className={`travel-categories-expand${showAllCategories ? ' is-open' : ''}`}
+            id="home-categories-expanded"
+            aria-hidden={!showAllCategories}
+          >
+            <div className="travel-categories-expand__inner">
+              <div className="travel-directory-list travel-directory-list--stripes" role="list">
+                {allCategories.map((category, index) => (
+                  <Link
+                    key={category.id}
+                    to={category.path}
+                    className="travel-directory-row"
+                    data-tone={getCategoryTone(category)}
+                    role="listitem"
+                    onClick={() =>
+                      recordGuideAnalytics({
+                        kind: 'category-click',
+                        label: category.title,
+                        path: category.path,
+                        entityId: category.id,
+                        categoryId: category.id
+                      })
+                    }
+                  >
+                    <span className="travel-directory-row__body">
+                      {category.badge ? <span className="travel-directory-row__eyebrow">{category.badge}</span> : null}
+                      <span className="travel-directory-row__title">{category.shortTitle || category.title}</span>
+                      {category.description ? <span className="travel-directory-row__text">{category.description}</span> : null}
+                    </span>
+                    <span className="travel-directory-row__media" aria-hidden="true">
+                      <img src={getCategoryListImage(category, index)} alt="" loading="lazy" decoding="async" />
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       ) : null}
 
+      <section className="travel-section travel-section--programs-home" aria-label="Готовые программы">
+        <Link to="/programs" className="travel-programs-spotlight" data-tone="bridge">
+          <span className="travel-programs-spotlight__eyebrow">Готовые программы</span>
+          <strong>Подбери сценарий отдыха по сроку поездки</strong>
+          <p>
+            Открой готовые варианты для короткого отпуска, недели у моря и более длинного отдыха,
+            не собирая маршрут вручную.
+          </p>
+
+          <span className="travel-programs-spotlight__chips" aria-label="Длительности поездки">
+            {programDurations.map((program) => (
+              <span key={program.id} className="travel-programs-spotlight__chip">
+                {program.stayLabel}
+              </span>
+            ))}
+          </span>
+
+          <span className="travel-programs-spotlight__action">
+            Открыть программы <span aria-hidden="true">›</span>
+          </span>
+        </Link>
+      </section>
       {popularPlaces.length > 0 ? (
-        <section className="travel-section">
-          <div className="travel-section__header">
+        <section className="travel-section travel-section--popular-home">
+          <div className="travel-section__header travel-section__header--home">
             <h2>{sectionTitles.popular || 'Топ'}</h2>
             <Link to="/search">Смотреть все</Link>
           </div>
@@ -138,36 +182,36 @@ export function FeatureGrid({ popularPlaces, featuredCategories, tips, collectio
         </section>
       ) : null}
 
-      {storyCards.length > 0 ? (
-        <section className="travel-section">
-          <div className="travel-section__header">
+      {visibleTips.length > 0 ? (
+        <section className="travel-section travel-section--stories-home">
+          <div className="travel-section__header travel-section__header--home">
             <h2>{sectionTitles.tips || 'Советы'}</h2>
             <Link to="/help">Открыть</Link>
           </div>
 
           <div className="travel-story-list travel-story-list--plain">
-            {storyCards.map((item) => (
+            {visibleTips.map((item) => (
               <Link
                 key={item.id}
-                to={item.path}
+                to={item.linkPath}
                 className="travel-story-row"
-                data-tone={item.kind === 'collection' ? 'bridge' : item.kind === 'event' ? getPlaceTone('events') : 'emerald'}
+                data-tone="emerald"
                 onClick={() =>
                   recordGuideAnalytics({
-                    kind: item.kind === 'collection' ? 'collection-click' : item.kind === 'event' ? 'place-click' : 'tip-click',
+                    kind: 'tip-click',
                     label: item.title,
-                    path: item.path,
+                    path: item.linkPath,
                     entityId: item.id
                   })
                 }
               >
                 <span
                   className="travel-story-row__thumb"
-                  style={item.imageSrc ? { backgroundImage: `url(${item.imageSrc})` } : { backgroundImage: 'url(/home-hero-background.png)' }}
+                  style={{ backgroundImage: 'url(/home-hero-background.png)' }}
                   aria-hidden="true"
                 />
                 <span className="travel-story-row__body">
-                  <span className="travel-story-row__eyebrow">{storyKindLabel[item.kind]}</span>
+                  <span className="travel-story-row__eyebrow">Совет</span>
                   <strong>{item.title}</strong>
                   <span>{item.text}</span>
                 </span>

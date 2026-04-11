@@ -138,6 +138,33 @@ export type HomeContent = {
   sectionTitles: HomeSectionTitles;
 };
 
+export type PublicAuthProviderId = 'google' | 'apple' | 'telegram';
+
+export type PublicAuthUser = {
+  provider: PublicAuthProviderId;
+  sub: string;
+  displayName: string;
+  givenName?: string;
+  familyName?: string;
+  email?: string;
+  emailVerified?: boolean;
+  avatarUrl?: string;
+  username?: string;
+};
+
+export type PublicAuthProviders = {
+  google: boolean;
+  apple: boolean;
+  telegram: boolean;
+  telegramBotUsername?: string;
+};
+
+export type PublicAuthSession = {
+  authenticated: boolean;
+  user: PublicAuthUser | null;
+  providers: PublicAuthProviders;
+};
+
 export type GuideAnalyticsKind =
   | 'page-view'
   | 'banner-click'

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { BootGate } from './boot/BootGate';
+import { UserAuthProvider } from './components/auth/UserAuthProvider';
 import { SecretThemeProvider } from './secretTheme/SecretThemeProvider';
 import './styles/theme.css';
 import './styles/app.css';
@@ -17,7 +18,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <SecretThemeProvider>
       <BootGate>
         <BrowserRouter>
-          <App />
+          <UserAuthProvider>
+            <App />
+          </UserAuthProvider>
         </BrowserRouter>
       </BootGate>
     </SecretThemeProvider>

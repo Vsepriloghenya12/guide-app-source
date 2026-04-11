@@ -7,6 +7,7 @@ import { HomePage } from './pages/HomePage';
 import { ListingPage } from './pages/ListingPage';
 import { OwnerLoginPage } from './pages/OwnerLoginPage';
 import { OwnerPage } from './pages/OwnerPage';
+import { ProgramsPage } from './pages/ProgramsPage';
 import { ContactsPage } from './pages/ContactsPage';
 import { HelpPage } from './pages/HelpPage';
 import { SearchPage } from './pages/SearchPage';
@@ -26,6 +27,7 @@ function App() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/nearby" element={<NearbyPage />} />
+        <Route path="/programs" element={<ProgramsPage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route path="/contacts" element={<ContactsPage />} />
       </Route>

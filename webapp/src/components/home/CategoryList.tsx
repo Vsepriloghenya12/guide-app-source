@@ -10,8 +10,8 @@ type CategoryListProps = {
 
 export function CategoryList({ categories, title }: CategoryListProps) {
   return (
-    <section className="travel-section travel-section--directory" id="all-categories">
-      <div className="travel-section__header">
+    <section className="travel-section travel-section--directory travel-section--directory-home" id="all-categories">
+      <div className="travel-section__header travel-section__header--home">
         <h2>{title}</h2>
       </div>
 

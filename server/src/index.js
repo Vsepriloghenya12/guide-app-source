@@ -31,6 +31,7 @@ const {
   upsertCategory,
   upsertPlace
 } = require('./db');
+const { registerPublicAuthRoutes } = require('./publicAuth');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -44,6 +45,8 @@ const OWNER_SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+
+registerPublicAuthRoutes(app);
 
 
 function ensureUploadsDirectory() {

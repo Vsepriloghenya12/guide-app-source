@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { UserAuthTrigger } from '../auth/UserAuthTrigger';
 
 type PageHeaderProps = {
   title: string;
@@ -17,6 +18,9 @@ export function PageHeader({
   actionPath,
   badgeLabel = 'Гид Дананга'
 }: PageHeaderProps) {
+  const location = useLocation();
+  const isOwnerRoute = location.pathname.startsWith('/owner');
+
   return (
     <header className="travel-topbar">
       <div className="travel-topbar__inner">
@@ -39,6 +43,8 @@ export function PageHeader({
           <Link className="travel-topbar__button travel-topbar__button--action" to={actionPath} aria-label={actionLabel}>
             <span>{actionLabel}</span>
           </Link>
+        ) : !isOwnerRoute ? (
+          <UserAuthTrigger variant="topbar" />
         ) : (
           <span className="travel-topbar__button travel-topbar__button--ghost" aria-hidden="true">
             <svg viewBox="0 0 24 24">

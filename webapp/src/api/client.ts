@@ -1,4 +1,4 @@
-import type { Banner, BootstrapPayload, Category, Collection, Listing } from '../types';
+import type { Banner, BootstrapPayload, Category, Collection, Listing, PublicAuthSession } from '../types';
 
 async function apiFetch<T>(input: string, init?: RequestInit): Promise<T> {
   const response = await fetch(input, {
@@ -52,6 +52,8 @@ export const api = {
     apiFetch<{ ok: true; listing: Listing; category: Category; similar: Listing[] }>(`/api/listings/${slug}`),
   search: (query: string) =>
     apiFetch<{ ok: true; listings: Listing[] }>(`/api/search?q=${encodeURIComponent(query)}`),
+  authSession: () => apiFetch<{ ok: true } & PublicAuthSession>('/api/auth/session'),
+  authLogout: () => apiFetch<{ ok: true }>('/api/auth/logout', { method: 'POST' }),
   ownerSession: () => apiFetch<{ ok: true; authenticated: boolean }>('/api/owner/session'),
   ownerLogin: (password: string) =>
     apiFetch<{ ok: true; authenticated: boolean }>('/api/owner/login', {
