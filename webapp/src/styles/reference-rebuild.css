@@ -132,6 +132,10 @@ body {
   background: rgba(255, 255, 255, 0.14);
   color: inherit;
   border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0;
+  text-decoration: none;
+  appearance: none;
+  cursor: pointer;
 }
 
 .travel-topbar__button svg {
@@ -1338,6 +1342,10 @@ body:not(.secret-theme-active) .travel-story-row__arrow {
   color: #697a96;
   font-size: 1.35rem;
   line-height: 1;
+}
+
+body:not(.secret-theme-active) .travel-story-row--no-arrow {
+  grid-template-columns: 78px minmax(0, 1fr);
 }
 
 body:not(.secret-theme-active) .travel-directory-list--stripes {
@@ -2698,6 +2706,10 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-story-row__arr
   color: #2a5cb0;
 }
 
+body:not(.secret-theme-active) .app-shell.reference-shell .travel-story-row--no-arrow {
+  grid-template-columns: 82px minmax(0, 1fr);
+}
+
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-directory-list--stripes {
   gap: 0;
 }
@@ -3576,6 +3588,14 @@ body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-h
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-hero__back {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 2;
+  color: #fff;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-category-hero__content h1 {
