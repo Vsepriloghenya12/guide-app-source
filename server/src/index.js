@@ -330,26 +330,32 @@ function toPublicStore(store) {
   const places = store.places
     .filter((place) => place.status === 'published' && visibleCategoryIds.has(place.categoryId))
     .map(toListing);
+  const activeTips = store.tips.filter((tip) => tip.active);
+  const activeBanners = store.banners.filter((banner) => banner.active);
+  const activeCollections = store.collections.filter((collection) => collection.active);
 
   return {
-    ...store,
+    version: store.version,
     categories: store.categories.filter((category) => category.visible),
     places,
     restaurants: places.filter((place) => place.categoryId === 'restaurants'),
     wellness: places.filter((place) => place.categoryId === 'wellness'),
-    tips: store.tips.filter((tip) => tip.active),
-    banners: store.banners.filter((banner) => banner.active),
-    collections: store.collections.filter((collection) => collection.active),
+    tips: activeTips,
+    banners: activeBanners,
+    collections: activeCollections,
     home: {
       ...store.home,
       popularPlaceIds: store.home.popularPlaceIds.filter((id) => places.some((place) => place.id === id)),
       featuredCategoryIds: store.home.featuredCategoryIds.filter((id) => visibleCategoryIds.has(id)),
-      tipIds: store.home.tipIds.filter((id) => store.tips.some((tip) => tip.id === id && tip.active)),
-      bannerIds: store.home.bannerIds.filter((id) => store.banners.some((banner) => banner.id === id && banner.active)),
-      collectionIds: store.home.collectionIds.filter((id) => store.collections.some((collection) => collection.id === id && collection.active))
+      tipIds: store.home.tipIds.filter((id) => activeTips.some((tip) => tip.id === id)),
+      bannerIds: store.home.bannerIds.filter((id) => activeBanners.some((banner) => banner.id === id)),
+      collectionIds: store.home.collectionIds.filter((id) => activeCollections.some((collection) => collection.id === id))
+    },
+    analytics: {
+      events: []
     }
   };
-}
+  }
 
 function toPublicBootstrapPayload(store) {
   const publicStore = toPublicStore(store);
