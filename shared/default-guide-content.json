@@ -1,6 +1,595 @@
 {
   "version": 4,
-  "places": [],
+  "places": [
+    {
+      "id": "restaurant-madame-lan",
+      "categoryId": "restaurants",
+      "title": "Madame Lân",
+      "description": "Известный ресторан в центре Дананга с классическими вьетнамскими блюдами и видом на реку Han.",
+      "address": "04 Bạch Đằng, Thạch Thang, Hải Châu, Đà Nẵng, Vietnam",
+      "phone": "+84 905 697 555",
+      "website": "https://www.madamelan.com/en",
+      "hours": "Ежедневно 06:30–21:30",
+      "avgCheck": null,
+      "kind": "Ресторан",
+      "cuisine": "Вьетнамская",
+      "services": [
+        "Вид на реку",
+        "Большой зал"
+      ],
+      "tags": [
+        "центр",
+        "han river",
+        "вьетнамская кухня"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "top": true,
+      "rating": 0,
+      "imageLabel": "Madame Lân",
+      "imageSrc": "https://cdn.prod.website-files.com/654dfdc9a008278170eea03f/661e086f76d6e4e39a01854c_507a6748.webp",
+      "imageGallery": [
+        "https://cdn.prod.website-files.com/654dfdc9a008278170eea03f/661e086f76d6e4e39a01854c_507a6748.webp"
+      ],
+      "shortDescription": "Вьетнамский ресторан на Bach Dang у реки Han.",
+      "priceLabel": "",
+      "listingType": "Ресторан",
+      "district": "Hải Châu",
+      "location": "04 Bạch Đằng, Thạch Thang, Hải Châu, Đà Nẵng",
+      "type": "Ресторан",
+      "status": "published",
+      "sortOrder": 10
+    },
+    {
+      "id": "wellness-herbal-spa",
+      "categoryId": "wellness",
+      "title": "Herbal Spa",
+      "description": "Реальный spa-центр недалеко от пляжной части Дананга, известный массажными программами и приватными комнатами.",
+      "address": "201 D. Đình Nghệ, An Hải Bắc, Sơn Trà, Đà Nẵng 550000, Vietnam",
+      "phone": "+84 236 7305 779",
+      "website": "https://herbalspa.vn/en",
+      "hours": "Ежедневно 09:00–22:30",
+      "avgCheck": 650000,
+      "kind": "СПА",
+      "cuisine": "",
+      "services": [
+        "Массаж",
+        "Ароматерапия",
+        "Private room"
+      ],
+      "tags": [
+        "spa",
+        "massage",
+        "son tra"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "top": true,
+      "rating": 0,
+      "imageLabel": "Herbal Spa",
+      "imageSrc": "https://herbalspa.vn/data/slide_desktop/Herbal_Spa_2026.webp",
+      "imageGallery": [
+        "https://herbalspa.vn/data/slide_desktop/Herbal_Spa_2026.webp"
+      ],
+      "shortDescription": "Популярный spa-салон в Sơn Trà с длинным режимом работы.",
+      "priceLabel": "от 650,000 VND",
+      "listingType": "СПА",
+      "district": "Sơn Trà",
+      "location": "201 D. Đình Nghệ, An Hải Bắc, Sơn Trà, Đà Nẵng",
+      "type": "СПА",
+      "status": "published",
+      "sortOrder": 20
+    },
+    {
+      "id": "active-mikazuki-water-park",
+      "categoryId": "active-rest",
+      "title": "Mikazuki Water Park 365",
+      "description": "Крытый и открытый водный парк в северной части Дананга с горками, lazy river и семейными зонами отдыха.",
+      "address": "Xuan Thieu Tourism Area, Nguyễn Tất Thành, Hòa Hiệp Nam, Liên Chiểu, Đà Nẵng, Vietnam",
+      "phone": "+84 236 3774 555",
+      "website": "https://www.mikazukiwaterpark.com/",
+      "hours": "Ежедневно 09:00–19:00",
+      "avgCheck": null,
+      "kind": "Аквапарк",
+      "cuisine": "",
+      "services": [
+        "Горки",
+        "Lazy river",
+        "Family zone"
+      ],
+      "tags": [
+        "water",
+        "family",
+        "lien chieu"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": true,
+      "top": true,
+      "rating": 0,
+      "imageLabel": "Mikazuki Water Park 365",
+      "imageSrc": "https://static.wixstatic.com/media/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg/v1/fill/w_250%2Ch_167%2Cal_c%2Cq_90%2Cenc_auto/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg",
+      "imageGallery": [
+        "https://static.wixstatic.com/media/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg/v1/fill/w_250%2Ch_167%2Cal_c%2Cq_90%2Cenc_auto/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg"
+      ],
+      "shortDescription": "Крупный семейный water park в северной части Дананга.",
+      "priceLabel": "",
+      "listingType": "Активный отдых",
+      "district": "Liên Chiểu",
+      "location": "Xuan Thieu Tourism Area, Nguyễn Tất Thành, Liên Chiểu, Đà Nẵng",
+      "type": "Аквапарк",
+      "status": "published",
+      "sortOrder": 30
+    },
+    {
+      "id": "route-hai-van-pass",
+      "categoryId": "routes",
+      "title": "Hải Vân Pass",
+      "description": "Один из самых известных маршрутов рядом с Данангом: серпантин, видовые точки и остановки с панорамой моря и гор.",
+      "address": "Hải Vân Pass, Hòa Hiệp Bắc, Liên Chiểu, Đà Nẵng, Vietnam",
+      "phone": "",
+      "website": "https://danangfantasticity.com/en/sight-seeing-en/hai-van-pass",
+      "hours": "",
+      "avgCheck": null,
+      "kind": "Маршрут",
+      "cuisine": "",
+      "services": [
+        "Видовые точки",
+        "Поездка на байке",
+        "Фотостопы"
+      ],
+      "tags": [
+        "view",
+        "road trip",
+        "mountains"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "top": true,
+      "rating": 0,
+      "imageLabel": "Hải Vân Pass",
+      "imageSrc": "https://danangfantasticity.com/wp-content/uploads/2024/05/kinh-nghiem-di-hai-van-quan-da-nang-tu-a-den-z-3.jpg",
+      "imageGallery": [
+        "https://danangfantasticity.com/wp-content/uploads/2024/05/kinh-nghiem-di-hai-van-quan-da-nang-tu-a-den-z-3.jpg"
+      ],
+      "shortDescription": "Живописный маршрут из Дананга через перевал Hải Vân.",
+      "priceLabel": "",
+      "listingType": "Маршрут",
+      "district": "Liên Chiểu",
+      "location": "Hải Vân Pass, Liên Chiểu, Đà Nẵng",
+      "type": "Маршрут",
+      "status": "published",
+      "sortOrder": 40
+    },
+    {
+      "id": "hotel-mikazuki-resort",
+      "categoryId": "hotels",
+      "title": "Da Nang Mikazuki Japanese Resorts & Spa",
+      "description": "Крупный курортный комплекс на северном побережье Дананга с японским spa-форматом, бассейнами и прямым выходом к морю.",
+      "address": "Xuan Thieu Tourism Area, Nguyễn Tất Thành, Hòa Hiệp Nam, Liên Chiểu, Đà Nẵng, Vietnam",
+      "phone": "+84 236 3774 555",
+      "website": "https://mikazuki.com.vn/en/",
+      "hours": "",
+      "avgCheck": null,
+      "kind": "Курорт",
+      "cuisine": "",
+      "services": [
+        "Бассейн",
+        "Onsen",
+        "Пляж"
+      ],
+      "tags": [
+        "resort",
+        "beach",
+        "japanese style"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": true,
+      "top": true,
+      "rating": 0,
+      "imageLabel": "Da Nang Mikazuki Japanese Resorts & Spa",
+      "imageSrc": "https://static.wixstatic.com/media/f39377_136053b0734645718cf437f01a1abf56~mv2.jpg/v1/fill/w_250%2Ch_140%2Cal_c%2Cq_90%2Cenc_auto/f39377_136053b0734645718cf437f01a1abf56~mv2.jpg",
+      "imageGallery": [
+        "https://static.wixstatic.com/media/f39377_136053b0734645718cf437f01a1abf56~mv2.jpg/v1/fill/w_250%2Ch_140%2Cal_c%2Cq_90%2Cenc_auto/f39377_136053b0734645718cf437f01a1abf56~mv2.jpg"
+      ],
+      "shortDescription": "Пятизвёздочный resort в Liên Chiểu с японским spa-акцентом.",
+      "priceLabel": "",
+      "listingType": "Отель",
+      "district": "Liên Chiểu",
+      "location": "Xuan Thieu Tourism Area, Nguyễn Tất Thành, Liên Chiểu, Đà Nẵng",
+      "type": "Отель",
+      "hotelStars": 5,
+      "hotelPool": true,
+      "hotelSpa": true,
+      "status": "published",
+      "sortOrder": 50
+    },
+    {
+      "id": "event-dragon-bridge-show",
+      "categoryId": "events",
+      "title": "Dragon Bridge Fire & Water Show",
+      "description": "Знаменитое вечернее шоу на мосту Rồng: огонь и вода по выходным, одно из самых узнаваемых зрелищ Дананга.",
+      "address": "Cầu Rồng, Nguyễn Văn Linh, Phước Ninh, Hải Châu, Đà Nẵng, Vietnam",
+      "phone": "",
+      "website": "https://www.vietnamairlines.com/us/en/plan-book/travel/travel-guide/dragon-bridge-danang",
+      "hours": "Пятница–воскресенье, 21:00",
+      "avgCheck": null,
+      "kind": "Городское шоу",
+      "cuisine": "",
+      "services": [
+        "Огонь",
+        "Вода",
+        "Вечерняя прогулка"
+      ],
+      "tags": [
+        "weekend",
+        "night",
+        "han river"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": true,
+      "top": true,
+      "rating": 0,
+      "imageLabel": "Dragon Bridge",
+      "imageSrc": "https://traveldanang.org/wp-content/uploads/2024/08/cau-rong-da-nang.jpg",
+      "imageGallery": [
+        "https://traveldanang.org/wp-content/uploads/2024/08/cau-rong-da-nang.jpg"
+      ],
+      "shortDescription": "Вечернее шоу на Dragon Bridge по выходным.",
+      "priceLabel": "Бесплатно",
+      "listingType": "Событие",
+      "district": "Hải Châu",
+      "location": "Dragon Bridge, Nguyễn Văn Linh, Hải Châu, Đà Nẵng",
+      "type": "Событие",
+      "status": "published",
+      "sortOrder": 60
+    },
+    {
+      "id": "transport-da-nang-airport",
+      "categoryId": "transport",
+      "title": "Da Nang International Airport",
+      "description": "Главный аэропорт города для внутренних и международных рейсов, ближайшая транспортная точка для прилёта в Дананг.",
+      "address": "Duy Tân, Hòa Thuận Tây, Hải Châu, Đà Nẵng, Vietnam",
+      "phone": "+84 236 3539 555",
+      "website": "https://www.vietnamairports.vn/danangairport/en/",
+      "hours": "24/7",
+      "avgCheck": null,
+      "kind": "Аэропорт",
+      "cuisine": "",
+      "services": [
+        "Прилёт",
+        "Такси",
+        "Трансфер"
+      ],
+      "tags": [
+        "airport",
+        "24/7",
+        "arrival"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "top": true,
+      "rating": 0,
+      "imageLabel": "Da Nang International Airport",
+      "imageSrc": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Da_Nang_International_Airport%2C_Vietnam.jpg/500px-Da_Nang_International_Airport%2C_Vietnam.jpg",
+      "imageGallery": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Da_Nang_International_Airport%2C_Vietnam.jpg/500px-Da_Nang_International_Airport%2C_Vietnam.jpg"
+      ],
+      "shortDescription": "Международный аэропорт Дананга в районе Hải Châu.",
+      "priceLabel": "",
+      "listingType": "Транспорт",
+      "district": "Hải Châu",
+      "location": "Duy Tân, Hòa Thuận Tây, Hải Châu, Đà Nẵng",
+      "type": "Аэропорт",
+      "status": "published",
+      "sortOrder": 70
+    },
+    {
+      "id": "atm-vietcombank-tran-phu",
+      "categoryId": "atm",
+      "title": "Vietcombank ATM Trần Phú",
+      "description": "Банкомат и точка ориентира в центральной части Дананга, рядом с улицей Trần Phú и прогулочной зоной.",
+      "address": "68 Trần Phú, Hải Châu 1, Hải Châu, Đà Nẵng, Vietnam",
+      "phone": "",
+      "website": "https://www.vietcombank.com.vn/",
+      "hours": "24/7",
+      "avgCheck": null,
+      "kind": "Банкомат",
+      "cuisine": "",
+      "services": [
+        "Наличные",
+        "VISA",
+        "Mastercard"
+      ],
+      "tags": [
+        "cash",
+        "center",
+        "24/7"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "top": false,
+      "rating": 0,
+      "imageLabel": "Vietcombank ATM",
+      "imageSrc": "",
+      "imageGallery": [],
+      "shortDescription": "Центральный ATM на Trần Phú в районе Hải Châu.",
+      "priceLabel": "",
+      "listingType": "Банкомат",
+      "district": "Hải Châu",
+      "location": "68 Trần Phú, Hải Châu 1, Hải Châu, Đà Nẵng",
+      "type": "Банкомат",
+      "status": "published",
+      "sortOrder": 80
+    },
+    {
+      "id": "shop-han-market",
+      "categoryId": "shops",
+      "title": "Han Market",
+      "description": "Один из самых известных рынков Дананга, куда обычно идут за кофе, сладостями, сувенирами и повседневными покупками.",
+      "address": "119 Trần Phú, Hải Châu 1, Hải Châu, Đà Nẵng, Vietnam",
+      "phone": "",
+      "website": "https://traveldanang.org/place/han-market/",
+      "hours": "",
+      "avgCheck": null,
+      "kind": "Рынок",
+      "cuisine": "",
+      "services": [
+        "Сувениры",
+        "Кофе",
+        "Локальные продукты"
+      ],
+      "tags": [
+        "market",
+        "souvenirs",
+        "center"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "top": true,
+      "rating": 0,
+      "imageLabel": "Han Market",
+      "imageSrc": "https://traveldanang.org/wp-content/uploads/2024/08/cho-han-da-nang.jpg",
+      "imageGallery": [
+        "https://traveldanang.org/wp-content/uploads/2024/08/cho-han-da-nang.jpg"
+      ],
+      "shortDescription": "Популярный центральный рынок Дананга.",
+      "priceLabel": "",
+      "listingType": "Магазины",
+      "district": "Hải Châu",
+      "location": "119 Trần Phú, Hải Châu 1, Hải Châu, Đà Nẵng",
+      "type": "Рынок",
+      "status": "published",
+      "sortOrder": 90
+    },
+    {
+      "id": "culture-cham-museum",
+      "categoryId": "culture",
+      "title": "Da Nang Museum of Cham Sculpture",
+      "description": "Главный музей Дананга с крупнейшей коллекцией чамской скульптуры и одной из ключевых культурных точек города.",
+      "address": "02 Đ. 2 Tháng 9, Bình Hiên, Hải Châu, Đà Nẵng, Vietnam",
+      "phone": "",
+      "website": "https://traveldanang.org/place/cham-museum/",
+      "hours": "07:00–17:00",
+      "avgCheck": null,
+      "kind": "Музей",
+      "cuisine": "",
+      "services": [
+        "Экспозиция",
+        "История",
+        "Центр города"
+      ],
+      "tags": [
+        "museum",
+        "culture",
+        "history"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": true,
+      "top": true,
+      "rating": 0,
+      "imageLabel": "Cham Museum",
+      "imageSrc": "https://traveldanang.org/wp-content/uploads/2024/08/bao-tang-dieu-khac-cham-da-nang-2.jpg",
+      "imageGallery": [
+        "https://traveldanang.org/wp-content/uploads/2024/08/bao-tang-dieu-khac-cham-da-nang-2.jpg"
+      ],
+      "shortDescription": "Ключевой музей Дананга с коллекцией чамского искусства.",
+      "priceLabel": "",
+      "listingType": "Культура",
+      "district": "Hải Châu",
+      "location": "02 Đ. 2 Tháng 9, Bình Hiên, Hải Châu, Đà Nẵng",
+      "type": "Музей",
+      "status": "published",
+      "sortOrder": 100
+    },
+    {
+      "id": "kids-helio-center",
+      "categoryId": "kids",
+      "title": "Helio Center",
+      "description": "Семейное пространство в Дананге с indoor- и outdoor-зонами, игровыми форматами и вечерней активностью для детей.",
+      "address": "01 Đường 2/9, Hòa Cường Bắc, Hải Châu, Đà Nẵng, Vietnam",
+      "phone": "+84 236 3630 666",
+      "website": "https://helio.vn/",
+      "hours": "Ежедневно 16:00–22:30",
+      "avgCheck": null,
+      "kind": "Семейный центр",
+      "cuisine": "",
+      "services": [
+        "Игры",
+        "Indoor zone",
+        "Family"
+      ],
+      "tags": [
+        "kids",
+        "family",
+        "evening"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": true,
+      "top": false,
+      "rating": 0,
+      "imageLabel": "Helio Center",
+      "imageSrc": "https://helio.vn/media/types/khu_trong_nha_ATBNMEi.jpg",
+      "imageGallery": [
+        "https://helio.vn/media/types/khu_trong_nha_ATBNMEi.jpg"
+      ],
+      "shortDescription": "Семейная площадка с играми и вечерними активностями.",
+      "priceLabel": "",
+      "listingType": "Детям",
+      "district": "Hải Châu",
+      "location": "01 Đường 2/9, Hòa Cường Bắc, Hải Châu, Đà Nẵng",
+      "type": "Семейный центр",
+      "status": "published",
+      "sortOrder": 110
+    },
+    {
+      "id": "medicine-family-hospital",
+      "categoryId": "medicine",
+      "title": "Family Hospital",
+      "description": "Крупная многопрофильная больница в Дананге с международным отделением и экстренной помощью 24/7.",
+      "address": "73 Nguyễn Hữu Thọ, Hòa Thuận Tây, Hải Châu, Đà Nẵng, Vietnam",
+      "phone": "+84 236 3632 111",
+      "website": "https://www.familyhospital.vn/en/",
+      "hours": "24/7",
+      "avgCheck": null,
+      "kind": "Больница",
+      "cuisine": "",
+      "services": [
+        "Emergency",
+        "International department",
+        "24/7"
+      ],
+      "tags": [
+        "hospital",
+        "english",
+        "emergency"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "top": true,
+      "rating": 0,
+      "imageLabel": "Family Hospital",
+      "imageSrc": "https://www.familyhospital.vn/wp-content/uploads/2025/03/BANNER.jpg",
+      "imageGallery": [
+        "https://www.familyhospital.vn/wp-content/uploads/2025/03/BANNER.jpg"
+      ],
+      "shortDescription": "Крупная hospital-точка в Hải Châu с круглосуточной помощью.",
+      "priceLabel": "",
+      "listingType": "Медицина",
+      "district": "Hải Châu",
+      "location": "73 Nguyễn Hữu Thọ, Hòa Thuận Tây, Hải Châu, Đà Nẵng",
+      "type": "Больница",
+      "status": "published",
+      "sortOrder": 120
+    },
+    {
+      "id": "photo-son-tra-marina",
+      "categoryId": "photo-spots",
+      "title": "Son Tra Marina",
+      "description": "Известная фото-точка на полуострове Sơn Trà с бело-синим причалом, морским фоном и удобными кадрами на закате.",
+      "address": "Hồ Xanh, Thọ Quang, Sơn Trà, Đà Nẵng, Vietnam",
+      "phone": "",
+      "website": "https://danangfantasticity.com/the-son-tra-peninsula",
+      "hours": "",
+      "avgCheck": null,
+      "kind": "Фото-спот",
+      "cuisine": "",
+      "services": [
+        "Марина",
+        "Морской фон",
+        "Закат"
+      ],
+      "tags": [
+        "photo",
+        "sunset",
+        "son tra"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "top": true,
+      "rating": 0,
+      "imageLabel": "Son Tra Marina",
+      "imageSrc": "https://danangfantasticity.com/wp-content/uploads/2020/02/marina-4.jpg",
+      "imageGallery": [
+        "https://danangfantasticity.com/wp-content/uploads/2020/02/marina-4.jpg"
+      ],
+      "shortDescription": "Одна из самых узнаваемых фото-локаций на Sơn Trà.",
+      "priceLabel": "",
+      "listingType": "Фото-спот",
+      "district": "Sơn Trà",
+      "location": "Hồ Xanh, Thọ Quang, Sơn Trà, Đà Nẵng",
+      "type": "Фото-спот",
+      "status": "published",
+      "sortOrder": 130
+    },
+    {
+      "id": "car-rental-motorvina",
+      "categoryId": "car-rental",
+      "title": "Motorvina Da Nang",
+      "description": "Реальный сервис аренды байков во Вьетнаме с офисом в Дананге и возможностью брать транспорт для поездок по центру и северному побережью.",
+      "address": "66 Hải Phòng, Thạch Thang, Hải Châu, Đà Nẵng, Vietnam",
+      "phone": "+84 96 300 13 17",
+      "website": "https://motorvina.com/",
+      "hours": "Ежедневно 08:00–17:30",
+      "avgCheck": null,
+      "kind": "Прокат байков",
+      "cuisine": "",
+      "services": [
+        "Motorbike rental",
+        "One way",
+        "Travel support"
+      ],
+      "tags": [
+        "bike",
+        "rental",
+        "hai chau"
+      ],
+      "breakfast": false,
+      "vegan": false,
+      "pets": false,
+      "childPrograms": false,
+      "top": false,
+      "rating": 0,
+      "imageLabel": "Motorvina",
+      "imageSrc": "https://motorvina.com/wp-content/uploads/2020/12/about-us-1.png",
+      "imageGallery": [
+        "https://motorvina.com/wp-content/uploads/2020/12/about-us-1.png"
+      ],
+      "shortDescription": "Прокат байков в Hải Châu с официальным офисом в Дананге.",
+      "priceLabel": "",
+      "listingType": "Автопрокат",
+      "district": "Hải Châu",
+      "location": "66 Hải Phòng, Thạch Thang, Hải Châu, Đà Nẵng",
+      "type": "Прокат байков",
+      "status": "published",
+      "sortOrder": 140
+    }
+  ],
   "categories": [
     {
       "id": "restaurants",
@@ -220,68 +809,80 @@
   "tips": [
     {
       "id": "tip-1",
-      "title": "Топ 10 мест Дананга",
-      "text": "Идеи для первого знакомства с городом: красивые виды, прогулки и атмосферные точки.",
-      "linkPath": "/section/culture",
+      "title": "Dragon Bridge лучше смотреть по выходным",
+      "text": "Шоу огня и воды на Dragon Bridge обычно проходит вечером с пятницы по воскресенье в 21:00.",
+      "linkPath": "/section/events",
       "active": true
     },
     {
       "id": "tip-2",
-      "title": "Где купить сувениры",
-      "text": "Магазины, лавки и сувениры, куда удобно заглянуть за подарками и мелочами.",
+      "title": "За сувенирами удобнее идти в Han Market утром",
+      "text": "Утром на Han Market проще пройти ряды со специями, кофе и сладостями без вечерней плотности.",
       "linkPath": "/section/shops",
       "active": true
     },
     {
       "id": "tip-3",
-      "title": "Лучшие кафе города",
-      "text": "Где начать день с кофе, завтрака и спокойной атмосферы.",
-      "linkPath": "/restaurants",
+      "title": "Cham Museum удобно сочетать с прогулкой по центру",
+      "text": "Музей чамской скульптуры хорошо комбинируется с набережной Han River и вечерним Dragon Bridge.",
+      "linkPath": "/section/culture",
       "active": true
     }
   ],
   "banners": [
     {
       "id": "banner-1",
-      "title": "Топ рестораны и кафе Дананга",
-      "subtitle": "Подборка мест, куда приятно зайти в любое время дня.",
+      "title": "Madame Lân и гастрономический центр города",
+      "subtitle": "Реальные точки для первого ужина у Han River и знакомства с Данангом.",
       "linkPath": "/restaurants",
       "tone": "coast",
-      "imageSrc": "",
+      "imageSrc": "https://cdn.prod.website-files.com/654dfdc9a008278170eea03f/661e086f76d6e4e39a01854c_507a6748.webp",
       "active": true
     },
     {
       "id": "banner-2",
-      "title": "СПА, массаж и отдых",
-      "subtitle": "Места для отдыха, восстановления и неспешного дня.",
-      "linkPath": "/wellness",
+      "title": "Mikazuki и отдых на северном побережье",
+      "subtitle": "Water park, resort и семейный день в одной части города.",
+      "linkPath": "/section/active-rest",
       "tone": "bridge",
-      "imageSrc": "",
+      "imageSrc": "https://static.wixstatic.com/media/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg/v1/fill/w_250%2Ch_167%2Cal_c%2Cq_90%2Cenc_auto/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg",
       "active": true
     }
   ],
   "collections": [
     {
       "id": "collection-1",
-      "title": "Завтраки с красивой подачей",
-      "description": "Подборка мест для неторопливого утра и красивого начала дня.",
-      "linkPath": "/restaurants",
-      "imageSrc": "",
-      "itemIds": [],
+      "title": "Первый вечер в центре Дананга",
+      "description": "Cham Museum днём, ужин в Madame Lân и вечерний Dragon Bridge без сложной логистики.",
+      "linkPath": "/section/culture",
+      "imageSrc": "https://traveldanang.org/wp-content/uploads/2024/08/bao-tang-dieu-khac-cham-da-nang-2.jpg",
+      "itemIds": [
+        "culture-cham-museum",
+        "restaurant-madame-lan",
+        "event-dragon-bridge-show"
+      ],
       "active": true
     },
     {
       "id": "collection-2",
-      "title": "Релакс после пляжа",
-      "description": "Идеи для спокойного отдыха, массажа и восстановления.",
-      "linkPath": "/wellness",
-      "imageSrc": "",
-      "itemIds": [],
+      "title": "Северный день у воды",
+      "description": "Курортный ритм Mikazuki: resort, water park и день без спешки у моря.",
+      "linkPath": "/section/active-rest",
+      "imageSrc": "https://static.wixstatic.com/media/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg/v1/fill/w_250%2Ch_167%2Cal_c%2Cq_90%2Cenc_auto/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg",
+      "itemIds": [
+        "hotel-mikazuki-resort",
+        "active-mikazuki-water-park",
+        "transport-da-nang-airport"
+      ],
       "active": true
     }
   ],
   "home": {
-    "popularPlaceIds": [],
+    "popularPlaceIds": [
+      "restaurant-madame-lan",
+      "culture-cham-museum",
+      "shop-han-market"
+    ],
     "featuredCategoryIds": [
       "restaurants",
       "events",

@@ -207,8 +207,9 @@ function normalizeStore(parsed: Partial<GuideContentStore>): GuideContentStore {
   const rawDefaults = cloneRawDefaultStore();
   const normalizedDefaultCategories = defaultCategories.map((fallback) => normalizeCategory(fallback, fallback));
   const normalizedDefaultPlaces = (Array.isArray(rawDefaults.places) ? rawDefaults.places : []).map(normalizePlace);
-
-  const places = Array.isArray(parsed.places) ? parsed.places.map(normalizePlace) : normalizedDefaultPlaces;
+  const parsedPlaces = Array.isArray(parsed.places) ? parsed.places : [];
+  const useDefaultSeedContent = parsedPlaces.length === 0;
+  const places = useDefaultSeedContent ? normalizedDefaultPlaces : parsedPlaces.map(normalizePlace);
 
   const categories = Array.isArray(parsed.categories)
     ? defaultCategories.map((fallback) => {
@@ -223,15 +224,15 @@ function normalizeStore(parsed: Partial<GuideContentStore>): GuideContentStore {
     restaurants: places.filter((place) => place.categoryId === 'restaurants'),
     wellness: places.filter((place) => place.categoryId === 'wellness'),
     categories,
-    tips: Array.isArray(parsed.tips) ? parsed.tips : rawDefaults.tips,
-    banners: Array.isArray(parsed.banners) ? parsed.banners : rawDefaults.banners,
-    collections: Array.isArray(parsed.collections) ? parsed.collections : rawDefaults.collections,
+    tips: useDefaultSeedContent ? rawDefaults.tips : Array.isArray(parsed.tips) ? parsed.tips : rawDefaults.tips,
+    banners: useDefaultSeedContent ? rawDefaults.banners : Array.isArray(parsed.banners) ? parsed.banners : rawDefaults.banners,
+    collections: useDefaultSeedContent ? rawDefaults.collections : Array.isArray(parsed.collections) ? parsed.collections : rawDefaults.collections,
     home: {
-      popularPlaceIds: parsed.home?.popularPlaceIds ?? rawDefaults.home.popularPlaceIds,
-      featuredCategoryIds: parsed.home?.featuredCategoryIds ?? rawDefaults.home.featuredCategoryIds,
-      tipIds: parsed.home?.tipIds ?? rawDefaults.home.tipIds,
-      bannerIds: parsed.home?.bannerIds ?? rawDefaults.home.bannerIds,
-      collectionIds: parsed.home?.collectionIds ?? rawDefaults.home.collectionIds,
+      popularPlaceIds: useDefaultSeedContent ? rawDefaults.home.popularPlaceIds : parsed.home?.popularPlaceIds ?? rawDefaults.home.popularPlaceIds,
+      featuredCategoryIds: useDefaultSeedContent ? rawDefaults.home.featuredCategoryIds : parsed.home?.featuredCategoryIds ?? rawDefaults.home.featuredCategoryIds,
+      tipIds: useDefaultSeedContent ? rawDefaults.home.tipIds : parsed.home?.tipIds ?? rawDefaults.home.tipIds,
+      bannerIds: useDefaultSeedContent ? rawDefaults.home.bannerIds : parsed.home?.bannerIds ?? rawDefaults.home.bannerIds,
+      collectionIds: useDefaultSeedContent ? rawDefaults.home.collectionIds : parsed.home?.collectionIds ?? rawDefaults.home.collectionIds,
       logoMedia: parsed.home?.logoMedia?.src
         ? {
             type: parsed.home.logoMedia.type === 'video' ? 'video' : 'image',

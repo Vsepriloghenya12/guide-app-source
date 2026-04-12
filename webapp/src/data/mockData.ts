@@ -1,4 +1,4 @@
-import { defaultCategories } from './categories';
+import sharedDefaultGuideContent from '../../../shared/default-guide-content.json';
 import type { GuideContentStore, GuidePlace } from '../types';
 
 const restaurantPlaces: GuidePlace[] = [
@@ -555,88 +555,4 @@ const eventPlaces: GuidePlace[] = [
   }
 ];
 
-export const defaultGuideContent: GuideContentStore = {
-  version: 4,
-  places: [],
-  categories: defaultCategories,
-  tips: [
-    {
-      id: 'tip-1',
-      title: 'Топ 10 мест Дананга',
-      text: 'Идеи для первого знакомства с городом: красивые виды, прогулки и атмосферные точки.',
-      linkPath: '/section/culture',
-      active: true
-    },
-    {
-      id: 'tip-2',
-      title: 'Где купить сувениры',
-      text: 'Магазины, лавки и сувениры, куда удобно заглянуть за подарками и мелочами.',
-      linkPath: '/section/shops',
-      active: true
-    },
-    {
-      id: 'tip-3',
-      title: 'Лучшие кафе города',
-      text: 'Где начать день с кофе, завтрака и спокойной атмосферы.',
-      linkPath: '/restaurants',
-      active: true
-    }
-  ],
-  banners: [
-    {
-      id: 'banner-1',
-      title: 'Топ рестораны и кафе Дананга',
-      subtitle: 'Подборка мест, куда приятно зайти в любое время дня.',
-      linkPath: '/restaurants',
-      tone: 'coast',
-      imageSrc: '',
-      active: true
-    },
-    {
-      id: 'banner-2',
-      title: 'СПА, массаж и отдых',
-      subtitle: 'Места для отдыха, восстановления и неспешного дня.',
-      linkPath: '/wellness',
-      tone: 'bridge',
-      imageSrc: '',
-      active: true
-    }
-  ],
-  collections: [
-    {
-      id: 'collection-1',
-      title: 'Завтраки с красивой подачей',
-      description: 'Подборка мест для неторопливого утра и красивого начала дня.',
-      linkPath: '/restaurants',
-      imageSrc: '',
-      itemIds: [],
-      active: true
-    },
-    {
-      id: 'collection-2',
-      title: 'Релакс после пляжа',
-      description: 'Идеи для спокойного отдыха, массажа и восстановления.',
-      linkPath: '/wellness',
-      imageSrc: '',
-      itemIds: [],
-      active: true
-    }
-  ],
-  home: {
-    popularPlaceIds: [],
-    featuredCategoryIds: ['restaurants', 'events', 'wellness', 'routes', 'transport', 'atm'],
-    tipIds: ['tip-1', 'tip-2', 'tip-3'],
-    bannerIds: ['banner-1', 'banner-2'],
-    collectionIds: ['collection-1', 'collection-2'],
-    sectionTitles: {
-      popular: 'Популярное',
-      categories: 'Категории',
-      tips: 'Советы',
-      collections: 'Подборки',
-      allCategories: 'Все рубрики'
-    }
-  },
-  analytics: {
-    events: []
-  }
-};
+export const defaultGuideContent = sharedDefaultGuideContent as GuideContentStore;

@@ -119,10 +119,12 @@ export function ListingDetailPage() {
         <div className="travel-detail-card__media">
           <img src={activeImage} alt={listing.title} loading="lazy" decoding="async" />
           <span className="travel-detail-card__category">{category.shortTitle || category.title}</span>
-          <div className="travel-detail-card__rating">
-            <strong>{listing.rating.toFixed(1)}</strong>
-            <span>★★★★★</span>
-          </div>
+          {listing.rating > 0 ? (
+            <div className="travel-detail-card__rating">
+              <strong>{listing.rating.toFixed(1)}</strong>
+              <span>★★★★★</span>
+            </div>
+          ) : null}
         </div>
 
         {gallery.length > 1 ? (

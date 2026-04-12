@@ -33,12 +33,14 @@ function buildBadgeLabel(listing: Listing) {
 }
 
 function buildUnifiedFacts(listing: Listing, averageCheckLabel: string, workingHoursLabel: string) {
+  const restaurantHasCheck = Boolean(listing.priceLabel) || (typeof listing.avgCheck === 'number' && Number.isFinite(listing.avgCheck));
+
   const primaryFact =
-    listing.categoryId === 'restaurants'
+    listing.categoryId === 'restaurants' && restaurantHasCheck
       ? { tone: 'check', label: 'Средний чек', value: averageCheckLabel }
       : typeof listing.hotelStars === 'number' && Number.isFinite(listing.hotelStars)
         ? { tone: 'check', label: 'Уровень', value: `${listing.hotelStars}★` }
-        : listing.cuisine
+      : listing.cuisine
           ? { tone: 'check', label: 'Кухня', value: listing.cuisine }
           : listing.listingType || listing.kind
             ? { tone: 'check', label: 'Формат', value: listing.listingType || listing.kind }

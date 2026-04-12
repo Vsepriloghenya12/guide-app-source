@@ -287,25 +287,26 @@ function normalizeContentStore(input) {
   const defaults = cloneDefaultContent();
   const base = input && typeof input === 'object' ? input : {};
   const defaultCategoryMap = new Map(defaults.categories.map((item) => [item.id, item]));
+  const useDefaultSeedContent = !Array.isArray(base.places) || base.places.length === 0;
 
   const categories = (Array.isArray(base.categories) ? base.categories : defaults.categories)
     .map((item, index) => normalizeCategory(item, index, defaultCategoryMap))
     .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
 
   const placeFallbackMap = new Map((Array.isArray(defaults.places) ? defaults.places : []).map((item) => [item.id, item]));
-  const places = (Array.isArray(base.places) ? base.places : defaults.places)
+  const places = (useDefaultSeedContent ? defaults.places : base.places)
     .map((item, index) => normalizePlace(item, index, placeFallbackMap.get(item?.id)))
     .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
 
-  const tips = (Array.isArray(base.tips) ? base.tips : defaults.tips)
+  const tips = (useDefaultSeedContent ? defaults.tips : Array.isArray(base.tips) ? base.tips : defaults.tips)
     .map(normalizeTip)
     .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
 
-  const banners = (Array.isArray(base.banners) ? base.banners : defaults.banners)
+  const banners = (useDefaultSeedContent ? defaults.banners : Array.isArray(base.banners) ? base.banners : defaults.banners)
     .map(normalizeBanner)
     .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
 
-  const collections = (Array.isArray(base.collections) ? base.collections : defaults.collections)
+  const collections = (useDefaultSeedContent ? defaults.collections : Array.isArray(base.collections) ? base.collections : defaults.collections)
     .map(normalizeCollection)
     .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
 
@@ -320,11 +321,11 @@ function normalizeContentStore(input) {
     banners,
     collections,
     home: {
-      popularPlaceIds: normalizeStringArray(homeInput.popularPlaceIds ?? homeDefaults.popularPlaceIds),
-      featuredCategoryIds: normalizeStringArray(homeInput.featuredCategoryIds ?? homeDefaults.featuredCategoryIds),
-      tipIds: normalizeStringArray(homeInput.tipIds ?? homeDefaults.tipIds),
-      bannerIds: normalizeStringArray(homeInput.bannerIds ?? homeDefaults.bannerIds),
-      collectionIds: normalizeStringArray(homeInput.collectionIds ?? homeDefaults.collectionIds),
+      popularPlaceIds: normalizeStringArray(useDefaultSeedContent ? homeDefaults.popularPlaceIds : homeInput.popularPlaceIds ?? homeDefaults.popularPlaceIds),
+      featuredCategoryIds: normalizeStringArray(useDefaultSeedContent ? homeDefaults.featuredCategoryIds : homeInput.featuredCategoryIds ?? homeDefaults.featuredCategoryIds),
+      tipIds: normalizeStringArray(useDefaultSeedContent ? homeDefaults.tipIds : homeInput.tipIds ?? homeDefaults.tipIds),
+      bannerIds: normalizeStringArray(useDefaultSeedContent ? homeDefaults.bannerIds : homeInput.bannerIds ?? homeDefaults.bannerIds),
+      collectionIds: normalizeStringArray(useDefaultSeedContent ? homeDefaults.collectionIds : homeInput.collectionIds ?? homeDefaults.collectionIds),
       logoMedia: String(homeInput.logoMedia?.src || homeDefaults.logoMedia?.src || '').trim()
         ? {
             type: String(homeInput.logoMedia?.type || homeDefaults.logoMedia?.type || 'image').trim() === 'video' ? 'video' : 'image',
