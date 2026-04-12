@@ -238,7 +238,7 @@ const home = {
     { id: 'events', title: 'Афиша', subtitle: 'события, бары и городская жизнь', path: '/section/events', tone: 'blue' },
     { id: 'culture', title: 'Культура', subtitle: 'музеи, достопримечательности и прогулки', path: '/section/culture', tone: 'pink' },
     { id: 'shops', title: 'Шопинг', subtitle: 'магазины, рынки и сувениры', path: '/section/shops', tone: 'red' },
-    { id: 'nature', title: 'Природа', subtitle: 'маршруты, виды и короткие выезды', path: '/section/routes', badge: 'Маршруты', tone: 'teal' }
+    { id: 'nature', title: 'Виды города', subtitle: 'смотровые, панорамы и красивые точки города', path: '/section/photo-spots', badge: 'Виды', tone: 'teal' }
   ],
   tips: [
     { id: 'tip-1', title: 'Топ 10 мест Дананга', path: '/section/culture' },

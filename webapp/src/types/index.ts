@@ -2,17 +2,17 @@ export type GuideCategoryId =
   | 'restaurants'
   | 'wellness'
   | 'active-rest'
-  | 'routes'
   | 'hotels'
   | 'events'
-  | 'transport'
   | 'atm'
   | 'shops'
   | 'culture'
   | 'kids'
   | 'medicine'
   | 'photo-spots'
-  | 'car-rental';
+  | 'car-rental'
+  | 'coworkings'
+  | 'misc';
 
 export type GuideFilterSchema = {
   quickFilters?: string[];

@@ -19,12 +19,20 @@ import type { GuideCategoryId } from '../types';
 
 const nearbyCategoryOptions: Array<{ value: 'all' | GuideCategoryId; label: string }> = [
   { value: 'all', label: 'Все категории' },
-  { value: 'restaurants', label: 'Еда и напитки' },
-  { value: 'wellness', label: 'Wellness' },
-  { value: 'routes', label: 'Маршруты' },
-  { value: 'transport', label: 'Транспорт' },
-  { value: 'culture', label: 'Достопримечательности' },
-  { value: 'photo-spots', label: 'Фотоспоты' }
+  { value: 'restaurants', label: 'Еда' },
+  { value: 'events', label: 'Досуг' },
+  { value: 'wellness', label: 'Оздоровление' },
+  { value: 'hotels', label: 'Отели' },
+  { value: 'active-rest', label: 'Активный отдых' },
+  { value: 'car-rental', label: 'Аренда транспорта' },
+  { value: 'atm', label: 'Деньги' },
+  { value: 'shops', label: 'Покупки' },
+  { value: 'culture', label: 'Культура и искусство' },
+  { value: 'kids', label: 'Детям' },
+  { value: 'medicine', label: 'Медицина' },
+  { value: 'photo-spots', label: 'Виды города' },
+  { value: 'coworkings', label: 'Коворкинги' },
+  { value: 'misc', label: 'Разное' }
 ];
 
 export function NearbyPage() {

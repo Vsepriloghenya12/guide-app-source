@@ -18,34 +18,34 @@ const paletteMap: Record<GuideCategoryId, Palette> = {
   restaurants: { primary: '#f3e7d2', secondary: '#d0b184' },
   wellness: { primary: '#dbf2ea', secondary: '#7bc2ae' },
   'active-rest': { primary: '#e6efd5', secondary: '#9dc567' },
-  routes: { primary: '#deebff', secondary: '#7ea8ef' },
   hotels: { primary: '#eaecff', secondary: '#8e99dc' },
   events: { primary: '#f7dfeb', secondary: '#ca81a5' },
-  transport: { primary: '#deedf7', secondary: '#7caecc' },
   atm: { primary: '#f8eac8', secondary: '#d7b064' },
   shops: { primary: '#fae2d8', secondary: '#da8e73' },
   culture: { primary: '#ece2f8', secondary: '#a083d0' },
   kids: { primary: '#faedd4', secondary: '#d8a972' },
   medicine: { primary: '#dff3ed', secondary: '#64bba7' },
   'photo-spots': { primary: '#e3efff', secondary: '#78abdf' },
-  'car-rental': { primary: '#e3e9f8', secondary: '#8599c7' }
+  'car-rental': { primary: '#e3e9f8', secondary: '#8599c7' },
+  coworkings: { primary: '#e5f0ff', secondary: '#7e9fda' },
+  misc: { primary: '#ece8e2', secondary: '#a79a86' }
 };
 
 const secretGlyphMap: Record<GuideCategoryId, { glyph: string; accent: string }> = {
   restaurants: { glyph: '火', accent: '#ff8f4d' },
   wellness: { glyph: '花', accent: '#f3a9d4' },
   'active-rest': { glyph: '雷', accent: '#ffd45c' },
-  routes: { glyph: '風', accent: '#7fd9f5' },
   hotels: { glyph: '月', accent: '#d1c3ff' },
   events: { glyph: '祭', accent: '#ff7b8b' },
-  transport: { glyph: '刃', accent: '#8dd0ff' },
   atm: { glyph: '金', accent: '#ffc85a' },
   shops: { glyph: '面', accent: '#ffb06c' },
   culture: { glyph: '龍', accent: '#ef8dff' },
   kids: { glyph: '狐', accent: '#ffd08a' },
   medicine: { glyph: '薬', accent: '#81e0b4' },
   'photo-spots': { glyph: '星', accent: '#8ac0ff' },
-  'car-rental': { glyph: '走', accent: '#c5d6ff' }
+  'car-rental': { glyph: '走', accent: '#c5d6ff' },
+  coworkings: { glyph: '机', accent: '#9bb7ff' },
+  misc: { glyph: '灯', accent: '#d0c1a9' }
 };
 
 function IconShape({ categoryId }: { categoryId: GuideCategoryId }) {
@@ -71,15 +71,6 @@ function IconShape({ categoryId }: { categoryId: GuideCategoryId }) {
           <path d="M12 26l6-8 4 3 6-9 3 2-7.5 12H20l-3.5-3.2L14 26Z" fill="currentColor" />
         </>
       );
-    case 'routes':
-      return (
-        <>
-          <circle cx="9" cy="10" r="4" fill="currentColor" />
-          <circle cx="31" cy="23" r="4" fill="currentColor" />
-          <path d="M12 10c6 0 8 3 8 6s-2 6-8 6" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-          <path d="M20 22c2.5 2.4 5.3 3.7 8 3.9" fill="none" stroke="var(--icon-secondary)" strokeWidth="3" strokeLinecap="round" />
-        </>
-      );
     case 'hotels':
       return (
         <>
@@ -94,15 +85,6 @@ function IconShape({ categoryId }: { categoryId: GuideCategoryId }) {
           <rect x="8" y="9" width="24" height="19" rx="4" fill="currentColor" />
           <rect x="8" y="14" width="24" height="4" fill="#08111c" opacity="0.28" />
           <path d="M14 5h3v6h-3zm9 0h3v6h-3z" fill="var(--icon-secondary)" />
-        </>
-      );
-    case 'transport':
-      return (
-        <>
-          <path d="M10 20v-4c0-4.4 3.6-8 8-8h4c4.4 0 8 3.6 8 8v4H10Z" fill="currentColor" />
-          <path d="M8 22h24v3H8z" fill="var(--icon-secondary)" />
-          <circle cx="14" cy="25" r="2.4" fill="#08111c" opacity="0.75" />
-          <circle cx="26" cy="25" r="2.4" fill="#08111c" opacity="0.75" />
         </>
       );
     case 'atm':
@@ -151,6 +133,23 @@ function IconShape({ categoryId }: { categoryId: GuideCategoryId }) {
           <path d="M9 21h22v3H9z" fill="var(--icon-secondary)" />
           <circle cx="14" cy="25" r="2.4" fill="#08111c" opacity="0.75" />
           <circle cx="26" cy="25" r="2.4" fill="#08111c" opacity="0.75" />
+        </>
+      );
+    case 'coworkings':
+      return (
+        <>
+          <rect x="8" y="12" width="24" height="10" rx="2" fill="currentColor" />
+          <path d="M12 10h16v2H12zm2 12h3v5h-3zm9 0h3v5h-3z" fill="var(--icon-secondary)" />
+          <rect x="14" y="8" width="12" height="2" rx="1" fill="var(--icon-secondary)" />
+        </>
+      );
+    case 'misc':
+      return (
+        <>
+          <circle cx="12" cy="16" r="3" fill="currentColor" />
+          <circle cx="20" cy="16" r="3" fill="var(--icon-secondary)" />
+          <circle cx="28" cy="16" r="3" fill="currentColor" />
+          <rect x="10" y="23" width="20" height="2" rx="1" fill="var(--icon-secondary)" opacity="0.8" />
         </>
       );
     default:

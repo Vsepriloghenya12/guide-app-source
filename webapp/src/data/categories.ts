@@ -37,24 +37,32 @@ function makeCategory(
 }
 
 export const defaultCategories: GuideCategory[] = [
-  makeCategory('restaurants', 'Рестораны, кафе и столовые', '/restaurants', {
+  makeCategory('restaurants', 'Еда', '/restaurants', {
     badge: 'Популярно',
-    description: 'Где поесть, выпить кофе или позавтракать.',
+    description: 'Рестораны, кафе, завтраки и места на каждый день.',
     showOnHome: true,
-    shortTitle: 'Рестораны',
+    shortTitle: 'Еда',
     accent: 'sunset',
     quickFilters: ['breakfast', 'vegan', 'pets'],
     fields: ['avgCheck', 'cuisine', 'kind', 'tags']
   }),
-  makeCategory('wellness', 'СПА и оздоровление', '/wellness', {
-    description: 'СПА, массаж, хамам и мягкие практики.',
+  makeCategory('events', 'Досуг', '/section/events', {
     showOnHome: true,
-    shortTitle: 'СПА',
+    shortTitle: 'Досуг',
+    accent: 'sunset',
+    description: 'Афиша, бары, вечерние планы и городские активности.',
+    quickFilters: ['today', 'weekend', 'free'],
+    fields: ['kind', 'tags', 'district']
+  }),
+  makeCategory('wellness', 'Оздоровление', '/wellness', {
+    description: 'СПА, массаж, хамам и спокойное восстановление.',
+    showOnHome: true,
+    shortTitle: 'Оздоровление',
     accent: 'emerald',
     quickFilters: ['childPrograms'],
     fields: ['services', 'avgCheck', 'tags']
   }),
-  makeCategory('active-rest', 'Активный отдых и экстрим', '/section/active-rest', {
+  makeCategory('active-rest', 'Активный отдых', '/section/active-rest', {
     showOnHome: true,
     shortTitle: 'Активный отдых',
     accent: 'sunset',
@@ -62,60 +70,44 @@ export const defaultCategories: GuideCategory[] = [
     quickFilters: ['outdoor', 'family', 'water'],
     fields: ['kind', 'tags', 'district']
   }),
-  makeCategory('routes', 'Маршруты и тропы', '/section/routes', {
-    showOnHome: true,
-    shortTitle: 'Маршруты',
-    accent: 'bridge',
-    description: 'Пешие маршруты, смотровые, sunrise/spots и готовые мини-гайды.',
-    quickFilters: ['sunrise', 'sunset', 'view'],
-    fields: ['kind', 'tags', 'district']
-  }),
-  makeCategory('hotels', 'Отели и проживание', '/section/hotels', {
+  makeCategory('hotels', 'Отели', '/section/hotels', {
     shortTitle: 'Отели',
     accent: 'coast',
     description: 'Отели, апартаменты и варианты проживания в разных районах.',
     quickFilters: [],
     fields: ['hotelStars', 'hotelPool', 'hotelSpa', 'petFriendly', 'district']
   }),
-  makeCategory('events', 'Афиша', '/section/events', {
-    showOnHome: true,
-    shortTitle: 'Афиша',
-    accent: 'sunset',
-    description: 'События, вечеринки, мастер-классы и планы на ближайшие дни.',
-    quickFilters: ['today', 'weekend', 'free'],
-    fields: ['kind', 'tags', 'district']
-  }),
-  makeCategory('transport', 'Транспорт', '/section/transport', {
-    shortTitle: 'Транспорт',
+  makeCategory('car-rental', 'Аренда транспорта', '/section/car-rental', {
+    shortTitle: 'Аренда транспорта',
     accent: 'bridge',
-    description: 'Трансферы, такси, шаттлы и полезные транспортные сервисы.',
-    quickFilters: ['airport', '24/7', 'delivery'],
-    fields: ['kind', 'services', 'district']
+    description: 'Прокат байков и авто, доставка транспорта и удобные условия.',
+    quickFilters: ['bike', 'car', 'delivery'],
+    fields: ['kind', 'services', 'avgCheck', 'district']
   }),
-  makeCategory('atm', 'Банкоматы', '/section/atm', {
-    shortTitle: 'Банкоматы',
+  makeCategory('atm', 'Деньги', '/section/atm', {
+    shortTitle: 'Деньги',
     accent: 'emerald',
-    description: 'Банкоматы, банки и точки снятия наличных в удобных районах.',
+    description: 'Банкоматы, банки и точки снятия наличных.',
     quickFilters: ['24/7', 'usd', 'beach'],
     fields: ['kind', 'services', 'district']
   }),
-  makeCategory('shops', 'Магазины и сувениры', '/section/shops', {
+  makeCategory('shops', 'Покупки', '/section/shops', {
     showOnHome: true,
-    shortTitle: 'Магазины',
+    shortTitle: 'Покупки',
     accent: 'sunset',
-    description: 'Сувениры, локальные бренды, рынки и приятные точки для шопинга.',
+    description: 'Сувениры, рынки, локальные бренды и полезные покупки.',
     quickFilters: ['market', 'local', 'design'],
     fields: ['kind', 'tags', 'district']
   }),
-  makeCategory('culture', 'Культура и достопримечательности', '/section/culture', {
+  makeCategory('culture', 'Культура и искусство', '/section/culture', {
     showOnHome: true,
-    shortTitle: 'Культура',
+    shortTitle: 'Культура и искусство',
     accent: 'coast',
-    description: 'Храмы, музеи, мосты, смотровые и главные точки города.',
+    description: 'Музеи, архитектура, городские символы и культурные точки.',
     quickFilters: ['museum', 'temple', 'view'],
     fields: ['kind', 'tags', 'district']
   }),
-  makeCategory('kids', 'Детский отдых', '/section/kids', {
+  makeCategory('kids', 'Детям', '/section/kids', {
     shortTitle: 'Детям',
     accent: 'emerald',
     description: 'Семейные локации, игровые, кафе и места, куда удобно идти с детьми.',
@@ -129,19 +121,26 @@ export const defaultCategories: GuideCategory[] = [
     quickFilters: ['24/7', 'english', 'pharmacy'],
     fields: ['kind', 'services', 'district']
   }),
-  makeCategory('photo-spots', 'Фото зоны / смотровые', '/section/photo-spots', {
-    shortTitle: 'Фото-споты',
+  makeCategory('photo-spots', 'Виды города', '/section/photo-spots', {
+    shortTitle: 'Виды города',
     accent: 'sunset',
-    description: 'Смотровые, пляжи, rooftop и места с лучшим светом для фото.',
+    description: 'Смотровые, rooftop и точки с красивыми видами на Дананг.',
     quickFilters: ['sunrise', 'sunset', 'view'],
     fields: ['kind', 'tags', 'district']
   }),
-  makeCategory('car-rental', 'Авто прокат', '/section/car-rental', {
-    shortTitle: 'Автопрокат',
+  makeCategory('coworkings', 'Коворкинги', '/section/coworkings', {
+    shortTitle: 'Коворкинги',
+    accent: 'coast',
+    description: 'Пространства для работы, встреч и спокойных рабочих часов.',
+    quickFilters: [],
+    fields: ['kind', 'services', 'district']
+  }),
+  makeCategory('misc', 'Разное', '/section/misc', {
+    shortTitle: 'Разное',
     accent: 'bridge',
-    description: 'Аренда байков и авто, доставка транспорта и удобные условия на каждый день.',
-    quickFilters: ['bike', 'car', 'delivery'],
-    fields: ['kind', 'services', 'avgCheck', 'district']
+    description: 'Дополнительные полезные точки, которые не входят в основные рубрики.',
+    quickFilters: [],
+    fields: ['kind', 'tags', 'district']
   })
 ];
 
@@ -151,24 +150,23 @@ export const sectionTitles: Record<string, string> = defaultCategories.reduce(
     [category.id]: category.title
   }),
   {
-    excursions: 'Лучшие экскурсии',
-    'weekend-routes': 'Маршруты выходного дня'
+    excursions: 'Лучшие экскурсии'
   } as Record<string, string>
 );
 
 export const categoryStatusMap: Record<GuideCategoryId, string> = {
-  restaurants: 'Полноценные карточки с фильтрами и контактами',
-  wellness: 'Полноценные карточки с услугами и тегами',
+  restaurants: 'Полноценные карточки еды с фильтрами и контактами',
+  events: 'Афиша и досуговые карточки',
+  wellness: 'Полноценные карточки оздоровления и услуг',
   'active-rest': 'Можно использовать как будущий раздел подборок и локаций',
-  routes: 'Подходит для маршрутов, гайдов и направлений',
   hotels: 'Готово место под отели и апартаменты',
-  events: 'Подходит для баннеров, афиши и подборок',
-  transport: 'Можно вынести транспорт, такси и аренду',
-  atm: 'Можно добавить карту и банкоматы',
-  shops: 'Подойдёт для магазинов и сувениров',
-  culture: 'Подойдёт для достопримечательностей и гидов',
+  'car-rental': 'Раздел под аренду транспорта',
+  atm: 'Раздел под банкоматы, банки и деньги',
+  shops: 'Раздел под покупки и сувениры',
+  culture: 'Раздел под культуру и искусство',
   kids: 'Можно сделать семейный раздел',
   medicine: 'Можно вынести клиники и аптеки',
-  'photo-spots': 'Подойдёт для локаций и смотровых точек',
-  'car-rental': 'Отдельный блок под аренду транспорта'
+  'photo-spots': 'Раздел под видовые точки города',
+  coworkings: 'Раздел под рабочие пространства',
+  misc: 'Раздел под разные полезные точки'
 };

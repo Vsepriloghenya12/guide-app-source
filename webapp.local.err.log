@@ -1,0 +1,73 @@
+[2m19:31:08[22m [31m[1m[vite][22m[39m Pre-transform error: Transform failed with 1 error:
+D:/guide-app-source/webapp/src/components/home/homeVisuals.ts:17:2: ERROR: Expected "}" but found "'car-rental'"
+[2m19:31:08[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+D:/guide-app-source/webapp/src/components/home/homeVisuals.ts:17:2: ERROR: Expected "}" but found "'car-rental'"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mD:/guide-app-source/webapp/src/components/home/homeVisuals.ts[39m:17:2
+[33m  
+  [33mExpected "}" but found "'car-rental'"[33m
+  15 |    medicine: '/home-icons/leisure.png',
+  16 |    'car-rental': '/home-icons/shopping.png'
+  17 |    'car-rental': '/home-icons/shopping.png',
+     |    ^
+  18 |    coworkings: '/home-icons/attractions.png',
+  19 |    misc: '/home-icons/shopping.png'
+  [39m
+      at failureErrorWithLog (D:\guide-app-source\node_modules\esbuild\lib\main.js:1472:15)
+      at D:\guide-app-source\node_modules\esbuild\lib\main.js:755:50
+      at responseCallbacks.<computed> (D:\guide-app-source\node_modules\esbuild\lib\main.js:622:9)
+      at handleIncomingPacket (D:\guide-app-source\node_modules\esbuild\lib\main.js:677:12)
+      at Socket.readFromStdout (D:\guide-app-source\node_modules\esbuild\lib\main.js:600:7)
+      at Socket.emit (node:events:524:28)
+      at addChunk (node:internal/streams/readable:561:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+      at Readable.push (node:internal/streams/readable:392:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+[2m19:31:08[22m [31m[1m[vite][22m[39m Pre-transform error: Transform failed with 1 error:
+D:/guide-app-source/webapp/src/components/home/homeVisuals.ts:17:2: ERROR: Expected "}" but found "'car-rental'"
+[2m19:31:16[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+D:/guide-app-source/webapp/src/components/home/homeVisuals.ts:17:2: ERROR: Expected "}" but found "'car-rental'"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mD:/guide-app-source/webapp/src/components/home/homeVisuals.ts[39m:17:2
+[33m  
+  [33mExpected "}" but found "'car-rental'"[33m
+  15 |    medicine: '/home-icons/leisure.png',
+  16 |    'car-rental': '/home-icons/shopping.png'
+  17 |    'car-rental': '/home-icons/shopping.png',
+     |    ^
+  18 |    coworkings: '/home-icons/attractions.png',
+  19 |    misc: '/home-icons/shopping.png'
+  [39m
+      at failureErrorWithLog (D:\guide-app-source\node_modules\esbuild\lib\main.js:1472:15)
+      at D:\guide-app-source\node_modules\esbuild\lib\main.js:755:50
+      at responseCallbacks.<computed> (D:\guide-app-source\node_modules\esbuild\lib\main.js:622:9)
+      at handleIncomingPacket (D:\guide-app-source\node_modules\esbuild\lib\main.js:677:12)
+      at Socket.readFromStdout (D:\guide-app-source\node_modules\esbuild\lib\main.js:600:7)
+      at Socket.emit (node:events:524:28)
+      at addChunk (node:internal/streams/readable:561:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+      at Readable.push (node:internal/streams/readable:392:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
+[2m19:31:31[22m [31m[1m[vite][22m[39m [31mInternal server error: Transform failed with 1 error:
+D:/guide-app-source/webapp/src/components/home/homeVisuals.ts:17:2: ERROR: Expected "}" but found "'car-rental'"[39m
+  Plugin: [35mvite:esbuild[39m
+  File: [36mD:/guide-app-source/webapp/src/components/home/homeVisuals.ts[39m:17:2
+[33m  
+  [33mExpected "}" but found "'car-rental'"[33m
+  15 |    medicine: '/home-icons/leisure.png',
+  16 |    'car-rental': '/home-icons/shopping.png'
+  17 |    'car-rental': '/home-icons/shopping.png',
+     |    ^
+  18 |    coworkings: '/home-icons/attractions.png',
+  19 |    misc: '/home-icons/shopping.png'
+  [39m
+      at failureErrorWithLog (D:\guide-app-source\node_modules\esbuild\lib\main.js:1472:15)
+      at D:\guide-app-source\node_modules\esbuild\lib\main.js:755:50
+      at responseCallbacks.<computed> (D:\guide-app-source\node_modules\esbuild\lib\main.js:622:9)
+      at handleIncomingPacket (D:\guide-app-source\node_modules\esbuild\lib\main.js:677:12)
+      at Socket.readFromStdout (D:\guide-app-source\node_modules\esbuild\lib\main.js:600:7)
+      at Socket.emit (node:events:524:28)
+      at addChunk (node:internal/streams/readable:561:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+      at Readable.push (node:internal/streams/readable:392:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)

@@ -263,7 +263,7 @@ const wellnessPlaces: GuidePlace[] = [
 const routePlaces: GuidePlace[] = [
   {
     id: 'route-1',
-    categoryId: 'routes',
+    categoryId: 'photo-spots',
     title: 'Sunrise Son Tra Loop',
     kind: 'Маршрут',
     cuisine: '',
@@ -293,7 +293,7 @@ const routePlaces: GuidePlace[] = [
   },
   {
     id: 'route-2',
-    categoryId: 'routes',
+    categoryId: 'photo-spots',
     title: 'Han River Evening Walk',
     kind: 'Пеший маршрут',
     cuisine: '',
@@ -326,7 +326,7 @@ const routePlaces: GuidePlace[] = [
 const transportPlaces: GuidePlace[] = [
   {
     id: 'transport-1',
-    categoryId: 'transport',
+    categoryId: 'misc',
     title: 'Airport Transfer Hub',
     kind: 'Трансфер',
     cuisine: '',
@@ -356,7 +356,7 @@ const transportPlaces: GuidePlace[] = [
   },
   {
     id: 'transport-2',
-    categoryId: 'transport',
+    categoryId: 'misc',
     title: 'My Khe Shuttle Point',
     kind: 'Шаттл',
     cuisine: '',

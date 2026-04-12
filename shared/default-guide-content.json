@@ -126,17 +126,17 @@
       "status": "published",
       "sortOrder": 30
     },
-    {
-      "id": "route-hai-van-pass",
-      "categoryId": "routes",
-      "title": "Hải Vân Pass",
+      {
+        "id": "route-hai-van-pass",
+        "categoryId": "photo-spots",
+        "title": "Hải Vân Pass Viewpoints",
       "description": "Один из самых известных маршрутов рядом с Данангом: серпантин, видовые точки и остановки с панорамой моря и гор.",
       "address": "Hải Vân Pass, Hòa Hiệp Bắc, Liên Chiểu, Đà Nẵng, Vietnam",
       "phone": "",
       "website": "https://danangfantasticity.com/en/sight-seeing-en/hai-van-pass",
       "hours": "",
       "avgCheck": null,
-      "kind": "Маршрут",
+        "kind": "Видовая дорога",
       "cuisine": "",
       "services": [
         "Видовые точки",
@@ -159,15 +159,15 @@
       "imageGallery": [
         "https://danangfantasticity.com/wp-content/uploads/2024/05/kinh-nghiem-di-hai-van-quan-da-nang-tu-a-den-z-3.jpg"
       ],
-      "shortDescription": "Живописный маршрут из Дананга через перевал Hải Vân.",
-      "priceLabel": "",
-      "listingType": "Маршрут",
-      "district": "Liên Chiểu",
-      "location": "Hải Vân Pass, Liên Chiểu, Đà Nẵng",
-      "type": "Маршрут",
-      "status": "published",
-      "sortOrder": 40
-    },
+        "shortDescription": "Живописные виды и фотостопы на перевале Hải Vân.",
+        "priceLabel": "",
+        "listingType": "Виды города",
+        "district": "Liên Chiểu",
+        "location": "Hải Vân Pass, Liên Chiểu, Đà Nẵng",
+        "type": "Видовая точка",
+        "status": "published",
+        "sortOrder": 40
+      },
     {
       "id": "hotel-mikazuki-resort",
       "categoryId": "hotels",
@@ -255,10 +255,10 @@
       "status": "published",
       "sortOrder": 60
     },
-    {
-      "id": "transport-da-nang-airport",
-      "categoryId": "transport",
-      "title": "Da Nang International Airport",
+      {
+        "id": "transport-da-nang-airport",
+        "categoryId": "misc",
+        "title": "Da Nang International Airport",
       "description": "Главный аэропорт города для внутренних и международных рейсов, ближайшая транспортная точка для прилёта в Дананг.",
       "address": "Duy Tân, Hòa Thuận Tây, Hải Châu, Đà Nẵng, Vietnam",
       "phone": "+84 236 3539 555",
@@ -290,12 +290,12 @@
       ],
       "shortDescription": "Международный аэропорт Дананга в районе Hải Châu.",
       "priceLabel": "",
-      "listingType": "Транспорт",
-      "district": "Hải Châu",
-      "location": "Duy Tân, Hòa Thuận Tây, Hải Châu, Đà Nẵng",
-      "type": "Аэропорт",
-      "status": "published",
-      "sortOrder": 70
+        "listingType": "Разное",
+        "district": "Hải Châu",
+        "location": "Duy Tân, Hòa Thuận Tây, Hải Châu, Đà Nẵng",
+        "type": "Аэропорт",
+        "status": "published",
+        "sortOrder": 70
     },
     {
       "id": "atm-vietcombank-tran-phu",
@@ -505,9 +505,9 @@
       "status": "published",
       "sortOrder": 120
     },
-    {
-      "id": "photo-son-tra-marina",
-      "categoryId": "photo-spots",
+      {
+        "id": "photo-son-tra-marina",
+        "categoryId": "photo-spots",
       "title": "Son Tra Marina",
       "description": "Известная фото-точка на полуострове Sơn Trà с бело-синим причалом, морским фоном и удобными кадрами на закате.",
       "address": "Hồ Xanh, Thọ Quang, Sơn Trà, Đà Nẵng, Vietnam",
@@ -543,13 +543,53 @@
       "listingType": "Фото-спот",
       "district": "Sơn Trà",
       "location": "Hồ Xanh, Thọ Quang, Sơn Trà, Đà Nẵng",
-      "type": "Фото-спот",
-      "status": "published",
-      "sortOrder": 130
-    },
-    {
-      "id": "car-rental-motorvina",
-      "categoryId": "car-rental",
+        "type": "Фото-спот",
+        "status": "published",
+        "sortOrder": 130
+      },
+      {
+        "id": "coworking-enouvo-space",
+        "categoryId": "coworkings",
+        "title": "Enouvo Space 2",
+        "description": "Реальный коворкинг в районе Sơn Trà для удалённой работы, встреч и спокойных рабочих часов недалеко от пляжной части города.",
+        "address": "18 An Nhơn 3, An Hải, Sơn Trà, Đà Nẵng 550000, Vietnam",
+        "phone": "+84 93 533 07 27",
+        "website": "https://enouvospace.com/",
+        "hours": "Пн–Пт 08:00–19:00, Сб 08:00–17:00, Вс выходной",
+        "avgCheck": null,
+        "kind": "Коворкинг",
+        "cuisine": "",
+        "services": [
+          "Wi-Fi",
+          "Meeting room",
+          "Tea & coffee"
+        ],
+        "tags": [
+          "coworking",
+          "remote work",
+          "son tra"
+        ],
+        "breakfast": false,
+        "vegan": false,
+        "pets": false,
+        "childPrograms": false,
+        "top": false,
+        "rating": 0,
+        "imageLabel": "Enouvo Space 2",
+        "imageSrc": "",
+        "imageGallery": [],
+        "shortDescription": "Коворкинг в Sơn Trà для работы и встреч.",
+        "priceLabel": "",
+        "listingType": "Коворкинги",
+        "district": "Sơn Trà",
+        "location": "18 An Nhơn 3, An Hải, Sơn Trà, Đà Nẵng",
+        "type": "Коворкинг",
+        "status": "published",
+        "sortOrder": 135
+      },
+      {
+        "id": "car-rental-motorvina",
+        "categoryId": "car-rental",
       "title": "Motorvina Da Nang",
       "description": "Реальный сервис аренды байков во Вьетнаме с офисом в Дананге и возможностью брать транспорт для поездок по центру и северному побережью.",
       "address": "66 Hải Phòng, Thạch Thang, Hải Châu, Đà Nẵng, Vietnam",
@@ -591,17 +631,17 @@
     }
   ],
   "categories": [
-    {
-      "id": "restaurants",
-      "title": "Рестораны, кафе и столовые",
-      "path": "/restaurants",
-      "badge": "Популярно",
-      "description": "Где поесть, выпить кофе или позавтракать.",
-      "visible": true,
-      "showOnHome": true,
-      "slug": "restaurants",
-      "shortTitle": "Рестораны",
-      "accent": "sunset",
+      {
+        "id": "restaurants",
+        "title": "Еда",
+        "path": "/restaurants",
+        "badge": "Популярно",
+        "description": "Рестораны, кафе, завтраки и места на каждый день.",
+        "visible": true,
+        "showOnHome": true,
+        "slug": "restaurants",
+        "shortTitle": "Еда",
+        "accent": "sunset",
       "filterSchema": {
         "quickFilters": [
           "breakfast",
@@ -616,142 +656,159 @@
         ]
       }
     },
-    {
-      "id": "wellness",
-      "title": "СПА и оздоровление",
-      "path": "/wellness",
-      "description": "СПА, массаж, хамам и мягкие практики.",
-      "visible": true,
-      "showOnHome": true,
-      "slug": "wellness",
-      "shortTitle": "СПА",
-      "accent": "emerald",
-      "filterSchema": {
-        "quickFilters": [
-          "childPrograms"
-        ],
-        "fields": [
-          "services",
-          "avgCheck",
-          "tags"
-        ]
-      }
-    },
-    {
-      "id": "active-rest",
-      "title": "Активный отдых и экстрим",
-      "path": "/section/active-rest",
-      "visible": true,
-      "showOnHome": true,
-      "slug": "active-rest",
-      "shortTitle": "Активный отдых",
-      "accent": "sunset",
-      "filterSchema": {
-        "quickFilters": [],
-        "fields": []
-      }
-    },
-    {
-      "id": "routes",
-      "title": "Маршруты и тропы",
-      "path": "/section/routes",
-      "visible": true,
-      "showOnHome": true,
-      "slug": "routes",
-      "shortTitle": "Маршруты",
-      "accent": "bridge",
-      "filterSchema": {
-        "quickFilters": [],
-        "fields": []
-      }
-    },
-    {
-      "id": "hotels",
-      "title": "Отели и проживание",
-      "path": "/section/hotels",
-      "visible": true,
-      "showOnHome": false,
-      "slug": "hotels",
-      "shortTitle": "Отели",
-      "accent": "coast",
-      "filterSchema": {
-        "quickFilters": [],
-        "fields": []
-      }
-    },
-    {
-      "id": "events",
-      "title": "Афиша",
-      "path": "/section/events",
-      "visible": true,
-      "showOnHome": true,
-      "slug": "events",
-      "shortTitle": "Афиша",
-      "accent": "sunset",
-      "filterSchema": {
-        "quickFilters": [],
-        "fields": []
-      }
-    },
-    {
-      "id": "transport",
-      "title": "Транспорт",
-      "path": "/section/transport",
-      "visible": true,
-      "showOnHome": false,
-      "slug": "transport",
-      "shortTitle": "Транспорт",
-      "accent": "bridge",
-      "filterSchema": {
-        "quickFilters": [],
-        "fields": []
-      }
-    },
-    {
-      "id": "atm",
-      "title": "Банкоматы",
-      "path": "/section/atm",
-      "visible": true,
-      "showOnHome": false,
-      "slug": "atm",
-      "shortTitle": "Банкоматы",
-      "accent": "emerald",
-      "filterSchema": {
-        "quickFilters": [],
-        "fields": []
-      }
-    },
-    {
-      "id": "shops",
-      "title": "Магазины и сувениры",
-      "path": "/section/shops",
-      "visible": true,
-      "showOnHome": true,
-      "slug": "shops",
-      "shortTitle": "Магазины",
-      "accent": "sunset",
-      "filterSchema": {
-        "quickFilters": [],
-        "fields": []
-      }
-    },
-    {
-      "id": "culture",
-      "title": "Культура и достопримечательности",
-      "path": "/section/culture",
-      "visible": true,
-      "showOnHome": true,
-      "slug": "culture",
-      "shortTitle": "Культура",
-      "accent": "coast",
-      "filterSchema": {
-        "quickFilters": [],
-        "fields": []
-      }
-    },
+      {
+        "id": "events",
+        "title": "Досуг",
+        "path": "/section/events",
+        "description": "Афиша, бары, вечерние планы и городские активности.",
+        "visible": true,
+        "showOnHome": true,
+        "slug": "events",
+        "shortTitle": "Досуг",
+        "accent": "sunset",
+        "filterSchema": {
+          "quickFilters": [
+            "today",
+            "weekend",
+            "free"
+          ],
+          "fields": [
+            "kind",
+            "tags"
+          ]
+        }
+      },
+      {
+        "id": "wellness",
+        "title": "Оздоровление",
+        "path": "/wellness",
+        "description": "СПА, массаж, хамам и спокойное восстановление.",
+        "visible": true,
+        "showOnHome": true,
+        "slug": "wellness",
+        "shortTitle": "Оздоровление",
+        "accent": "emerald",
+        "filterSchema": {
+          "quickFilters": [
+            "childPrograms"
+          ],
+          "fields": [
+            "services",
+            "avgCheck",
+            "tags"
+          ]
+        }
+      },
+      {
+        "id": "active-rest",
+        "title": "Активный отдых",
+        "path": "/section/active-rest",
+        "visible": true,
+        "showOnHome": true,
+        "slug": "active-rest",
+        "shortTitle": "Активный отдых",
+        "accent": "sunset",
+        "filterSchema": {
+          "quickFilters": [],
+          "fields": []
+        }
+      },
+      {
+        "id": "hotels",
+        "title": "Отели",
+        "path": "/section/hotels",
+        "visible": true,
+        "showOnHome": true,
+        "slug": "hotels",
+        "shortTitle": "Отели",
+        "accent": "coast",
+        "filterSchema": {
+          "quickFilters": [],
+          "fields": [
+            "hotelStars",
+            "hotelPool",
+            "hotelSpa",
+            "petFriendly",
+            "district"
+          ]
+        }
+      },
+      {
+        "id": "car-rental",
+        "title": "Аренда транспорта",
+        "path": "/section/car-rental",
+        "visible": true,
+        "showOnHome": false,
+        "slug": "car-rental",
+        "shortTitle": "Аренда транспорта",
+        "accent": "bridge",
+        "filterSchema": {
+          "quickFilters": [],
+          "fields": [
+            "kind",
+            "services",
+            "avgCheck",
+            "district"
+          ]
+        }
+      },
+      {
+        "id": "atm",
+        "title": "Деньги",
+        "path": "/section/atm",
+        "visible": true,
+        "showOnHome": false,
+        "slug": "atm",
+        "shortTitle": "Деньги",
+        "accent": "emerald",
+        "filterSchema": {
+          "quickFilters": [],
+          "fields": [
+            "kind",
+            "services",
+            "district"
+          ]
+        }
+      },
+      {
+        "id": "shops",
+        "title": "Покупки",
+        "path": "/section/shops",
+        "visible": true,
+        "showOnHome": true,
+        "slug": "shops",
+        "shortTitle": "Покупки",
+        "accent": "sunset",
+        "filterSchema": {
+          "quickFilters": [],
+          "fields": [
+            "kind",
+            "tags",
+            "district"
+          ]
+        }
+      },
+      {
+        "id": "culture",
+        "title": "Культура и искусство",
+        "path": "/section/culture",
+        "visible": true,
+        "showOnHome": true,
+        "slug": "culture",
+        "shortTitle": "Культура и искусство",
+        "accent": "coast",
+        "filterSchema": {
+          "quickFilters": [],
+          "fields": [
+            "kind",
+            "tags",
+            "district"
+          ]
+        }
+      },
     {
       "id": "kids",
-      "title": "Детский отдых",
+      "title": "Детям",
       "path": "/section/kids",
       "visible": true,
       "showOnHome": false,
@@ -777,35 +834,61 @@
         "fields": []
       }
     },
-    {
-      "id": "photo-spots",
-      "title": "Фото зоны / смотровые",
-      "path": "/section/photo-spots",
-      "visible": true,
-      "showOnHome": false,
-      "slug": "photo-spots",
-      "shortTitle": "Фото-споты",
-      "accent": "sunset",
-      "filterSchema": {
-        "quickFilters": [],
-        "fields": []
-      }
-    },
-    {
-      "id": "car-rental",
-      "title": "Авто прокат",
-      "path": "/section/car-rental",
-      "visible": true,
-      "showOnHome": false,
-      "slug": "car-rental",
-      "shortTitle": "Автопрокат",
-      "accent": "bridge",
-      "filterSchema": {
-        "quickFilters": [],
-        "fields": []
-      }
-    }
-  ],
+      {
+        "id": "photo-spots",
+        "title": "Виды города",
+        "path": "/section/photo-spots",
+        "visible": true,
+        "showOnHome": false,
+        "slug": "photo-spots",
+        "shortTitle": "Виды города",
+        "accent": "sunset",
+        "filterSchema": {
+          "quickFilters": [],
+          "fields": [
+            "kind",
+            "tags",
+            "district"
+          ]
+        }
+      },
+      {
+        "id": "coworkings",
+        "title": "Коворкинги",
+        "path": "/section/coworkings",
+        "visible": true,
+        "showOnHome": false,
+        "slug": "coworkings",
+        "shortTitle": "Коворкинги",
+        "accent": "coast",
+        "filterSchema": {
+          "quickFilters": [],
+          "fields": [
+            "kind",
+            "services",
+            "district"
+          ]
+        }
+      },
+      {
+        "id": "misc",
+        "title": "Разное",
+        "path": "/section/misc",
+        "visible": true,
+        "showOnHome": false,
+        "slug": "misc",
+        "shortTitle": "Разное",
+        "accent": "bridge",
+        "filterSchema": {
+          "quickFilters": [],
+          "fields": [
+            "kind",
+            "tags",
+            "district"
+            ]
+          }
+        }
+      ],
   "tips": [
     {
       "id": "tip-1",
@@ -869,28 +952,28 @@
       "description": "Курортный ритм Mikazuki: resort, water park и день без спешки у моря.",
       "linkPath": "/section/active-rest",
       "imageSrc": "https://static.wixstatic.com/media/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg/v1/fill/w_250%2Ch_167%2Cal_c%2Cq_90%2Cenc_auto/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg",
-      "itemIds": [
-        "hotel-mikazuki-resort",
-        "active-mikazuki-water-park",
-        "transport-da-nang-airport"
-      ],
-      "active": true
-    }
-  ],
-  "home": {
+        "itemIds": [
+          "hotel-mikazuki-resort",
+          "active-mikazuki-water-park",
+          "photo-son-tra-marina"
+        ],
+        "active": true
+      }
+    ],
+    "home": {
     "popularPlaceIds": [
       "restaurant-madame-lan",
       "culture-cham-museum",
       "shop-han-market"
     ],
-    "featuredCategoryIds": [
-      "restaurants",
-      "events",
-      "wellness",
-      "routes",
-      "transport",
-      "atm"
-    ],
+      "featuredCategoryIds": [
+        "restaurants",
+        "events",
+        "wellness",
+        "car-rental",
+        "photo-spots",
+        "atm"
+      ],
     "tipIds": [
       "tip-1",
       "tip-2",

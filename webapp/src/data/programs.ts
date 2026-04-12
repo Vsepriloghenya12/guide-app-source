@@ -20,7 +20,7 @@ export const stayPrograms: StayProgram[] = [
     title: 'Первое знакомство с Данангом',
     description: 'Сценарий для короткой поездки: Cham Museum днём, ужин в Madame Lan и вечерний Dragon Bridge без сложной логистики.',
     highlights: ['Madame Lân', 'Cham Museum', 'Dragon Bridge'],
-    categoryIds: ['restaurants', 'culture', 'routes'],
+    categoryIds: ['restaurants', 'culture', 'photo-spots'],
     collectionIds: ['collection-1'],
     tone: 'sunset'
   },
@@ -30,7 +30,7 @@ export const stayPrograms: StayProgram[] = [
     title: 'Классический отпуск',
     description: 'Баланс между центральными точками, Han Market, семейным вечером в Helio и выездом на Hải Vân Pass.',
     highlights: ['Han Market', 'Helio Center', 'Hải Vân Pass'],
-    categoryIds: ['restaurants', 'events', 'shops', 'culture', 'kids', 'routes'],
+    categoryIds: ['restaurants', 'events', 'shops', 'culture', 'kids', 'photo-spots'],
     collectionIds: ['collection-1', 'collection-2'],
     tone: 'bridge'
   },
@@ -40,7 +40,7 @@ export const stayPrograms: StayProgram[] = [
     title: 'Полная неделя у моря',
     description: 'Неделя позволяет чередовать Mikazuki Water Park, Son Tra Marina, spa-день и спокойные прогулки по центру.',
     highlights: ['Mikazuki', 'Son Tra Marina', 'Herbal Spa'],
-    categoryIds: ['restaurants', 'wellness', 'active-rest', 'culture', 'routes', 'photo-spots'],
+    categoryIds: ['restaurants', 'wellness', 'active-rest', 'culture', 'photo-spots'],
     collectionIds: ['collection-2'],
     tone: 'emerald'
   },
@@ -50,7 +50,7 @@ export const stayPrograms: StayProgram[] = [
     title: 'Длинный отдых в своем ритме',
     description: 'Если отдыха больше недели, удобно включить utility-слой города: транспорт, байк, рынок, hospital и спокойные выезды по районам.',
     highlights: ['Airport', 'Motorvina', 'Family Hospital'],
-    categoryIds: ['restaurants', 'shops', 'transport', 'photo-spots', 'wellness', 'car-rental', 'medicine'],
+    categoryIds: ['restaurants', 'shops', 'photo-spots', 'wellness', 'car-rental', 'medicine', 'coworkings', 'misc'],
     collectionIds: ['collection-1', 'collection-2'],
     tone: 'coast'
   }

@@ -4,17 +4,17 @@ const quickIconsById: Partial<Record<GuideCategory['id'], string>> = {
   culture: '/home-icons/attractions.png',
   events: '/home-icons/attractions.png',
   restaurants: '/home-icons/food.png',
-  routes: '/home-icons/beaches.png',
   'photo-spots': '/home-icons/beaches.png',
   hotels: '/home-icons/leisure.png',
   wellness: '/home-icons/leisure.png',
   'active-rest': '/home-icons/leisure.png',
   shops: '/home-icons/shopping.png',
   kids: '/home-icons/leisure.png',
-  transport: '/home-icons/shopping.png',
   atm: '/home-icons/shopping.png',
   medicine: '/home-icons/leisure.png',
-  'car-rental': '/home-icons/shopping.png'
+  'car-rental': '/home-icons/shopping.png',
+  coworkings: '/home-icons/attractions.png',
+  misc: '/home-icons/shopping.png'
 };
 
 const orderedQuickIcons = [
@@ -36,17 +36,17 @@ const toneByCategoryId: Partial<Record<GuideCategory['id'], string>> = {
   restaurants: 'sunset',
   wellness: 'emerald',
   'active-rest': 'sunset',
-  routes: 'bridge',
   hotels: 'coast',
   events: 'sunset',
-  transport: 'bridge',
   atm: 'emerald',
   shops: 'sunset',
   culture: 'coast',
   kids: 'emerald',
   medicine: 'emerald',
   'photo-spots': 'sunset',
-  'car-rental': 'bridge'
+  'car-rental': 'bridge',
+  coworkings: 'coast',
+  misc: 'bridge'
 };
 
 export function getQuickMenuImage(category: GuideCategory, index: number): string {
