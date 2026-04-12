@@ -38,6 +38,7 @@ export function OwnerLoginPage() {
       <PageHeader
         title="Вход для владельца"
         subtitle="Это отдельная ссылка для входа в закрытую owner-CMS. В публичном приложении кнопок сюда нет."
+        showBack
         badgeLabel="Owner CMS"
       />
 

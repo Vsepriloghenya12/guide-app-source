@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { UserAuthTrigger } from '../auth/UserAuthTrigger';
 
 type PageHeaderProps = {
@@ -19,17 +19,26 @@ export function PageHeader({
   badgeLabel = 'Гид Дананга'
 }: PageHeaderProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const isOwnerRoute = location.pathname.startsWith('/owner');
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate('/');
+  };
 
   return (
     <header className="travel-topbar">
       <div className="travel-topbar__inner">
         {showBack ? (
-          <Link className="travel-topbar__button" to="/" aria-label="Назад">
+          <button className="travel-topbar__button" type="button" onClick={handleBack} aria-label="Назад">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M14.7 5.3a1 1 0 0 1 0 1.4L9.41 12l5.3 5.3a1 1 0 0 1-1.42 1.4l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 1.41 0Z" fill="currentColor"/>
             </svg>
-          </Link>
+          </button>
         ) : (
           <span className="travel-topbar__badge">{badgeLabel}</span>
         )}

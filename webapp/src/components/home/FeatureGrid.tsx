@@ -182,7 +182,7 @@ export function FeatureGrid({
               <Link
                 key={item.id}
                 to={item.linkPath}
-                className="travel-story-row"
+                className="travel-story-row travel-story-row--no-arrow"
                 data-tone="emerald"
                 onClick={() =>
                   recordGuideAnalytics({
@@ -203,7 +203,6 @@ export function FeatureGrid({
                   <strong>{item.title}</strong>
                   <span>{item.text}</span>
                 </span>
-                <span className="travel-story-row__arrow" aria-hidden="true">›</span>
               </Link>
             ))}
           </div>

@@ -91,6 +91,7 @@ export function OwnerPage() {
       <PageHeader
         title="Панель управления"
         subtitle="Управляй карточками, разделами, главной страницей и контактами из одной панели."
+        showBack
         badgeLabel="Админка"
       />
 

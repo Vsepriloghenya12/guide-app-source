@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../layout/PageHeader';
 import { ListingCard } from './ListingCard';
 import { defaultCategories } from '../../data/categories';
@@ -179,7 +180,16 @@ function matchesQuickToken(place: GuidePlace, token: string) {
 export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerProps) {
   const [filters, setFilters] = useState<FiltersState>(initialFilters);
   const [isRestaurantFilterOpen, setRestaurantFilterOpen] = useState(false);
+  const navigate = useNavigate();
   const { categories, places, loading, error } = useGuideContent();
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate('/');
+  };
 
   useEffect(() => {
     if (!isRestaurantFilterOpen) {
@@ -346,6 +356,11 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
         <section className="restaurant-category-hero" style={{ backgroundImage: `url(${restaurantHeroImage})` }}>
           <div className="restaurant-category-hero__overlay" />
           <div className="restaurant-category-hero__content">
+            <button className="travel-topbar__button restaurant-category-hero__back" type="button" onClick={handleBack} aria-label="Назад">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14.7 5.3a1 1 0 0 1 0 1.4L9.41 12l5.3 5.3a1 1 0 0 1-1.42 1.4l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 1.41 0Z" fill="currentColor" />
+              </svg>
+            </button>
             <h1>{category.shortTitle || category.title}</h1>
           </div>
         </section>

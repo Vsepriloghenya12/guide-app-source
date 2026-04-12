@@ -13,6 +13,7 @@ export function HelpPage() {
       <PageHeader
         title="Помощь"
         subtitle="FAQ, простые подсказки по использованию приложения и быстрые переходы в важные разделы."
+        showBack
         badgeLabel="Помощь"
       />
 

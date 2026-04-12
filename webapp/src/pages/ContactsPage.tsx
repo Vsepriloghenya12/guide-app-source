@@ -52,6 +52,7 @@ export function ContactsPage() {
       <PageHeader
         title="Контакты"
         subtitle="Основные каналы связи, мессенджеры, телефон и важные номера, которые могут пригодиться в поездке."
+        showBack
         badgeLabel="Контакты"
       />
 
