@@ -1,12 +1,14 @@
+import { useRef, useState, type TouchEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { stayPrograms } from '../../data/programs';
-import type { GuideCategory, GuideTip, HomeSectionTitles } from '../../types';
+import type { GuideCategory, GuideTip, HomeBanner, HomeSectionTitles } from '../../types';
 import { recordGuideAnalytics } from '../../utils/analytics';
 import { getCategoryTone, getQuickMenuImage } from './homeVisuals';
 
 type FeatureGridProps = {
   featuredCategories: GuideCategory[];
   allCategories: GuideCategory[];
+  banners: HomeBanner[];
   tips: GuideTip[];
   sectionTitles: HomeSectionTitles;
 };
@@ -14,14 +16,99 @@ type FeatureGridProps = {
 export function FeatureGrid({
   featuredCategories: _featuredCategories,
   allCategories,
+  banners,
   tips,
   sectionTitles
 }: FeatureGridProps) {
+  const [activeBannerIndex, setActiveBannerIndex] = useState(0);
+  const bannerTouchStartX = useRef<number | null>(null);
+  const blockBannerClick = useRef(false);
   const visibleTips = tips.slice(0, 5);
   const programDurations = stayPrograms.slice(0, 3);
+  const activeBanner = banners.length > 0 ? banners[((activeBannerIndex % banners.length) + banners.length) % banners.length] : null;
+
+  const moveBanner = (direction: 'prev' | 'next') => {
+    if (banners.length < 2) return;
+
+    setActiveBannerIndex((current) => {
+      if (direction === 'next') {
+        return (current + 1) % banners.length;
+      }
+
+      return (current - 1 + banners.length) % banners.length;
+    });
+  };
+
+  const handleBannerTouchStart = (event: TouchEvent<HTMLElement>) => {
+    bannerTouchStartX.current = event.changedTouches[0]?.clientX ?? null;
+  };
+
+  const handleBannerTouchEnd = (event: TouchEvent<HTMLElement>) => {
+    if (bannerTouchStartX.current === null) return;
+
+    const deltaX = (event.changedTouches[0]?.clientX ?? 0) - bannerTouchStartX.current;
+    bannerTouchStartX.current = null;
+
+    if (Math.abs(deltaX) < 36) return;
+
+    blockBannerClick.current = true;
+    moveBanner(deltaX < 0 ? 'next' : 'prev');
+    window.setTimeout(() => {
+      blockBannerClick.current = false;
+    }, 180);
+  };
 
   return (
     <section className="travel-home-sections">
+      {activeBanner ? (
+        <section className="travel-section travel-section--home-banners" aria-label="Баннеры">
+          <div className="travel-home-banner-carousel">
+            <Link
+              key={activeBanner.id}
+              to={activeBanner.linkPath}
+              className="travel-home-banner-card"
+              data-tone={activeBanner.tone}
+              style={{
+                backgroundImage: `linear-gradient(180deg, rgba(9, 19, 38, 0.16) 0%, rgba(9, 19, 38, 0.72) 100%), url(${activeBanner.imageSrc || '/home-hero-background.png'})`
+              }}
+              onTouchStart={handleBannerTouchStart}
+              onTouchEnd={handleBannerTouchEnd}
+              onClick={(event) => {
+                if (blockBannerClick.current) {
+                  event.preventDefault();
+                  return;
+                }
+
+                recordGuideAnalytics({
+                  kind: 'banner-click',
+                  label: activeBanner.title,
+                  path: activeBanner.linkPath,
+                  entityId: activeBanner.id
+                });
+              }}
+            >
+              <span className="travel-home-banner-card__eyebrow">Баннер</span>
+              <strong>{activeBanner.title}</strong>
+              <span>{activeBanner.subtitle}</span>
+            </Link>
+
+            {banners.length > 1 ? (
+              <div className="travel-home-banner-dots" aria-label="Навигация по баннерам">
+                {banners.map((banner, index) => (
+                  <button
+                    key={banner.id}
+                    type="button"
+                    className={`travel-home-banner-dot${index === activeBannerIndex ? ' is-active' : ''}`}
+                    aria-label={`Открыть баннер ${index + 1}`}
+                    onClick={() => setActiveBannerIndex(index)}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
       {allCategories.length > 0 ? (
         <section className="travel-section travel-section--quick travel-section--quick-home" aria-label="Быстрые рубрики">
           <div className="travel-section__header travel-section__header--home travel-section__header--home-categories">
