@@ -1,28 +1,28 @@
 import type { GuideCategory } from '../../types';
 
 const quickIconsById: Partial<Record<GuideCategory['id'], string>> = {
-  culture: '/home-icons/attractions.png',
-  events: '/home-icons/attractions.png',
-  restaurants: '/home-icons/food.png',
-  'photo-spots': '/home-icons/beaches.png',
-  hotels: '/home-icons/leisure.png',
-  wellness: '/home-icons/leisure.png',
-  'active-rest': '/home-icons/leisure.png',
-  shops: '/home-icons/shopping.png',
-  kids: '/home-icons/leisure.png',
-  atm: '/home-icons/shopping.png',
-  medicine: '/home-icons/leisure.png',
-  'car-rental': '/home-icons/shopping.png',
-  coworkings: '/home-icons/attractions.png',
-  misc: '/home-icons/shopping.png'
+  restaurants: '/home-icons/custom/food.png',
+  events: '/home-icons/custom/leisure.png',
+  wellness: '/home-icons/custom/wellness.png',
+  hotels: '/home-icons/custom/hotels.png',
+  'active-rest': '/home-icons/custom/active-rest.png',
+  'car-rental': '/home-icons/custom/car-rental.png',
+  atm: '/home-icons/custom/money.png',
+  shops: '/home-icons/custom/shopping.png',
+  culture: '/home-icons/custom/culture.png',
+  kids: '/home-icons/custom/kids.png',
+  medicine: '/home-icons/custom/medicine.png',
+  'photo-spots': '/home-icons/custom/photo-spots.png',
+  coworkings: '/home-icons/custom/coworkings.png',
+  misc: '/home-icons/custom/misc.png'
 };
 
 const orderedQuickIcons = [
-  '/home-icons/attractions.png',
-  '/home-icons/food.png',
-  '/home-icons/beaches.png',
-  '/home-icons/leisure.png',
-  '/home-icons/shopping.png'
+  '/home-icons/custom/food.png',
+  '/home-icons/custom/leisure.png',
+  '/home-icons/custom/photo-spots.png',
+  '/home-icons/custom/wellness.png',
+  '/home-icons/custom/shopping.png'
 ];
 
 const accentFallback: Record<string, string> = {
