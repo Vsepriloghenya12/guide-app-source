@@ -21,6 +21,14 @@ let lastLocalWriteVersion = 0;
 
 export type GuideContentScope = 'public' | 'owner';
 
+const categoryLabelOverrides: Partial<Record<GuideCategory['id'], { title: string; shortTitle: string }>> = {
+  restaurants: { title: 'Еда', shortTitle: 'Еда' },
+  wellness: { title: 'Оздоровление', shortTitle: 'Оздоровление' },
+  'car-rental': { title: 'Аренда транспорта', shortTitle: 'Аренда транспорта' },
+  atm: { title: 'Деньги', shortTitle: 'Деньги' },
+  'photo-spots': { title: 'Виды города', shortTitle: 'Виды города' }
+};
+
 function cloneRawDefaultStore(): GuideContentStore {
   return JSON.parse(JSON.stringify(defaultGuideContent)) as GuideContentStore;
 }
@@ -144,13 +152,16 @@ function migrateLegacyStore(raw: string): GuideContentStore | null {
 }
 
 function normalizeCategory(category: Partial<GuideCategory>, fallback: GuideCategory): GuideCategory {
+  const labels = categoryLabelOverrides[(category.id ?? fallback.id) as GuideCategory['id']];
+
   return {
     ...fallback,
     ...category,
+    title: labels?.title ?? category.title ?? fallback.title,
     visible: category.visible ?? fallback.visible,
     showOnHome: category.showOnHome ?? fallback.showOnHome,
     slug: category.slug ?? fallback.slug ?? fallback.id,
-    shortTitle: category.shortTitle ?? fallback.shortTitle ?? fallback.title,
+    shortTitle: labels?.shortTitle ?? category.shortTitle ?? fallback.shortTitle ?? fallback.title,
     accent: category.accent ?? fallback.accent ?? 'coast',
     imageSrc: category.imageSrc ?? fallback.imageSrc ?? '',
     sortOrder: category.sortOrder ?? fallback.sortOrder ?? 100,

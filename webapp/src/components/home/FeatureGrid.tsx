@@ -21,6 +21,7 @@ export function FeatureGrid({
   sectionTitles
 }: FeatureGridProps) {
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
+  const [bannerMotion, setBannerMotion] = useState<'next' | 'prev'>('next');
   const bannerTouchStartX = useRef<number | null>(null);
   const blockBannerClick = useRef(false);
   const visibleTips = tips.slice(0, 5);
@@ -30,6 +31,7 @@ export function FeatureGrid({
   const moveBanner = (direction: 'prev' | 'next') => {
     if (banners.length < 2) return;
 
+    setBannerMotion(direction === 'next' ? 'next' : 'prev');
     setActiveBannerIndex((current) => {
       if (direction === 'next') {
         return (current + 1) % banners.length;
@@ -66,7 +68,7 @@ export function FeatureGrid({
             <Link
               key={activeBanner.id}
               to={activeBanner.linkPath}
-              className="travel-home-banner-card"
+              className={`travel-home-banner-card travel-home-banner-card--${bannerMotion}`}
               data-tone={activeBanner.tone}
               style={{
                 backgroundImage: `linear-gradient(180deg, rgba(9, 19, 38, 0.16) 0%, rgba(9, 19, 38, 0.72) 100%), url(${activeBanner.imageSrc || '/home-hero-background.png'})`
@@ -100,7 +102,11 @@ export function FeatureGrid({
                     type="button"
                     className={`travel-home-banner-dot${index === activeBannerIndex ? ' is-active' : ''}`}
                     aria-label={`Открыть баннер ${index + 1}`}
-                    onClick={() => setActiveBannerIndex(index)}
+                    onClick={() => {
+                      if (index === activeBannerIndex) return;
+                      setBannerMotion(index > activeBannerIndex ? 'next' : 'prev');
+                      setActiveBannerIndex(index);
+                    }}
                   />
                 ))}
               </div>

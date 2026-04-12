@@ -11,6 +11,13 @@ try {
 
 const seedPath = path.resolve(__dirname, '../../shared/default-guide-content.json');
 const defaultContent = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
+const categoryLabelOverrides = {
+  restaurants: { title: 'Еда', shortTitle: 'Еда' },
+  wellness: { title: 'Оздоровление', shortTitle: 'Оздоровление' },
+  'car-rental': { title: 'Аренда транспорта', shortTitle: 'Аренда транспорта' },
+  atm: { title: 'Деньги', shortTitle: 'Деньги' },
+  'photo-spots': { title: 'Виды города', shortTitle: 'Виды города' }
+};
 const defaultSupportContent = {
   heroEyebrow: 'На связи',
   heroTitle: 'Все важные контакты в одном месте',
@@ -167,17 +174,18 @@ function normalizeCategory(category, index, fallbackMap) {
   const fallback = fallbackMap.get(category?.id) || fallbackMap.get(category?.slug) || {};
   const id = String(category?.id || fallback.id || '').trim();
   const slug = String(category?.slug || fallback.slug || id || `category-${index + 1}`).trim();
+  const labels = categoryLabelOverrides[id] || {};
 
   return {
     id,
-    title: String(category?.title || fallback.title || id).trim(),
+    title: String(labels.title || category?.title || fallback.title || id).trim(),
     path: String(category?.path || fallback.path || `/section/${slug}`).trim(),
     badge: String(category?.badge ?? fallback.badge ?? '').trim(),
     description: String(category?.description || fallback.description || '').trim(),
     visible: category?.visible ?? fallback.visible ?? true,
     showOnHome: category?.showOnHome ?? fallback.showOnHome ?? false,
     slug,
-    shortTitle: String(category?.shortTitle || fallback.shortTitle || category?.title || fallback.title || id).trim(),
+    shortTitle: String(labels.shortTitle || category?.shortTitle || fallback.shortTitle || category?.title || fallback.title || id).trim(),
     accent: String(category?.accent || fallback.accent || 'coast').trim(),
     imageSrc: String(category?.imageSrc || fallback.imageSrc || '').trim(),
     filterSchema: {

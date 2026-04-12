@@ -234,7 +234,7 @@ const home = {
   ],
   categories: [
     { id: 'food', title: 'Еда', subtitle: 'рестораны, завтраки и локальные места', path: '/restaurants', badge: 'Популярно', tone: 'orange' },
-    { id: 'wellness', title: 'СПА', subtitle: 'ритуалы, массаж и отдых', path: '/wellness', tone: 'green' },
+    { id: 'wellness', title: 'Оздоровление', subtitle: 'ритуалы, массаж и отдых', path: '/wellness', tone: 'green' },
     { id: 'events', title: 'Афиша', subtitle: 'события, бары и городская жизнь', path: '/section/events', tone: 'blue' },
     { id: 'culture', title: 'Культура', subtitle: 'музеи, достопримечательности и прогулки', path: '/section/culture', tone: 'pink' },
     { id: 'shops', title: 'Шопинг', subtitle: 'магазины, рынки и сувениры', path: '/section/shops', tone: 'red' },
@@ -250,7 +250,7 @@ const home = {
 module.exports = {
   defaultCategories: [
     { id: 'restaurants', title: 'Рестораны, кафе и столовые', sortOrder: 1, isActive: true },
-    { id: 'wellness', title: 'СПА и оздоровление', sortOrder: 2, isActive: true }
+    { id: 'wellness', title: 'Оздоровление', sortOrder: 2, isActive: true }
   ],
   defaultGuideContent: {
     restaurants,

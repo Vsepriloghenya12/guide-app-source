@@ -75,7 +75,7 @@ export function resetGuideAnalytics() {
 export function getAnalyticsLabelByPath(pathname: string) {
   if (pathname === '/') return 'Главная';
   if (pathname === '/restaurants') return 'Рестораны';
-  if (pathname === '/wellness') return 'СПА и оздоровление';
+  if (pathname === '/wellness') return 'Оздоровление';
   if (pathname === '/search') return 'Поиск';
   if (pathname === '/favorites') return 'Избранное';
   if (pathname === '/nearby') return 'Рядом';
