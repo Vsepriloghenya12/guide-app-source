@@ -1874,29 +1874,6 @@ body {
   }
 }
 
-.home-banners {
-  display: grid;
-  gap: 12px;
-  width: 100%;
-}
-
-.home-banner {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  min-height: 124px;
-  padding: 18px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, rgba(12, 16, 31, 0.92), rgba(42, 70, 112, 0.9));
-  background-size: cover;
-  background-position: center;
-  color: #fff;
-  text-decoration: none;
-  overflow: hidden;
-}
-
-.home-banner::after,
 .place-card__media::after,
 .poster-tile::after {
   content: '';
@@ -1906,31 +1883,14 @@ body {
   pointer-events: none;
 }
 
-.home-banner > *,
 .place-card__media > *,
 .poster-tile > * {
   position: relative;
   z-index: 1;
 }
-
-.home-banner--bridge {
-  background: linear-gradient(135deg, rgba(18, 16, 35, 0.95), rgba(71, 56, 132, 0.9));
-}
-
-.home-banner--sunset {
-  background: linear-gradient(135deg, rgba(43, 16, 16, 0.95), rgba(156, 71, 38, 0.9));
-}
-
-.home-banner--emerald {
-  background: linear-gradient(135deg, rgba(9, 31, 27, 0.95), rgba(45, 124, 112, 0.9));
-}
-
-.home-banner strong,
 .tips-list__item strong {
   font-size: 1rem;
 }
-
-.home-banner span,
 .tips-list__item span,
 .category-list__text span {
   opacity: 0.9;
@@ -2039,7 +1999,6 @@ body {
 }
 
 @media (max-width: 700px) {
-  .home-banners,
   .owner-selection-grid,
   .owner-cms-layout {
     grid-template-columns: 1fr;
@@ -4026,12 +3985,6 @@ img {
 /* === desktop cleanup === */
 .hero__logo--giant {
   width: min(100%, clamp(320px, 46vw, 760px));
-}
-
-.home-banners {
-  width: 100%;
-  max-width: 1120px;
-  margin-inline: auto;
 }
 
 @media (min-width: 980px) {

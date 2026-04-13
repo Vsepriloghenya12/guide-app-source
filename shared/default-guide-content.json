@@ -912,26 +912,6 @@
       "active": true
     }
   ],
-  "banners": [
-    {
-      "id": "banner-1",
-      "title": "Madame Lân и гастрономический центр города",
-      "subtitle": "Реальные точки для первого ужина у Han River и знакомства с Данангом.",
-      "linkPath": "/restaurants",
-      "tone": "coast",
-      "imageSrc": "https://cdn.prod.website-files.com/654dfdc9a008278170eea03f/661e086f76d6e4e39a01854c_507a6748.webp",
-      "active": true
-    },
-    {
-      "id": "banner-2",
-      "title": "Mikazuki и отдых на северном побережье",
-      "subtitle": "Water park, resort и семейный день в одной части города.",
-      "linkPath": "/section/active-rest",
-      "tone": "bridge",
-      "imageSrc": "https://static.wixstatic.com/media/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg/v1/fill/w_250%2Ch_167%2Cal_c%2Cq_90%2Cenc_auto/f39377_bc84461358bf41edb70371233a0a244a~mv2.jpg",
-      "active": true
-    }
-  ],
   "collections": [
     {
       "id": "collection-1",
@@ -978,10 +958,6 @@
       "tip-1",
       "tip-2",
       "tip-3"
-    ],
-    "bannerIds": [
-      "banner-1",
-      "banner-2"
     ],
     "collectionIds": [
       "collection-1",

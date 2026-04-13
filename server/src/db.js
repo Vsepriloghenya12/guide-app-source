@@ -265,19 +265,6 @@ function normalizeTip(tip, index) {
   };
 }
 
-function normalizeBanner(banner, index) {
-  return {
-    id: String(banner?.id || `banner-${index + 1}`).trim(),
-    title: String(banner?.title || '').trim(),
-    subtitle: String(banner?.subtitle || '').trim(),
-    linkPath: String(banner?.linkPath || '').trim(),
-    tone: String(banner?.tone || 'coast').trim(),
-    imageSrc: String(banner?.imageSrc || '').trim(),
-    active: banner?.active ?? true,
-    sortOrder: Number.isFinite(Number(banner?.sortOrder)) ? Number(banner.sortOrder) : index * 10 + 10
-  };
-}
-
 function normalizeCollection(collection, index) {
   return {
     id: String(collection?.id || `collection-${index + 1}`).trim(),
@@ -310,10 +297,6 @@ function normalizeContentStore(input) {
     .map(normalizeTip)
     .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
 
-  const banners = (useDefaultSeedContent ? defaults.banners : Array.isArray(base.banners) ? base.banners : defaults.banners)
-    .map(normalizeBanner)
-    .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
-
   const collections = (useDefaultSeedContent ? defaults.collections : Array.isArray(base.collections) ? base.collections : defaults.collections)
     .map(normalizeCollection)
     .sort((a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title));
@@ -326,13 +309,11 @@ function normalizeContentStore(input) {
     places,
     categories,
     tips,
-    banners,
     collections,
     home: {
       popularPlaceIds: normalizeStringArray(useDefaultSeedContent ? homeDefaults.popularPlaceIds : homeInput.popularPlaceIds ?? homeDefaults.popularPlaceIds),
       featuredCategoryIds: normalizeStringArray(useDefaultSeedContent ? homeDefaults.featuredCategoryIds : homeInput.featuredCategoryIds ?? homeDefaults.featuredCategoryIds),
       tipIds: normalizeStringArray(useDefaultSeedContent ? homeDefaults.tipIds : homeInput.tipIds ?? homeDefaults.tipIds),
-      bannerIds: normalizeStringArray(useDefaultSeedContent ? homeDefaults.bannerIds : homeInput.bannerIds ?? homeDefaults.bannerIds),
       collectionIds: normalizeStringArray(useDefaultSeedContent ? homeDefaults.collectionIds : homeInput.collectionIds ?? homeDefaults.collectionIds),
       logoMedia: String(homeInput.logoMedia?.src || homeDefaults.logoMedia?.src || '').trim()
         ? {
@@ -483,20 +464,6 @@ async function ensureDatabase() {
       `);
 
       await db.unsafe(`
-        create table if not exists banners (
-          id text primary key,
-          title text not null,
-          subtitle text not null default '',
-          link_path text not null default '',
-          tone text not null default 'coast',
-          image_src text not null default '',
-          active boolean not null default true,
-          sort_order integer not null default 100,
-          updated_at timestamptz not null default now()
-        )
-      `);
-
-      await db.unsafe(`
         create table if not exists collections (
           id text primary key,
           title text not null,
@@ -585,7 +552,6 @@ async function replaceStoreContents(store) {
     const categories = normalized.categories;
     const places = normalized.places;
     const tips = normalized.tips;
-    const banners = normalized.banners;
     const collections = normalized.collections;
 
     if (places.length === 0) {
@@ -762,28 +728,6 @@ async function replaceStoreContents(store) {
       await tx.unsafe('delete from tips where id <> all($1::text[])', [tips.map((item) => item.id)]);
     }
 
-    for (const banner of banners) {
-      await tx.unsafe(
-        `
-          insert into banners (id, title, subtitle, link_path, tone, image_src, active, sort_order, updated_at)
-          values ($1, $2, $3, $4, $5, $6, $7, $8, now())
-          on conflict (id) do update set
-            title = excluded.title,
-            subtitle = excluded.subtitle,
-            link_path = excluded.link_path,
-            tone = excluded.tone,
-            image_src = excluded.image_src,
-            active = excluded.active,
-            sort_order = excluded.sort_order,
-            updated_at = now()
-        `,
-        [banner.id, banner.title, banner.subtitle || '', banner.linkPath || '', banner.tone || 'coast', banner.imageSrc || '', banner.active, Number(banner.sortOrder || 100)]
-      );
-    }
-    if (banners.length > 0) {
-      await tx.unsafe('delete from banners where id <> all($1::text[])', [banners.map((item) => item.id)]);
-    }
-
     for (const collection of collections) {
       await tx.unsafe(
         `
@@ -926,21 +870,6 @@ async function readTips() {
   return rows.map(normalizeTip);
 }
 
-async function readBanners() {
-  const db = getSql();
-  if (!db) {
-    return getMemoryStore().banners;
-  }
-
-  await ensureDatabase();
-  const rows = await db.unsafe(`
-    select id, title, subtitle, link_path as "linkPath", tone, image_src as "imageSrc", active, sort_order as "sortOrder"
-    from banners
-    order by sort_order asc, title asc
-  `);
-  return rows.map(normalizeBanner);
-}
-
 async function readCollections() {
   const db = getSql();
   if (!db) {
@@ -1049,11 +978,10 @@ async function getContentStore() {
 
   await ensureDatabase();
 
-  const [categories, places, tips, banners, collections, home, analyticsEvents] = await Promise.all([
+  const [categories, places, tips, collections, home, analyticsEvents] = await Promise.all([
     readCategories(),
     readPlaces(),
     readTips(),
-    readBanners(),
     readCollections(),
     readHomeContent(),
     getAnalyticsEvents(400)
@@ -1063,7 +991,6 @@ async function getContentStore() {
     categories,
     places,
     tips,
-    banners,
     collections,
     home,
     analytics: {
@@ -1360,46 +1287,6 @@ async function saveTips(items) {
   });
 
   return readTips();
-}
-
-async function saveBanners(items) {
-  const normalizedItems = (Array.isArray(items) ? items : []).map((item, index) => normalizeBanner(item, index));
-  const db = getSql();
-  if (!db) {
-    const store = getMemoryStore();
-    return setMemoryStore({ ...store, banners: normalizedItems }).banners;
-  }
-
-  await ensureDatabase();
-  await db.begin(async (tx) => {
-    if (normalizedItems.length === 0) {
-      await tx.unsafe('delete from banners');
-      return;
-    }
-
-    for (const banner of normalizedItems) {
-      await tx.unsafe(
-        `
-          insert into banners (id, title, subtitle, link_path, tone, image_src, active, sort_order, updated_at)
-          values ($1, $2, $3, $4, $5, $6, $7, $8, now())
-          on conflict (id) do update set
-            title = excluded.title,
-            subtitle = excluded.subtitle,
-            link_path = excluded.link_path,
-            tone = excluded.tone,
-            image_src = excluded.image_src,
-            active = excluded.active,
-            sort_order = excluded.sort_order,
-            updated_at = now()
-        `,
-        [banner.id, banner.title, banner.subtitle || '', banner.linkPath || '', banner.tone || 'coast', banner.imageSrc || '', banner.active, Number(banner.sortOrder || 100)]
-      );
-    }
-
-    await tx.unsafe('delete from banners where id <> all($1::text[])', [normalizedItems.map((item) => item.id)]);
-  });
-
-  return readBanners();
 }
 
 async function saveCollections(items) {
@@ -1729,7 +1616,6 @@ module.exports = {
   normalizeContentStore,
   normalizePlace,
   resetContentStore,
-  saveBanners,
   saveCollections,
   saveContentStore,
   saveHomeContent,

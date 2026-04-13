@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { updateGuideContent } from '../../data/guideContent';
-import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeBanner, HomeContent } from '../../types';
+import type { GuideCategory, GuideCollection, GuidePlace, GuideTip, HomeContent } from '../../types';
 import { uploadImageAsset, uploadMediaAsset } from '../../utils/imageUpload';
 
 type OwnerHomeManagerProps = {
@@ -8,18 +8,7 @@ type OwnerHomeManagerProps = {
   places: GuidePlace[];
   categories: GuideCategory[];
   tips: GuideTip[];
-  banners: HomeBanner[];
   collections: GuideCollection[];
-};
-
-type BannerDraft = {
-  id?: string;
-  title: string;
-  subtitle: string;
-  linkPath: string;
-  tone: HomeBanner['tone'];
-  imageSrc: string;
-  active: boolean;
 };
 
 type CollectionDraft = {
@@ -30,15 +19,6 @@ type CollectionDraft = {
   imageSrc: string;
   itemIds: string[];
   active: boolean;
-};
-
-const initialBannerDraft: BannerDraft = {
-  title: '',
-  subtitle: '',
-  linkPath: '/',
-  tone: 'coast',
-  imageSrc: '',
-  active: true
 };
 
 const initialCollectionDraft: CollectionDraft = {
@@ -71,13 +51,10 @@ export function OwnerHomeManager({
   places,
   categories,
   tips,
-  banners,
   collections
 }: OwnerHomeManagerProps) {
-  const [bannerDraft, setBannerDraft] = useState<BannerDraft>(initialBannerDraft);
   const [collectionDraft, setCollectionDraft] = useState<CollectionDraft>(initialCollectionDraft);
   const [status, setStatus] = useState('');
-  const [isBannerUploading, setIsBannerUploading] = useState(false);
   const [isCollectionUploading, setIsCollectionUploading] = useState(false);
   const [isLogoUploading, setIsLogoUploading] = useState(false);
 
@@ -166,31 +143,6 @@ export function OwnerHomeManager({
     setStatus('Лого очищено. Будет использоваться файл из public.');
   };
 
-
-  const handleBannerImage = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    setIsBannerUploading(true);
-    setStatus('Загружаю баннер...');
-
-    try {
-      const imageSrc = await uploadImageAsset(file, 'banner', { maxWidth: 1800, maxHeight: 1200, quality: 0.84 });
-      setBannerDraft((current) => ({
-        ...current,
-        imageSrc
-      }));
-      setStatus('Баннер загружен.');
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Не удалось загрузить баннер.');
-    } finally {
-      setIsBannerUploading(false);
-      event.target.value = '';
-    }
-  };
-
   const handleCollectionImage = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) {
@@ -213,37 +165,6 @@ export function OwnerHomeManager({
       setIsCollectionUploading(false);
       event.target.value = '';
     }
-  };
-
-  const handleBannerSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!bannerDraft.title.trim()) {
-      setStatus('Заполни заголовок баннера.');
-      return;
-    }
-
-    const nextBanner: HomeBanner = {
-      id: bannerDraft.id || createId('banner'),
-      title: bannerDraft.title.trim(),
-      subtitle: bannerDraft.subtitle.trim(),
-      linkPath: bannerDraft.linkPath.trim() || '/',
-      tone: bannerDraft.tone,
-      imageSrc: bannerDraft.imageSrc,
-      active: bannerDraft.active
-    };
-
-    updateGuideContent((current) => ({
-      ...current,
-      banners: bannerDraft.id
-        ? current.banners.map((banner) => (banner.id === bannerDraft.id ? nextBanner : banner))
-        : [nextBanner, ...current.banners],
-      home: current.home.bannerIds.includes(nextBanner.id)
-        ? current.home
-        : { ...current.home, bannerIds: [nextBanner.id, ...current.home.bannerIds] }
-    }));
-
-    setStatus(bannerDraft.id ? 'Баннер обновлён.' : 'Баннер добавлен.');
-    setBannerDraft(initialBannerDraft);
   };
 
   const handleCollectionSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -279,18 +200,6 @@ export function OwnerHomeManager({
     setCollectionDraft(initialCollectionDraft);
   };
 
-  const deleteBanner = (id: string) => {
-    updateGuideContent((current) => ({
-      ...current,
-      banners: current.banners.filter((banner) => banner.id !== id),
-      home: {
-        ...current.home,
-        bannerIds: current.home.bannerIds.filter((bannerId) => bannerId !== id)
-      }
-    }));
-    setStatus('Баннер удалён.');
-  };
-
   const deleteCollection = (id: string) => {
     updateGuideContent((current) => ({
       ...current,
@@ -310,8 +219,7 @@ export function OwnerHomeManager({
           <span className="eyebrow">CMS / главная</span>
           <h2>Управление главной страницей</h2>
           <p>
-            Отдельное управление блоками “Популярное”, “Категории”, “Советы”, а также баннерами,
-            подборками и заголовками секций.
+            Отдельное управление блоками “Категории”, “Советы”, “Готовые программы”, подборками и заголовками секций.
           </p>
         </div>
       </div>
@@ -493,105 +401,6 @@ export function OwnerHomeManager({
                 ))}
               </div>
             </article>
-          </div>
-        </div>
-
-        <div className="owner-cms-layout">
-          <form className="owner-editor-card owner-editor-form" onSubmit={handleBannerSubmit}>
-            <div className="owner-editor-list__head">
-              <strong>Баннеры</strong>
-              <span>{banners.length} шт.</span>
-            </div>
-            <label className="field">
-              <span>Заголовок баннера</span>
-              <input
-                value={bannerDraft.title}
-                onChange={(event) => setBannerDraft((current) => ({ ...current, title: event.target.value }))}
-              />
-            </label>
-            <label className="field field--textarea">
-              <span>Подзаголовок</span>
-              <textarea
-                rows={4}
-                value={bannerDraft.subtitle}
-                onChange={(event) => setBannerDraft((current) => ({ ...current, subtitle: event.target.value }))}
-              />
-            </label>
-            <div className="owner-editor-form__grid owner-editor-form__grid--double">
-              <label className="field">
-                <span>Ссылка</span>
-                <input
-                  value={bannerDraft.linkPath}
-                  onChange={(event) => setBannerDraft((current) => ({ ...current, linkPath: event.target.value }))}
-                />
-              </label>
-              <label className="field">
-                <span>Тон</span>
-                <select
-                  value={bannerDraft.tone}
-                  onChange={(event) =>
-                    setBannerDraft((current) => ({
-                      ...current,
-                      tone: event.target.value as HomeBanner['tone']
-                    }))
-                  }
-                >
-                  <option value="coast">Coast</option>
-                  <option value="bridge">Bridge</option>
-                  <option value="sunset">Sunset</option>
-                  <option value="emerald">Emerald</option>
-                </select>
-              </label>
-            </div>
-            <label className="field field--file">
-              <span>{isBannerUploading ? 'Загрузка баннера...' : 'Фото баннера'}</span>
-              <input type="file" accept="image/*" onChange={handleBannerImage} disabled={isBannerUploading} />
-            </label>
-            <label className="checkbox-pill checkbox-pill--owner checkbox-pill--owner-wide">
-              <input
-                type="checkbox"
-                checked={bannerDraft.active}
-                onChange={(event) => setBannerDraft((current) => ({ ...current, active: event.target.checked }))}
-              />
-              <span>Показывать баннер</span>
-            </label>
-            <div className="owner-editor-form__actions">
-              <button className="button button--primary" type="submit" disabled={isBannerUploading}>
-                {bannerDraft.id ? 'Сохранить баннер' : 'Добавить баннер'}
-              </button>
-              <button className="button button--ghost" type="button" onClick={() => setBannerDraft(initialBannerDraft)}>
-                Очистить
-              </button>
-            </div>
-          </form>
-
-          <div className="owner-editor-card owner-editor-list">
-            <div className="owner-editor-list__head">
-              <strong>Текущие баннеры</strong>
-              <span>{banners.length} шт.</span>
-            </div>
-            <div className="owner-item-list">
-              {banners.map((banner) => (
-                <article key={banner.id} className="owner-item-card">
-                  <div className="owner-item-card__top">
-                    <div>
-                      <h3>{banner.title}</h3>
-                      <p>{banner.linkPath}</p>
-                    </div>
-                    <span className="owner-item-card__rating">{banner.active ? 'ON' : 'OFF'}</span>
-                  </div>
-                  <p className="owner-item-card__description">{banner.subtitle}</p>
-                  <div className="owner-item-card__actions">
-                    <button className="button button--ghost" type="button" onClick={() => setBannerDraft(banner)}>
-                      Редактировать
-                    </button>
-                    <button className="button button--ghost" type="button" onClick={() => deleteBanner(banner.id)}>
-                      Удалить
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
           </div>
         </div>
 

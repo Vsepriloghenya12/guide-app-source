@@ -1,4 +1,4 @@
-import type { Banner, BootstrapPayload, Category, Collection, Listing, PublicAuthSession } from '../types';
+import type { BootstrapPayload, Category, Collection, Listing, PublicAuthSession } from '../types';
 
 async function apiFetch<T>(input: string, init?: RequestInit): Promise<T> {
   const response = await fetch(input, {
@@ -62,7 +62,7 @@ export const api = {
     }),
   ownerLogout: () => apiFetch<{ ok: true }>('/api/owner/logout', { method: 'POST' }),
   ownerBootstrap: () =>
-    apiFetch<{ ok: true; categories: Category[]; listings: Listing[]; collections: Collection[]; banners: Banner[] }>(
+    apiFetch<{ ok: true; categories: Category[]; listings: Listing[]; collections: Collection[] }>(
       '/api/owner/bootstrap'
     ),
   saveListing: (listing: Partial<Listing> & Pick<Listing, 'categorySlug' | 'title'>) =>
@@ -80,12 +80,7 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ items })
     }),
-  saveBanners: (items: Banner[]) =>
-    apiFetch<{ ok: true }>('/api/owner/banners', {
-      method: 'PUT',
-      body: JSON.stringify({ items })
-    }),
-  uploadImage: async (file: File, options?: { kind?: 'place' | 'banner' | 'collection' | 'category' | 'general' | 'logo' }) => {
+  uploadImage: async (file: File, options?: { kind?: 'place' | 'collection' | 'category' | 'general' | 'logo' }) => {
     const dataUrl = await fileToDataUrl(file);
     return apiFetch<{ ok: true; url: string; fileName: string; mimeType: string; sizeBytes: number }>('/api/owner/upload', {
       method: 'POST',

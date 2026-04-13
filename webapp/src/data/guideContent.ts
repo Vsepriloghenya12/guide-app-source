@@ -236,13 +236,11 @@ function normalizeStore(parsed: Partial<GuideContentStore>): GuideContentStore {
     wellness: places.filter((place) => place.categoryId === 'wellness'),
     categories,
     tips: useDefaultSeedContent ? rawDefaults.tips : Array.isArray(parsed.tips) ? parsed.tips : rawDefaults.tips,
-    banners: useDefaultSeedContent ? rawDefaults.banners : Array.isArray(parsed.banners) ? parsed.banners : rawDefaults.banners,
     collections: useDefaultSeedContent ? rawDefaults.collections : Array.isArray(parsed.collections) ? parsed.collections : rawDefaults.collections,
     home: {
       popularPlaceIds: useDefaultSeedContent ? rawDefaults.home.popularPlaceIds : parsed.home?.popularPlaceIds ?? rawDefaults.home.popularPlaceIds,
       featuredCategoryIds: useDefaultSeedContent ? rawDefaults.home.featuredCategoryIds : parsed.home?.featuredCategoryIds ?? rawDefaults.home.featuredCategoryIds,
       tipIds: useDefaultSeedContent ? rawDefaults.home.tipIds : parsed.home?.tipIds ?? rawDefaults.home.tipIds,
-      bannerIds: useDefaultSeedContent ? rawDefaults.home.bannerIds : parsed.home?.bannerIds ?? rawDefaults.home.bannerIds,
       collectionIds: useDefaultSeedContent ? rawDefaults.home.collectionIds : parsed.home?.collectionIds ?? rawDefaults.home.collectionIds,
       logoMedia: parsed.home?.logoMedia?.src
         ? {

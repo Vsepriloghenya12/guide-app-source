@@ -1,14 +1,14 @@
 import { useRef, useState, type TouchEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { stayPrograms } from '../../data/programs';
-import type { GuideCategory, GuideTip, HomeBanner, HomeSectionTitles } from '../../types';
+import type { GuideCategory, GuideCollection, GuideTip, HomeSectionTitles } from '../../types';
 import { recordGuideAnalytics } from '../../utils/analytics';
 import { getCategoryTone, getQuickMenuImage } from './homeVisuals';
 
 type FeatureGridProps = {
   featuredCategories: GuideCategory[];
   allCategories: GuideCategory[];
-  banners: HomeBanner[];
+  heroBanners: GuideCollection[];
   tips: GuideTip[];
   sectionTitles: HomeSectionTitles;
 };
@@ -16,102 +16,141 @@ type FeatureGridProps = {
 export function FeatureGrid({
   featuredCategories: _featuredCategories,
   allCategories,
-  banners,
+  heroBanners,
   tips,
   sectionTitles
 }: FeatureGridProps) {
-  const [activeBannerIndex, setActiveBannerIndex] = useState(0);
-  const [bannerMotion, setBannerMotion] = useState<'next' | 'prev'>('next');
-  const bannerTouchStartX = useRef<number | null>(null);
-  const blockBannerClick = useRef(false);
+  const [activeHeroIndex, setActiveHeroIndex] = useState(0);
+  const [heroMotion, setHeroMotion] = useState<'next' | 'prev'>('next');
+  const heroTouchStartX = useRef<number | null>(null);
+  const blockHeroClick = useRef(false);
   const visibleTips = tips.slice(0, 5);
   const programDurations = stayPrograms.slice(0, 3);
-  const activeBanner = banners.length > 0 ? banners[((activeBannerIndex % banners.length) + banners.length) % banners.length] : null;
+  const heroBannerCount = heroBanners.length;
+  const normalizedHeroIndex =
+    heroBannerCount > 0 ? ((activeHeroIndex % heroBannerCount) + heroBannerCount) % heroBannerCount : 0;
+  const activeHeroBanner = heroBannerCount > 0 ? heroBanners[normalizedHeroIndex] : null;
+  const leftHeroBanner =
+    heroBannerCount > 1 ? heroBanners[(normalizedHeroIndex - 1 + heroBannerCount) % heroBannerCount] : null;
+  const rightHeroBanner = heroBannerCount > 1 ? heroBanners[(normalizedHeroIndex + 1) % heroBannerCount] : null;
 
-  const moveBanner = (direction: 'prev' | 'next') => {
-    if (banners.length < 2) return;
+  const moveHeroBanner = (direction: 'prev' | 'next') => {
+    if (heroBannerCount < 2) {
+      return;
+    }
 
-    setBannerMotion(direction === 'next' ? 'next' : 'prev');
-    setActiveBannerIndex((current) => {
-      if (direction === 'next') {
-        return (current + 1) % banners.length;
-      }
-
-      return (current - 1 + banners.length) % banners.length;
-    });
+    setHeroMotion(direction);
+    setActiveHeroIndex((current) =>
+      direction === 'next'
+        ? (current + 1) % heroBannerCount
+        : (current - 1 + heroBannerCount) % heroBannerCount
+    );
   };
 
-  const handleBannerTouchStart = (event: TouchEvent<HTMLElement>) => {
-    bannerTouchStartX.current = event.changedTouches[0]?.clientX ?? null;
+  const handleHeroTouchStart = (event: TouchEvent<HTMLElement>) => {
+    heroTouchStartX.current = event.changedTouches[0]?.clientX ?? null;
   };
 
-  const handleBannerTouchEnd = (event: TouchEvent<HTMLElement>) => {
-    if (bannerTouchStartX.current === null) return;
+  const handleHeroTouchEnd = (event: TouchEvent<HTMLElement>) => {
+    if (heroTouchStartX.current === null) {
+      return;
+    }
 
-    const deltaX = (event.changedTouches[0]?.clientX ?? 0) - bannerTouchStartX.current;
-    bannerTouchStartX.current = null;
+    const deltaX = (event.changedTouches[0]?.clientX ?? 0) - heroTouchStartX.current;
+    heroTouchStartX.current = null;
 
-    if (Math.abs(deltaX) < 36) return;
+    if (Math.abs(deltaX) < 36) {
+      return;
+    }
 
-    blockBannerClick.current = true;
-    moveBanner(deltaX < 0 ? 'next' : 'prev');
+    blockHeroClick.current = true;
+    moveHeroBanner(deltaX < 0 ? 'next' : 'prev');
     window.setTimeout(() => {
-      blockBannerClick.current = false;
+      blockHeroClick.current = false;
     }, 180);
   };
 
   return (
     <section className="travel-home-sections">
-      {activeBanner ? (
-        <section className="travel-section travel-section--home-banners" aria-label="Баннеры">
-          <div className="travel-home-banner-carousel">
+      {activeHeroBanner ? (
+        <section className="travel-section travel-section--home-banner" aria-label="Баннер">
+          <div
+            className={`travel-home-banner-stack travel-home-banner-stack--${heroMotion}`}
+            onTouchStart={handleHeroTouchStart}
+            onTouchEnd={handleHeroTouchEnd}
+          >
+            {leftHeroBanner ? (
+              <button
+                type="button"
+                className="travel-home-banner-peek travel-home-banner-peek--left"
+                aria-label={leftHeroBanner.title}
+                style={{
+                  backgroundImage: `linear-gradient(180deg, rgba(9, 19, 38, 0.18) 0%, rgba(9, 19, 38, 0.58) 100%), url(${leftHeroBanner.imageSrc || '/home-hero-background.png'})`
+                }}
+                onClick={() => moveHeroBanner('prev')}
+              />
+            ) : null}
+
             <Link
-              key={activeBanner.id}
-              to={activeBanner.linkPath}
-              className={`travel-home-banner-card travel-home-banner-card--${bannerMotion}`}
-              data-tone={activeBanner.tone}
+              key={`${activeHeroBanner.id}-${normalizedHeroIndex}`}
+              to={activeHeroBanner.linkPath}
+              className={`travel-home-hero-banner travel-home-hero-banner--${heroMotion}`}
+              data-tone="bridge"
               style={{
-                backgroundImage: `linear-gradient(180deg, rgba(9, 19, 38, 0.16) 0%, rgba(9, 19, 38, 0.72) 100%), url(${activeBanner.imageSrc || '/home-hero-background.png'})`
+                backgroundImage: `linear-gradient(180deg, rgba(9, 19, 38, 0.2) 0%, rgba(9, 19, 38, 0.76) 100%), url(${activeHeroBanner.imageSrc || '/home-hero-background.png'})`
               }}
-              onTouchStart={handleBannerTouchStart}
-              onTouchEnd={handleBannerTouchEnd}
               onClick={(event) => {
-                if (blockBannerClick.current) {
+                if (blockHeroClick.current) {
                   event.preventDefault();
                   return;
                 }
 
                 recordGuideAnalytics({
-                  kind: 'banner-click',
-                  label: activeBanner.title,
-                  path: activeBanner.linkPath,
-                  entityId: activeBanner.id
+                  kind: 'collection-click',
+                  label: activeHeroBanner.title,
+                  path: activeHeroBanner.linkPath,
+                  entityId: activeHeroBanner.id
                 });
               }}
             >
-              <span className="travel-home-banner-card__eyebrow">Баннер</span>
-              <strong>{activeBanner.title}</strong>
-              <span>{activeBanner.subtitle}</span>
+              <span className="travel-home-hero-banner__eyebrow">Рекомендуем</span>
+              <strong>{activeHeroBanner.title}</strong>
+              <span>{activeHeroBanner.description}</span>
             </Link>
 
-            {banners.length > 1 ? (
-              <div className="travel-home-banner-dots" aria-label="Навигация по баннерам">
-                {banners.map((banner, index) => (
-                  <button
-                    key={banner.id}
-                    type="button"
-                    className={`travel-home-banner-dot${index === activeBannerIndex ? ' is-active' : ''}`}
-                    aria-label={`Открыть баннер ${index + 1}`}
-                    onClick={() => {
-                      if (index === activeBannerIndex) return;
-                      setBannerMotion(index > activeBannerIndex ? 'next' : 'prev');
-                      setActiveBannerIndex(index);
-                    }}
-                  />
-                ))}
-              </div>
+            {rightHeroBanner ? (
+              <button
+                type="button"
+                className="travel-home-banner-peek travel-home-banner-peek--right"
+                aria-label={rightHeroBanner.title}
+                style={{
+                  backgroundImage: `linear-gradient(180deg, rgba(9, 19, 38, 0.18) 0%, rgba(9, 19, 38, 0.58) 100%), url(${rightHeroBanner.imageSrc || '/home-hero-background.png'})`
+                }}
+                onClick={() => moveHeroBanner('next')}
+              />
             ) : null}
           </div>
+
+          {heroBannerCount > 1 ? (
+            <div className="travel-home-banner-dots" aria-label="Навигация по баннерам">
+              {heroBanners.map((banner, index) => (
+                <button
+                  key={banner.id}
+                  type="button"
+                  className={`travel-home-banner-dot${index === normalizedHeroIndex ? ' is-active' : ''}`}
+                  aria-label={`Открыть баннер ${index + 1}`}
+                  onClick={() => {
+                    if (index === normalizedHeroIndex) {
+                      return;
+                    }
+
+                    setHeroMotion(index > normalizedHeroIndex ? 'next' : 'prev');
+                    setActiveHeroIndex(index);
+                  }}
+                />
+              ))}
+            </div>
+          ) : null}
         </section>
       ) : null}
 

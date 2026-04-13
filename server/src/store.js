@@ -8,7 +8,6 @@ const {
   getPlaceById,
   getPlaceBySlug,
   getPlaces,
-  saveBanners,
   saveCollections,
   saveContentStore,
   saveHomeContent,
@@ -73,10 +72,6 @@ class GuideStore {
 
   async saveTips(items) {
     return saveTips(items);
-  }
-
-  async saveBanners(items) {
-    return saveBanners(items);
   }
 
   async saveCollections(items) {

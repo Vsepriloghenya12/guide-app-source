@@ -20,7 +20,6 @@ const {
   normalizePlace,
   resetContentStore,
   readSupportContent,
-  saveBanners,
   saveCollections,
   saveContentStore,
   saveHomeContent,
@@ -318,7 +317,6 @@ function toBootstrapPayload(store) {
   return {
     categories: store.categories,
     listings: store.places.map(toListing),
-    banners: store.banners,
     collections: store.collections,
     tips: store.tips,
     home: store.home
@@ -331,7 +329,6 @@ function toPublicStore(store) {
     .filter((place) => place.status === 'published' && visibleCategoryIds.has(place.categoryId))
     .map(toListing);
   const activeTips = store.tips.filter((tip) => tip.active);
-  const activeBanners = store.banners.filter((banner) => banner.active);
   const activeCollections = store.collections.filter((collection) => collection.active);
 
   return {
@@ -341,14 +338,12 @@ function toPublicStore(store) {
     restaurants: places.filter((place) => place.categoryId === 'restaurants'),
     wellness: places.filter((place) => place.categoryId === 'wellness'),
     tips: activeTips,
-    banners: activeBanners,
     collections: activeCollections,
     home: {
       ...store.home,
       popularPlaceIds: store.home.popularPlaceIds.filter((id) => places.some((place) => place.id === id)),
       featuredCategoryIds: store.home.featuredCategoryIds.filter((id) => visibleCategoryIds.has(id)),
       tipIds: store.home.tipIds.filter((id) => activeTips.some((tip) => tip.id === id)),
-      bannerIds: store.home.bannerIds.filter((id) => activeBanners.some((banner) => banner.id === id)),
       collectionIds: store.home.collectionIds.filter((id) => activeCollections.some((collection) => collection.id === id))
     },
     analytics: {
@@ -363,7 +358,6 @@ function toPublicBootstrapPayload(store) {
     content: publicStore,
     categories: publicStore.categories,
     listings: publicStore.places,
-    banners: publicStore.banners,
     collections: publicStore.collections,
     tips: publicStore.tips,
     home: publicStore.home
@@ -429,7 +423,6 @@ async function getOwnerSummaryPayload() {
     places: store.places.length,
     categories: store.categories.length,
     tips: store.tips.length,
-    banners: store.banners.length,
     collections: store.collections.length,
     topPlaces: store.places.filter((place) => place.top).length,
     pageViews,
@@ -842,16 +835,6 @@ app.put('/api/owner/collections/:slug/items', requireOwner, async (req, res) => 
     res.json({ ok: true, collection, collections: store.collections });
   } catch (error) {
     res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save collection items' });
-  }
-});
-
-app.put('/api/owner/banners', requireOwner, async (req, res) => {
-  try {
-    const items = Array.isArray(req.body?.items) ? req.body.items : [];
-    const banners = await saveBanners(items);
-    res.json({ ok: true, banners });
-  } catch (error) {
-    res.status(500).json({ ok: false, message: error instanceof Error ? error.message : 'Failed to save banners' });
   }
 });
 

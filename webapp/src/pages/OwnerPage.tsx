@@ -39,7 +39,7 @@ const ownerTabs: Array<{ id: OwnerTabId; label: string; description: string }> =
   {
     id: 'home',
     label: 'Главная',
-    description: 'Популярное, баннеры и подборки на главной.'
+    description: 'Категории, советы, логотип и подборки на главной.'
   },
   {
     id: 'contacts',
@@ -60,7 +60,7 @@ const ownerTabs: Array<{ id: OwnerTabId; label: string; description: string }> =
 
 export function OwnerPage() {
   const navigate = useNavigate();
-  const { places, categories, tips, banners, collections, home, analytics } = useGuideContent({ scope: 'owner' });
+  const { places, categories, tips, collections, home, analytics } = useGuideContent({ scope: 'owner' });
   const [activeTab, setActiveTab] = useState<OwnerTabId>('overview');
 
   const handleLogout = async () => {
@@ -156,8 +156,8 @@ export function OwnerPage() {
             </article>
             <article className="owner-summary-card">
               <span className="owner-module__label">Главная</span>
-              <h3>{banners.length} баннеров</h3>
-              <p>Главная страница собирается из баннеров, советов, категорий и подборок.</p>
+              <h3>{home.featuredCategoryIds.length} разделов</h3>
+              <p>Главная страница собирается из категорий, советов, подборок и логотипа.</p>
             </article>
             <article className="owner-summary-card">
               <span className="owner-module__label">Контент</span>
@@ -172,7 +172,7 @@ export function OwnerPage() {
             <article className="owner-summary-card">
               <span className="owner-module__label">Клики</span>
               <h3>{analytics.events.filter((event) => event.kind !== 'page-view').length} кликов</h3>
-              <p>Баннеры, категории, советы, карточки и внешние кнопки сайта и телефона.</p>
+              <p>Категории, советы, карточки и внешние кнопки сайта и телефона.</p>
             </article>
           </div>
         </section>
@@ -187,7 +187,6 @@ export function OwnerPage() {
           places={places}
           categories={categories}
           tips={tips}
-          banners={banners}
           collections={collections}
         />
       ) : null}

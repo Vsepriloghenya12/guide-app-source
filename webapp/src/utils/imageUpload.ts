@@ -1,6 +1,6 @@
 import { api } from '../api/client';
 
-type UploadKind = 'place' | 'banner' | 'collection' | 'category' | 'general' | 'logo';
+type UploadKind = 'place' | 'collection' | 'category' | 'general' | 'logo';
 
 type CompressOptions = {
   maxWidth?: number;

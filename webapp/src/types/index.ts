@@ -93,16 +93,6 @@ export type GuideTip = {
   active: boolean;
 };
 
-export type HomeBanner = {
-  id: string;
-  title: string;
-  subtitle: string;
-  linkPath: string;
-  tone: 'coast' | 'bridge' | 'sunset' | 'emerald';
-  imageSrc: string;
-  active: boolean;
-};
-
 export type GuideCollection = {
   id: string;
   title: string;
@@ -133,7 +123,6 @@ export type HomeContent = {
   logoMedia?: HomeLogoMedia;
   featuredCategoryIds: GuideCategoryId[];
   tipIds: string[];
-  bannerIds: string[];
   collectionIds: string[];
   sectionTitles: HomeSectionTitles;
 };
@@ -167,7 +156,6 @@ export type PublicAuthSession = {
 
 export type GuideAnalyticsKind =
   | 'page-view'
-  | 'banner-click'
   | 'category-click'
   | 'tip-click'
   | 'collection-click'
@@ -194,7 +182,6 @@ export type GuideContentStore = {
   places: GuidePlace[];
   categories: GuideCategory[];
   tips: GuideTip[];
-  banners: HomeBanner[];
   collections: GuideCollection[];
   home: HomeContent;
   analytics: GuideAnalyticsStore;
@@ -224,13 +211,11 @@ export type Listing = GuidePlace & {
   extra: string[];
 };
 
-export type Banner = HomeBanner;
 export type Collection = GuideCollection;
 
 export type BootstrapPayload = {
   categories: Category[];
   listings: Listing[];
-  banners: Banner[];
   collections: Collection[];
   tips: GuideTip[];
   home: HomeContent;
