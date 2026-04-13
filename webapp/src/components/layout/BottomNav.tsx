@@ -1,5 +1,4 @@
 import { NavLink } from 'react-router-dom';
-import { useSecretTheme } from '../../secretTheme/SecretThemeProvider';
 
 type NavIconName = 'home' | 'search' | 'heart' | 'nearby' | 'contacts';
 
@@ -10,14 +9,6 @@ const items: Array<{ to: string; label: string; icon: NavIconName }> = [
   { to: '/nearby', label: 'Рядом', icon: 'nearby' },
   { to: '/contacts', label: 'Контакты', icon: 'contacts' }
 ];
-
-const secretNavGlyphs: Record<NavIconName, string> = {
-  home: '鬼',
-  search: '目',
-  heart: '縁',
-  nearby: '道',
-  contacts: '文'
-};
 
 function ClassicBottomNavIcon({ name }: { name: NavIconName }) {
   switch (name) {
@@ -56,22 +47,13 @@ function ClassicBottomNavIcon({ name }: { name: NavIconName }) {
   }
 }
 
-function SecretBottomNavIcon({ name }: { name: NavIconName }) {
-  return <span className="bottom-nav__icon-kanji" aria-hidden="true">{secretNavGlyphs[name]}</span>;
-}
-
-function BottomNavIcon({ name }: { name: NavIconName }) {
-  const { isActive } = useSecretTheme();
-  return isActive ? <SecretBottomNavIcon name={name} /> : <ClassicBottomNavIcon name={name} />;
-}
-
 export function BottomNav() {
   return (
     <nav className="bottom-nav" aria-label="Нижняя навигация">
       {items.map((item) => (
         <NavLink key={item.to} to={item.to} className={({ isActive }) => `bottom-nav__item${isActive ? ' is-active' : ''}`} end={item.to === '/'}>
           <span className="bottom-nav__icon-wrap">
-            <BottomNavIcon name={item.icon} />
+            <ClassicBottomNavIcon name={item.icon} />
           </span>
           <span className="bottom-nav__label">{item.label}</span>
         </NavLink>

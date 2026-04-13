@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState, type PropsWithChildren } from 'react';
-import { AppLogo } from '../components/common/AppLogo';
+import { useEffect, useMemo, useState, type CSSProperties, type PropsWithChildren } from 'react';
 import { isBootReady, setBootReady } from './bootState';
 
 type BootProgress = {
@@ -8,6 +7,15 @@ type BootProgress = {
 };
 
 let bootPromise: Promise<void> | null = null;
+
+const bootLogoPieces = [
+  { id: 'mountains', src: '/boot-logo/mountains.png', modifier: 'mountains' },
+  { id: 'tower', src: '/boot-logo/tower.png', modifier: 'tower' },
+  { id: 'bridge', src: '/boot-logo/bridge.png', modifier: 'bridge' },
+  { id: 'wheel', src: '/boot-logo/wheel.png', modifier: 'wheel' },
+  { id: 'wave', src: '/boot-logo/wave.png', modifier: 'wave' },
+  { id: 'wordmark', src: '/boot-logo/wordmark.png', modifier: 'wordmark' }
+] as const;
 
 function isVideoAsset(url: string) {
   return /\.(mp4|webm|mov)$/i.test(url);
@@ -19,7 +27,8 @@ function collectBootAssets() {
     '/home-hero-logo-custom.png',
     '/home-hero-logo.png',
     '/logo.png',
-    '/logo.svg'
+    '/logo.svg',
+    ...bootLogoPieces.map((piece) => piece.src)
   ];
 }
 
@@ -124,17 +133,20 @@ export function BootGate({ children }: PropsWithChildren) {
       <div className="boot-splash" role="status" aria-live="polite" aria-label="Приложение загружается">
         <div className="boot-splash__backdrop" />
         <div className="boot-splash__content">
-          <div className="boot-splash__logo-wrap">
-            <AppLogo
-              className="boot-splash__logo"
-              alt="Danang Guide"
-              animated
-              media={{ type: 'image', src: '/home-hero-logo.png', alt: 'Danang Guide' }}
-            />
+          <div className="boot-splash__scene" aria-hidden="true">
+            {bootLogoPieces.map((piece, index) => (
+              <span
+                key={piece.id}
+                className={`boot-splash__piece boot-splash__piece--${piece.modifier}`}
+                style={{ '--piece-delay': `${0.08 + index * 0.12}s` } as CSSProperties}
+              >
+                <img src={piece.src} alt="" decoding="async" />
+              </span>
+            ))}
           </div>
           <div className="boot-splash__meta">
-            <strong>Подготавливаю приложение…</strong>
-            <span>Загружаю карточки, фото и оформление до входа в приложение</span>
+            <strong>Открываю Danang Guide…</strong>
+            <span>Подгружаю экран, карточки и оформление перед входом в приложение</span>
           </div>
           <div className="boot-progress" aria-hidden="true">
             <span className="boot-progress__bar" style={{ width: `${percent}%` }} />

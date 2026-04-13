@@ -1,6 +1,5 @@
 import type { CSSProperties } from 'react';
 import type { GuideCategoryId } from '../../types';
-import { useSecretTheme } from '../../secretTheme/SecretThemeProvider';
 
 type CategoryIconProps = {
   categoryId: GuideCategoryId;
@@ -29,23 +28,6 @@ const paletteMap: Record<GuideCategoryId, Palette> = {
   'car-rental': { primary: '#e3e9f8', secondary: '#8599c7' },
   coworkings: { primary: '#e5f0ff', secondary: '#7e9fda' },
   misc: { primary: '#ece8e2', secondary: '#a79a86' }
-};
-
-const secretGlyphMap: Record<GuideCategoryId, { glyph: string; accent: string }> = {
-  restaurants: { glyph: '火', accent: '#ff8f4d' },
-  wellness: { glyph: '花', accent: '#f3a9d4' },
-  'active-rest': { glyph: '雷', accent: '#ffd45c' },
-  hotels: { glyph: '月', accent: '#d1c3ff' },
-  events: { glyph: '祭', accent: '#ff7b8b' },
-  atm: { glyph: '金', accent: '#ffc85a' },
-  shops: { glyph: '面', accent: '#ffb06c' },
-  culture: { glyph: '龍', accent: '#ef8dff' },
-  kids: { glyph: '狐', accent: '#ffd08a' },
-  medicine: { glyph: '薬', accent: '#81e0b4' },
-  'photo-spots': { glyph: '星', accent: '#8ac0ff' },
-  'car-rental': { glyph: '走', accent: '#c5d6ff' },
-  coworkings: { glyph: '机', accent: '#9bb7ff' },
-  misc: { glyph: '灯', accent: '#d0c1a9' }
 };
 
 function IconShape({ categoryId }: { categoryId: GuideCategoryId }) {
@@ -157,32 +139,7 @@ function IconShape({ categoryId }: { categoryId: GuideCategoryId }) {
   }
 }
 
-function SecretCategoryBadge({ categoryId, size, className, title }: CategoryIconProps) {
-  const glyph = secretGlyphMap[categoryId];
-  const style = {
-    ['--secret-icon-accent' as string]: glyph.accent
-  } as CSSProperties;
-
-  return (
-    <span
-      className={`category-icon category-icon--${size} category-icon--secret ${className}`.trim()}
-      style={style}
-      aria-hidden={title ? undefined : 'true'}
-      role={title ? 'img' : undefined}
-      aria-label={title}
-    >
-      <span className="category-icon__secret-core">{glyph.glyph}</span>
-    </span>
-  );
-}
-
 export function CategoryIcon({ categoryId, size = 'md', className = '', title }: CategoryIconProps) {
-  const { isActive } = useSecretTheme();
-
-  if (isActive) {
-    return <SecretCategoryBadge categoryId={categoryId} size={size} className={className} title={title} />;
-  }
-
   const palette = paletteMap[categoryId];
   const style = {
     ['--icon-primary' as string]: palette.primary,
