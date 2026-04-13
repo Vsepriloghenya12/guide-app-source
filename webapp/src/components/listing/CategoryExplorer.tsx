@@ -419,10 +419,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
               aria-label={`Фильтры раздела ${category.shortTitle || category.title}`}
               onClick={(event) => event.stopPropagation()}
             >
-              <div className="modal-window__header">
-                <div>
-                  <strong>{`Фильтры · ${category.shortTitle || category.title}`}</strong>
-                </div>
+              <div className="modal-window__header modal-window__header--compact">
                 <button className="modal-window__close" type="button" onClick={() => setRestaurantFilterOpen(false)}>
                   ✕
                 </button>
