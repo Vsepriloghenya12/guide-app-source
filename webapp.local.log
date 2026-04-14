@@ -1,71 +1,18 @@
 
 > guide-app-webapp@0.1.0 dev
-> vite --host 127.0.0.1 --port 5190
+> vite --host 0.0.0.0 --port 5180
 
 
-  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m1190[22m[2m[0m ms[22m
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m1879[22m[2m[0m ms[22m
 
-  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5190[22m/[39m
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5180[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.12.228:[1m5180[22m/[39m
 [2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
-[2m22:06:08[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/home/FeatureGrid.tsx[22m
-[2m22:06:13[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/HomePage.tsx[22m
-[2m22:07:02[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:09:33[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:11:24[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:13:00[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/home/FeatureGrid.tsx[22m
-[2m22:13:22[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:14:51[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:16:40[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/AppShell.tsx[22m
-[2m22:16:49[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:18:39[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/AppShell.tsx[22m
-[2m22:18:51[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:20:45[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:22:11[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:24:12[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:26:08[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:32:32[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:41:59[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/home/FeatureGrid.tsx[22m
-[2m22:42:12[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/HomePage.tsx[22m
-[2m22:42:35[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/OwnerPage.tsx, /src/pages/ProgramsPage.tsx, /src/pages/ContactsPage.tsx, /src/components/layout/AppShell.tsx, /src/pages/ListingDetailPage.tsx, /src/components/owner/OwnerAnalyticsPanel.tsx, /src/components/home/FeatureGrid.tsx, /src/components/listing/ListingCard.tsx, /src/components/owner/OwnerTipsManager.tsx, /src/components/owner/OwnerPlacesManager.tsx, /src/pages/FavoritesPage.tsx, /src/pages/SearchPage.tsx, /src/pages/HomePage.tsx, /src/pages/NearbyPage.tsx, /src/components/listing/CategoryExplorer.tsx, /src/components/owner/OwnerHomeManager.tsx, /src/components/owner/OwnerCategoryOverview.tsx[22m
-[2m22:42:41[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/owner/OwnerPlacesManager.tsx, /src/components/owner/OwnerHomeManager.tsx, /src/components/owner/OwnerCategoryOverview.tsx[22m
-[2m22:42:54[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/auth/UserAuthProvider.tsx, /src/pages/ListingDetailPage.tsx, /src/components/owner/OwnerPlacesManager.tsx, /src/components/owner/OwnerHomeManager.tsx, /src/components/owner/OwnerCategoryOverview.tsx[22m
-[2m22:43:19[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/owner/OwnerHomeManager.tsx[22m
-[2m22:43:33[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/owner/OwnerHomeManager.tsx[22m
-[2m22:43:51[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/owner/OwnerHomeManager.tsx[22m
-[2m22:44:00[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/owner/OwnerHomeManager.tsx[22m
-[2m22:44:31[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/owner/OwnerHomeManager.tsx[22m
-[2m22:44:44[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/OwnerPage.tsx[22m
-[2m22:46:44[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/OwnerPage.tsx, /src/pages/ProgramsPage.tsx, /src/pages/ContactsPage.tsx, /src/components/layout/AppShell.tsx, /src/pages/ListingDetailPage.tsx, /src/components/owner/OwnerAnalyticsPanel.tsx, /src/components/home/FeatureGrid.tsx, /src/components/listing/ListingCard.tsx, /src/components/owner/OwnerTipsManager.tsx, /src/components/owner/OwnerPlacesManager.tsx, /src/pages/FavoritesPage.tsx, /src/pages/SearchPage.tsx, /src/pages/HomePage.tsx, /src/pages/NearbyPage.tsx, /src/components/listing/CategoryExplorer.tsx, /src/components/owner/OwnerHomeManager.tsx, /src/components/owner/OwnerCategoryOverview.tsx[22m
-[2m22:47:18[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:47:37[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:47:51[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
-[2m22:48:31[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
-[2m22:51:50[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:53:25[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/home/FeatureGrid.tsx[22m
-[2m22:53:38[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/HomePage.tsx[22m
-[2m22:53:59[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:55:20[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:56:04[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:57:19[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:58:00[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:58:48[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m22:59:25[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m23:01:26[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/home/FeatureGrid.tsx[22m
-[2m23:01:35[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/HomePage.tsx[22m
-[2m23:02:41[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m23:09:31[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m23:12:54[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m23:13:59[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m23:14:48[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m23:16:01[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m23:18:23[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/home/FeatureGrid.tsx[22m
-[2m23:18:41[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m23:20:04[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/home/FeatureGrid.tsx[22m
-[2m23:20:15[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m23:24:27[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m00:06:39[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m00:07:27[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m00:07:36[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m00:12:05[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m00:18:22[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/listing/CategoryExplorer.tsx[22m
-[2m00:18:39[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
+[2m17:52:01[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SearchPage.tsx, /src/pages/FavoritesPage.tsx, /src/pages/NearbyPage.tsx, /src/pages/ListingDetailPage.tsx, /src/components/listing/CategoryExplorer.tsx[22m
+[2m17:52:26[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/owner/OwnerPlacesManager.tsx[22m
+[2m17:53:41[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/listing/CategoryExplorer.tsx[22m
+[2m17:54:39[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
+[2m18:12:42[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/listing/CategoryExplorer.tsx[22m
+[2m18:13:23[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
+[2m18:16:20[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/listing/CategoryExplorer.tsx[22m
+[2m18:16:34[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m

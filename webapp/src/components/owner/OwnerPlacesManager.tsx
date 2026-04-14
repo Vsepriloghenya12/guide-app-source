@@ -3,6 +3,7 @@ import { updateGuideContent } from '../../data/guideContent';
 import type { GuideCategory, GuideCategoryId, GuidePlace } from '../../types';
 import { CategoryIcon } from '../common/CategoryIcon';
 import { uploadImageAsset } from '../../utils/imageUpload';
+import { createGoogleMapsUrl } from '../../utils/places';
 
 type OwnerPlacesManagerProps = {
   items: GuidePlace[];
@@ -130,6 +131,26 @@ function parseNullableNumber(value: string) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function toEditableGoogleMapsLink(item: Pick<GuidePlace, 'mapQuery' | 'address' | 'title'>) {
+  if (item.mapQuery?.trim()) {
+    return createGoogleMapsUrl({
+      mapQuery: item.mapQuery,
+      address: item.address,
+      title: item.title
+    });
+  }
+
+  if (item.address.trim() || item.title.trim()) {
+    return createGoogleMapsUrl({
+      mapQuery: '',
+      address: item.address,
+      title: item.title
+    });
+  }
+
+  return '';
+}
+
 function getPlaceImages(item: GuidePlace) {
   if (Array.isArray(item.imageGallery) && item.imageGallery.length > 0) {
     return item.imageGallery;
@@ -148,7 +169,7 @@ function toDraft(item: GuidePlace): PlaceDraft {
     description: item.description,
     address: item.address,
     district: item.district || '',
-    mapQuery: item.mapQuery || '',
+    mapQuery: toEditableGoogleMapsLink(item),
     phone: item.phone,
     website: item.website,
     hours: item.hours,
@@ -377,7 +398,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
           <h2>Карточки мест по категориям</h2>
           <p>
             Владелец теперь управляет не только текстами и фото, но и статусом карточки, порядком
-            показа, slug и координатами для nearby и карт.
+            показа, slug и ссылкой на Google Maps для каждой карточки.
           </p>
         </div>
         <button className="button button--ghost" type="button" onClick={resetForm} disabled={isUploading}>
@@ -552,11 +573,11 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
             </label>
 
             <label className="field">
-              <span>Запрос для карты</span>
+              <span>Ссылка Google Maps</span>
               <input
                 value={draft.mapQuery}
                 onChange={(event) => setDraft((current) => ({ ...current, mapQuery: event.target.value }))}
-                placeholder="Точный запрос для Google / Apple Maps"
+                placeholder="Вставь ссылку на точку из Google Maps"
               />
             </label>
           </div>
@@ -586,26 +607,6 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
                 value={draft.hours}
                 onChange={(event) => setDraft((current) => ({ ...current, hours: event.target.value }))}
                 placeholder="08:00–23:00"
-              />
-            </label>
-
-            <label className="field">
-              <span>Широта (lat)</span>
-              <input
-                inputMode="decimal"
-                value={draft.lat}
-                onChange={(event) => setDraft((current) => ({ ...current, lat: event.target.value }))}
-                placeholder="16.0544"
-              />
-            </label>
-
-            <label className="field">
-              <span>Долгота (lng)</span>
-              <input
-                inputMode="decimal"
-                value={draft.lng}
-                onChange={(event) => setDraft((current) => ({ ...current, lng: event.target.value }))}
-                placeholder="108.2022"
               />
             </label>
 
@@ -758,7 +759,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <span>{visibleItems.length} шт.</span>
             </div>
             <span>
-              Здесь видно, в каком статусе находится карточка, какой у неё порядок показа и заданы ли координаты для nearby.
+              Здесь видно статус карточки, порядок показа и заполнена ли ссылка на карту.
             </span>
           </div>
 
@@ -767,7 +768,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               visibleItems.map((item) => {
                 const itemStatus = statusMeta[item.status || 'published'];
                 const imageCount = getPlaceImages(item).length;
-                const hasCoordinates = typeof item.lat === 'number' && typeof item.lng === 'number';
+                const hasMapLink = Boolean((item.mapQuery || item.address || '').trim());
 
                 return (
                   <article key={item.id} className="owner-item-card">
@@ -794,8 +795,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
                     </p>
                     <div className="owner-item-card__stats">
                       <span>Фото: {imageCount}</span>
-                      <span>Координаты: {hasCoordinates ? 'есть' : 'нет'}</span>
-                      <span>Карта: {item.mapQuery || item.address ? 'готово' : 'пусто'}</span>
+                      <span>Карта: {hasMapLink ? 'ссылка добавлена' : 'ссылка не задана'}</span>
                     </div>
 
                     <div className="owner-item-card__actions">

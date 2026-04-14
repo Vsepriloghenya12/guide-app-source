@@ -34,25 +34,93 @@ type FiltersState = {
   sortMode: SortMode;
 };
 
-const initialFilters: FiltersState = {
-  breakfast: 'all',
-  vegan: 'all',
-  kind: 'all',
-  cuisine: 'all',
-  district: 'all',
-  minCheck: '',
-  maxCheck: '',
-  hotelStars: 'all',
-  hotelPool: 'all',
-  hotelSpa: 'all',
-  petFriendly: 'all',
-  selectedServices: [],
-  selectedTags: [],
-  selectedQuickTokens: [],
-  sortMode: 'priority'
-};
+function createInitialFilters(): FiltersState {
+  return {
+    breakfast: 'all',
+    vegan: 'all',
+    kind: 'all',
+    cuisine: 'all',
+    district: 'all',
+    minCheck: '',
+    maxCheck: '',
+    hotelStars: 'all',
+    hotelPool: 'all',
+    hotelSpa: 'all',
+    petFriendly: 'all',
+    selectedServices: [],
+    selectedTags: [],
+    selectedQuickTokens: [],
+    sortMode: 'priority'
+  };
+}
 
 const restaurantQuickFilters = ['Морепродукты', 'Вьетнамская', 'Европейская'];
+const filterTextMap: Record<string, string> = {
+  breakfast: 'Завтраки',
+  vegan: 'Веган-опции',
+  pets: 'Можно с животными',
+  childprograms: 'Для детей',
+  night: 'Ночью',
+  nightlife: 'Ночная жизнь',
+  today: 'Сегодня',
+  weekend: 'Выходные',
+  free: 'Бесплатно',
+  outdoor: 'На улице',
+  indoor: 'В помещении',
+  family: 'Для всей семьи',
+  water: 'У воды',
+  bike: 'Байк',
+  car: 'Авто',
+  delivery: 'Доставка',
+  market: 'Рынок',
+  local: 'Локальное',
+  design: 'Дизайн',
+  museum: 'Музей',
+  temple: 'Храм',
+  view: 'Вид',
+  english: 'На английском',
+  pharmacy: 'Аптека',
+  sunrise: 'Рассвет',
+  sunset: 'Закат',
+  'private room': 'Приватная комната',
+  'lazy river': 'Ленивая река',
+  'family zone': 'Семейная зона',
+  'indoor zone': 'Крытая зона',
+  'han river': 'Река Хан',
+  'son tra': 'Сон Тра',
+  'hai chau': 'Хай Чау',
+  'lien chieu': 'Льен Чьеу',
+  'my an': 'Ми Ан',
+  spa: 'СПА',
+  massage: 'Массаж',
+  'road trip': 'Поездка',
+  mountains: 'Горы',
+  airport: 'Аэропорт',
+  arrival: 'Прилёт',
+  cash: 'Наличные',
+  center: 'Центр',
+  souvenirs: 'Сувениры',
+  culture: 'Культура',
+  history: 'История',
+  kids: 'Детям',
+  evening: 'Вечером',
+  emergency: 'Экстренно',
+  'international department': 'Международный отдел',
+  hospital: 'Больница',
+  photo: 'Фото',
+  'meeting room': 'Переговорная',
+  'tea & coffee': 'Чай и кофе',
+  coworking: 'Коворкинг',
+  'remote work': 'Удалённая работа',
+  'motorbike rental': 'Прокат байка',
+  'one way': 'В одну сторону',
+  'travel support': 'Помощь в поездке',
+  resort: 'Курорт',
+  beach: 'Пляж',
+  'japanese style': 'Японский стиль',
+  onsen: 'Онсэн',
+  'wi-fi': 'Wi-Fi'
+};
 
 function toLabel(filterKey: string) {
   const map: Record<string, string> = {
@@ -135,6 +203,51 @@ function normalizeToken(value: string) {
   return value.toLowerCase().trim().replace(/\s+/g, ' ');
 }
 
+function getFilterDisplayText(value: string) {
+  const normalized = normalizeToken(value);
+  return filterTextMap[normalized] || value;
+}
+
+function sortFilterValues(left: string, right: string) {
+  return getFilterDisplayText(left).localeCompare(getFilterDisplayText(right), 'ru');
+}
+
+function getActiveFilterCount(filters: FiltersState) {
+  let count = 0;
+
+  if (filters.breakfast !== 'all') count += 1;
+  if (filters.vegan !== 'all') count += 1;
+  if (filters.kind !== 'all') count += 1;
+  if (filters.cuisine !== 'all') count += 1;
+  if (filters.district !== 'all') count += 1;
+  if (filters.minCheck.trim()) count += 1;
+  if (filters.maxCheck.trim()) count += 1;
+  if (filters.hotelStars !== 'all') count += 1;
+  if (filters.hotelPool !== 'all') count += 1;
+  if (filters.hotelSpa !== 'all') count += 1;
+  if (filters.petFriendly !== 'all') count += 1;
+  if (filters.selectedServices.length > 0) count += 1;
+  if (filters.selectedTags.length > 0) count += 1;
+  if (filters.selectedQuickTokens.length > 0) count += 1;
+
+  return count;
+}
+
+function formatPlaceCount(count: number) {
+  const remainder10 = count % 10;
+  const remainder100 = count % 100;
+
+  if (remainder10 === 1 && remainder100 !== 11) {
+    return `${count} место`;
+  }
+
+  if (remainder10 >= 2 && remainder10 <= 4 && (remainder100 < 12 || remainder100 > 14)) {
+    return `${count} места`;
+  }
+
+  return `${count} мест`;
+}
+
 function matchesQuickToken(place: GuidePlace, token: string) {
   const normalized = normalizeToken(token);
 
@@ -178,7 +291,7 @@ function matchesQuickToken(place: GuidePlace, token: string) {
 }
 
 export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerProps) {
-  const [filters, setFilters] = useState<FiltersState>(initialFilters);
+  const [filters, setFilters] = useState<FiltersState>(() => createInitialFilters());
   const [isRestaurantFilterOpen, setRestaurantFilterOpen] = useState(false);
   const navigate = useNavigate();
   const { categories, places, loading, error } = useGuideContent();
@@ -241,15 +354,15 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
   const filterFields = category?.filterSchema?.fields || [];
 
   const kindOptions = useMemo(
-    () => Array.from(new Set(categoryPlaces.map((item) => item.kind).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+    () => Array.from(new Set(categoryPlaces.map((item) => item.kind).filter(isNonEmptyString))).sort(sortFilterValues),
     [categoryPlaces]
   );
   const cuisineOptions = useMemo(
-    () => Array.from(new Set(categoryPlaces.map((item) => item.cuisine).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+    () => Array.from(new Set(categoryPlaces.map((item) => item.cuisine).filter(isNonEmptyString))).sort(sortFilterValues),
     [categoryPlaces]
   );
   const districtOptions = useMemo(
-    () => Array.from(new Set(categoryPlaces.map((item) => item.district).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+    () => Array.from(new Set(categoryPlaces.map((item) => item.district).filter(isNonEmptyString))).sort(sortFilterValues),
     [categoryPlaces]
   );
   const hotelStarsOptions = useMemo(
@@ -260,11 +373,11 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
     [categoryPlaces]
   );
   const serviceOptions = useMemo(
-    () => Array.from(new Set(categoryPlaces.flatMap((item) => item.services || []).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+    () => Array.from(new Set(categoryPlaces.flatMap((item) => item.services || []).filter(isNonEmptyString))).sort(sortFilterValues),
     [categoryPlaces]
   );
   const tagOptions = useMemo(
-    () => Array.from(new Set(categoryPlaces.flatMap((item) => item.tags || []).filter(isNonEmptyString))).sort((a, b) => a.localeCompare(b, 'ru')),
+    () => Array.from(new Set(categoryPlaces.flatMap((item) => item.tags || []).filter(isNonEmptyString))).sort(sortFilterValues),
     [categoryPlaces]
   );
 
@@ -338,6 +451,13 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
     return sortPlaces(nextPlaces, filters.sortMode);
   }, [categoryPlaces, filters]);
 
+  const activeFilterCount = useMemo(() => getActiveFilterCount(filters), [filters]);
+
+  useEffect(() => {
+    setFilters(createInitialFilters());
+    setRestaurantFilterOpen(false);
+  }, [category?.id]);
+
   if (!category) {
     return (
       <div className="page-stack">
@@ -353,14 +473,17 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
 
     return (
       <div className="page-stack category-explorer-page category-explorer-page--restaurants">
+        <div className="category-page-back-wrap">
+          <button className="travel-topbar__button category-page-back" type="button" onClick={handleBack} aria-label="Назад">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14.7 5.3a1 1 0 0 1 0 1.4L9.41 12l5.3 5.3a1 1 0 0 1-1.42 1.4l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 1.41 0Z" fill="currentColor" />
+            </svg>
+          </button>
+        </div>
+
         <section className="restaurant-category-hero" style={{ backgroundImage: `url(${restaurantHeroImage})` }}>
           <div className="restaurant-category-hero__overlay" />
           <div className="restaurant-category-hero__content">
-            <button className="travel-topbar__button restaurant-category-hero__back" type="button" onClick={handleBack} aria-label="Назад">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M14.7 5.3a1 1 0 0 1 0 1.4L9.41 12l5.3 5.3a1 1 0 0 1-1.42 1.4l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 1.41 0Z" fill="currentColor" />
-              </svg>
-            </button>
             <h1>{category.shortTitle || category.title}</h1>
           </div>
         </section>
@@ -391,11 +514,16 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
                   }))
                 }
               >
-                {token}
+                {getFilterDisplayText(token)}
               </button>
             ))}
 
-            <button className="restaurant-filter-button" type="button" onClick={() => setRestaurantFilterOpen(true)} aria-label="Фильтры">
+            <button
+              className="restaurant-filter-button"
+              type="button"
+              onClick={() => setRestaurantFilterOpen(true)}
+              aria-label={activeFilterCount > 0 ? `Фильтры, активно ${activeFilterCount}` : 'Фильтры'}
+            >
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   d="M4 7h16M7 12h10m-7 5h4"
@@ -406,6 +534,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
                   strokeLinejoin="round"
                 />
               </svg>
+              {activeFilterCount > 0 ? <span className="restaurant-filter-button__badge">{activeFilterCount}</span> : null}
             </button>
           </div>
         </section>
@@ -416,26 +545,32 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
               className="modal-window filter-modal restaurant-filter-modal"
               role="dialog"
               aria-modal="true"
-              aria-label={`Фильтры раздела ${category.shortTitle || category.title}`}
+              aria-labelledby="restaurant-filter-title"
               onClick={(event) => event.stopPropagation()}
             >
-              <div className="modal-window__header modal-window__header--compact">
-                <button className="modal-window__close" type="button" onClick={() => setRestaurantFilterOpen(false)}>
-                  ✕
-                </button>
+              <div className="modal-window__header modal-window__header--compact restaurant-filter-modal__header">
+                <div className="restaurant-filter-modal__heading">
+                  <strong id="restaurant-filter-title">Фильтры</strong>
+                  {activeFilterCount > 0 ? <span>{`Активно: ${activeFilterCount}`}</span> : null}
+                </div>
+                <div className="restaurant-filter-modal__header-actions">
+                  <button className="modal-window__close" type="button" onClick={() => setRestaurantFilterOpen(false)} aria-label="Закрыть фильтры">
+                    ✕
+                  </button>
+                </div>
               </div>
 
               <div className="modal-window__body">
                 <div className="filter-stack restaurant-filter-stack">
                   {isRestaurantCategory ? (
-                    <>
+                    <div className="restaurant-filter-grid">
                       <label className="field field--grow">
                         <span>Кухня</span>
                         <select value={filters.cuisine} onChange={(event) => setFilters((current) => ({ ...current, cuisine: event.target.value }))}>
                           <option value="all">Все</option>
                           {cuisineOptions.map((option) => (
                             <option key={option} value={option}>
-                              {option}
+                              {getFilterDisplayText(option)}
                             </option>
                           ))}
                         </select>
@@ -478,9 +613,9 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
                           <input value={filters.maxCheck} onChange={(event) => setFilters((current) => ({ ...current, maxCheck: event.target.value }))} inputMode="numeric" placeholder="до" />
                         </label>
                       </div>
-                    </>
+                    </div>
                   ) : (
-                    <>
+                    <div className="restaurant-filter-grid">
                       {filterFields.includes('kind') && kindOptions.length > 0 ? (
                         <label className="field field--grow">
                           <span>{toLabel('kind')}</span>
@@ -488,7 +623,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
                             <option value="all">Все</option>
                             {kindOptions.map((option) => (
                               <option key={option} value={option}>
-                                {option}
+                                {getFilterDisplayText(option)}
                               </option>
                             ))}
                           </select>
@@ -502,7 +637,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
                             <option value="all">Все</option>
                             {cuisineOptions.map((option) => (
                               <option key={option} value={option}>
-                                {option}
+                                {getFilterDisplayText(option)}
                               </option>
                             ))}
                           </select>
@@ -516,7 +651,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
                             <option value="all">Все районы</option>
                             {districtOptions.map((option) => (
                               <option key={option} value={option}>
-                                {option}
+                                {getFilterDisplayText(option)}
                               </option>
                             ))}
                           </select>
@@ -584,7 +719,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
                       ) : null}
 
                       {filterFields.includes('services') && serviceOptions.length > 0 ? (
-                        <div className="field-group">
+                        <div className="field-group restaurant-filter-grid__full">
                           <span className="field-group__label">{toLabel('services')}</span>
                           <div className="chip-row chip-row--wrap">
                             {serviceOptions.map((service) => (
@@ -594,7 +729,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
                                 className={`chip chip--action ${filters.selectedServices.includes(service) ? 'is-active' : ''}`}
                                 onClick={() => setFilters((current) => ({ ...current, selectedServices: toggleInArray(current.selectedServices, service) }))}
                               >
-                                {service}
+                                {getFilterDisplayText(service)}
                               </button>
                             ))}
                           </div>
@@ -602,7 +737,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
                       ) : null}
 
                       {filterFields.includes('tags') && tagOptions.length > 0 ? (
-                        <div className="field-group">
+                        <div className="field-group restaurant-filter-grid__full">
                           <span className="field-group__label">{toLabel('tags')}</span>
                           <div className="chip-row chip-row--wrap">
                             {tagOptions.map((tag) => (
@@ -612,7 +747,7 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
                                 className={`chip chip--action ${filters.selectedTags.includes(tag) ? 'is-active' : ''}`}
                                 onClick={() => setFilters((current) => ({ ...current, selectedTags: toggleInArray(current.selectedTags, tag) }))}
                               >
-                                {tag}
+                                {getFilterDisplayText(tag)}
                               </button>
                             ))}
                           </div>
@@ -629,9 +764,18 @@ export function CategoryExplorer({ categoryId, categorySlug }: CategoryExplorerP
                           <option value="check-high">Сначала дороже</option>
                         </select>
                       </label>
-                    </>
+                    </div>
                   )}
                 </div>
+              </div>
+
+              <div className="restaurant-filter-modal__footer">
+                <button className="button button--ghost restaurant-filter-modal__footer-button" type="button" onClick={() => setFilters(createInitialFilters())} disabled={activeFilterCount === 0}>
+                  Сбросить
+                </button>
+                <button className="button button--primary restaurant-filter-modal__footer-button" type="button" onClick={() => setRestaurantFilterOpen(false)}>
+                  Показать {formatPlaceCount(filteredPlaces.length)}
+                </button>
               </div>
             </section>
           </div>

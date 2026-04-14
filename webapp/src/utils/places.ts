@@ -1,10 +1,51 @@
 import type { Listing } from '../types';
 
+function getRawPlaceMapValue(place: Pick<Listing, 'mapQuery' | 'address' | 'title'>) {
+  return String(place.mapQuery || place.address || place.title || '').trim();
+}
+
+function normalizeGoogleMapsUrl(value: string) {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const candidate = /^https?:\/\//i.test(trimmed) ? trimmed : trimmed.startsWith('www.') ? `https://${trimmed}` : '';
+  if (!candidate) {
+    return null;
+  }
+
+  try {
+    const url = new URL(candidate);
+    const hostname = url.hostname.toLowerCase();
+    const isGoogleMapsHost =
+      hostname === 'maps.app.goo.gl' ||
+      hostname === 'goo.gl' ||
+      hostname === 'maps.google.com' ||
+      (hostname.includes('google.') && url.pathname.toLowerCase().startsWith('/maps'));
+
+    return isGoogleMapsHost ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 export function getPlaceMapQuery(place: Pick<Listing, 'mapQuery' | 'address' | 'title'>) {
-  return place.mapQuery || place.address || place.title;
+  const rawValue = getRawPlaceMapValue(place);
+  if (normalizeGoogleMapsUrl(rawValue)) {
+    return place.address || place.title;
+  }
+
+  return rawValue;
 }
 
 export function createGoogleMapsUrl(place: Pick<Listing, 'mapQuery' | 'address' | 'title'>) {
+  const rawValue = getRawPlaceMapValue(place);
+  const directUrl = normalizeGoogleMapsUrl(rawValue);
+  if (directUrl) {
+    return directUrl;
+  }
+
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(getPlaceMapQuery(place))}`;
 }
 
@@ -20,6 +61,12 @@ export function createGoogleDirectionsUrl(
   place: Pick<Listing, 'mapQuery' | 'address' | 'title'>,
   origin?: { lat: number; lng: number } | null
 ) {
+  const rawValue = getRawPlaceMapValue(place);
+  const directUrl = normalizeGoogleMapsUrl(rawValue);
+  if (directUrl) {
+    return directUrl;
+  }
+
   const destination = encodeURIComponent(getPlaceMapQuery(place));
   if (!origin) {
     return `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
