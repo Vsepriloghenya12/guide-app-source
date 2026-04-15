@@ -7,10 +7,18 @@ type UseGuideContentOptions = {
   scope?: GuideContentScope;
 };
 
+function hasRenderableContent(content: GuideContentStore, scope: GuideContentScope) {
+  if (scope === 'owner') {
+    return content.categories.length > 0 || content.places.length > 0 || content.collections.length > 0 || content.tips.length > 0;
+  }
+
+  return content.categories.length > 0 || content.places.length > 0 || content.collections.length > 0 || content.tips.length > 0;
+}
+
 export function useGuideContent(options: UseGuideContentOptions = {}) {
   const scope = options.scope ?? 'public';
   const [content, setContent] = useState<GuideContentStore>(() => readGuideContent());
-  const [loading, setLoading] = useState(() => !isBootReady());
+  const [loading, setLoading] = useState(() => !isBootReady() && !hasRenderableContent(readGuideContent(), scope));
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -24,26 +32,28 @@ export function useGuideContent(options: UseGuideContentOptions = {}) {
     let lastSilentRefreshAt = 0;
 
     const load = async (background = false) => {
-      if (!background && !isBootReady()) {
+      const shouldBlockUI = !background && !isBootReady() && !hasRenderableContent(readGuideContent(), scope);
+
+      if (shouldBlockUI) {
         setLoading(true);
       }
-      if (!background) {
+      if (shouldBlockUI) {
         setError(null);
       }
       try {
         const nextContent = await syncGuideContentFromServer(scope);
         if (!active) return;
         setContent(nextContent);
-        if (!background) {
+        if (shouldBlockUI) {
           setError(null);
         }
       } catch (nextError) {
         if (!active) return;
-        if (!background) {
+        if (shouldBlockUI) {
           setError(nextError instanceof Error ? nextError.message : 'Не удалось загрузить контент.');
         }
       } finally {
-        if (active && !background) {
+        if (active && shouldBlockUI) {
           setLoading(false);
         }
       }
@@ -81,7 +91,7 @@ export function useGuideContent(options: UseGuideContentOptions = {}) {
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     const refreshInterval = window.setInterval(refreshSilently, scope === 'public' ? 60000 : 120000);
-    void load();
+    void load(hasRenderableContent(readGuideContent(), scope));
 
     return () => {
       active = false;

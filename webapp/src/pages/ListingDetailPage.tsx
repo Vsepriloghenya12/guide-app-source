@@ -4,6 +4,7 @@ import { api } from '../api/client';
 import { PageHeader } from '../components/layout/PageHeader';
 import { ListingCard } from '../components/listing/ListingCard';
 import { useFavorites } from '../hooks/useFavorites';
+import { useGuideContent } from '../hooks/useGuideContent';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { recordGuideAnalytics } from '../utils/analytics';
 import {
@@ -20,12 +21,40 @@ import { useUserLocation } from '../hooks/useUserLocation';
 export function ListingDetailPage() {
   const { slug = '' } = useParams();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { places, categories } = useGuideContent();
   const { location: userLocation } = useUserLocation();
-  const [listing, setListing] = useState<Listing | null>(null);
-  const [similar, setSimilar] = useState<Listing[]>([]);
-  const [category, setCategory] = useState<Category | null>(null);
-  const [loading, setLoading] = useState(true);
+  const cachedListing = useMemo(
+    () => places.find((item) => item.slug === slug || `${item.categorySlug || item.categoryId}-${item.id}` === slug) as Listing | undefined,
+    [places, slug]
+  );
+  const cachedCategory = useMemo(
+    () =>
+      cachedListing
+        ? (categories.find((item) => item.id === cachedListing.categoryId || item.slug === cachedListing.categorySlug) as Category | undefined) ?? null
+        : null,
+    [categories, cachedListing]
+  );
+  const cachedSimilar = useMemo(
+    () =>
+      cachedListing
+        ? sortPlacesByPriority(
+            places
+              .filter((item) => item.categoryId === cachedListing.categoryId && item.id !== cachedListing.id)
+              .map((item) => item as Listing)
+          )
+        : [],
+    [places, cachedListing]
+  );
+  const [remoteListing, setRemoteListing] = useState<Listing | null>(null);
+  const [remoteSimilar, setRemoteSimilar] = useState<Listing[]>([]);
+  const [remoteCategory, setRemoteCategory] = useState<Category | null>(null);
+  const [loading, setLoading] = useState(() => !cachedListing);
+  const [notFound, setNotFound] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  const listing = remoteListing ?? cachedListing ?? null;
+  const similar = remoteListing ? remoteSimilar : cachedSimilar;
+  const category = remoteCategory ?? cachedCategory;
 
   usePageMeta({
     title: listing?.title || 'Place details',
@@ -34,15 +63,25 @@ export function ListingDetailPage() {
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
+    setRemoteListing(null);
+    setRemoteSimilar([]);
+    setRemoteCategory(null);
+    setNotFound(false);
+    setLoading(!cachedListing);
+
     api
       .listing(slug)
       .then((response) => {
         if (!active) return;
-        setListing(response.listing);
-        setCategory(response.category);
-        setSimilar(sortPlacesByPriority(response.similar));
+        setRemoteListing(response.listing);
+        setRemoteCategory(response.category);
+        setRemoteSimilar(sortPlacesByPriority(response.similar));
         setActiveImageIndex(0);
+      })
+      .catch(() => {
+        if (active && !cachedListing) {
+          setNotFound(true);
+        }
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -50,7 +89,7 @@ export function ListingDetailPage() {
     return () => {
       active = false;
     };
-  }, [slug]);
+  }, [cachedListing, slug]);
 
   const gallery = useMemo(
     () => (listing?.imageUrls?.length ? listing.imageUrls : listing?.coverImageUrl ? [listing.coverImageUrl] : []),
@@ -70,7 +109,7 @@ export function ListingDetailPage() {
     return <div className="travel-state-card">Загружаю карточку места…</div>;
   }
 
-  if (!listing || !category) {
+  if (notFound || !listing || !category) {
     return (
       <div className="page-stack travel-page">
         <PageHeader title="Место не найдено" subtitle="Карточка могла быть скрыта или удалена." showBack />
