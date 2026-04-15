@@ -1,9 +1,11 @@
-import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, memo, useCallback, useMemo, useState } from 'react';
+import { api } from '../../api/client';
 import { updateGuideContent } from '../../data/guideContent';
-import type { GuideCategory, GuideCategoryId, GuidePlace } from '../../types';
+import type { GuideCategory, GuideCategoryId, GuidePlace, Listing } from '../../types';
 import { CategoryIcon } from '../common/CategoryIcon';
+import { ListingCard } from '../listing/ListingCard';
 import { uploadImageAsset } from '../../utils/imageUpload';
-import { createGoogleMapsUrl } from '../../utils/places';
+import { createGoogleMapsUrl, toListingLike } from '../../utils/places';
 
 type OwnerPlacesManagerProps = {
   items: GuidePlace[];
@@ -212,74 +214,207 @@ function sortPlaces(left: GuidePlace, right: GuidePlace) {
   return left.title.localeCompare(right.title);
 }
 
+function createPlacePayload(draft: PlaceDraft) {
+  const normalizedGallery = draft.imageGallery.filter(Boolean);
+  const generatedSlug = normalizeSlug(draft.slug || draft.title || `${draft.categoryId}-${draft.id || createId()}`);
+
+  return {
+    id: draft.id || createId(),
+    categoryId: draft.categoryId,
+    categorySlug: draft.categoryId,
+    title: draft.title.trim(),
+    slug: generatedSlug,
+    description: draft.description.trim(),
+    address: draft.address.trim(),
+    district: draft.district.trim(),
+    mapQuery: draft.mapQuery.trim() || draft.address.trim(),
+    phone: draft.phone.trim(),
+    website: draft.website.trim(),
+    hours: draft.hours.trim(),
+    avgCheck: draft.avgCheck ? Number(draft.avgCheck) : undefined,
+    hotelStars: draft.categoryId === 'hotels' && draft.hotelStars ? Number(draft.hotelStars) : null,
+    hotelPool: draft.categoryId === 'hotels' ? draft.hotelPool : false,
+    hotelSpa: draft.categoryId === 'hotels' ? draft.hotelSpa : false,
+    kind: draft.kind.trim(),
+    cuisine: draft.cuisine.trim(),
+    services: parseMultiValue(draft.services),
+    tags: parseMultiValue(draft.tags),
+    breakfast: draft.breakfast,
+    vegan: draft.vegan,
+    pets: draft.pets,
+    childPrograms: draft.childPrograms,
+    top: draft.top,
+    status: draft.status,
+    sortOrder: Number(draft.sortOrder || 100) || 100,
+    rating: Number(draft.rating || 0),
+    lat: parseNullableNumber(draft.lat),
+    lng: parseNullableNumber(draft.lng),
+    imageLabel: draft.imageLabel.trim() || 'Карточка места',
+    imageSrc: normalizedGallery[0] ?? '',
+    imageGallery: normalizedGallery
+  };
+}
+
+type OwnerPlacesListPanelProps = {
+  accent?: string;
+  categoryTitle: string;
+  items: GuidePlace[];
+  isBusy: boolean;
+  onDelete: (id: string) => void;
+  onEdit: (item: GuidePlace) => void;
+};
+
+const OwnerPlacesListPanel = memo(function OwnerPlacesListPanel({
+  accent,
+  categoryTitle,
+  items,
+  isBusy,
+  onDelete,
+  onEdit
+}: OwnerPlacesListPanelProps) {
+  return (
+    <div className="owner-editor-card owner-editor-list">
+      <div className="owner-editor-list__head owner-editor-list__head--stack">
+        <div>
+          <strong>{categoryTitle}</strong>
+          <span>{items.length} шт.</span>
+        </div>
+        <span>Список справа повторяет карточки из приложения, чтобы владелец сразу видел итоговый вид.</span>
+      </div>
+
+      <div className="owner-item-list owner-item-list--app-preview">
+        {items.length > 0 ? (
+          items.map((item) => {
+            const itemStatus = statusMeta[item.status || 'published'];
+            const imageCount = getPlaceImages(item).length;
+            const hasMapLink = Boolean((item.mapQuery || item.address || '').trim());
+            const listing = toListingLike(item as Listing);
+
+            return (
+              <article key={item.id} className="owner-place-preview-card">
+                <div className="owner-place-preview-card__listing" aria-hidden="true">
+                  <ListingCard listing={listing} accent={accent} variant="restaurant" />
+                </div>
+
+                <div className="owner-place-preview-card__admin">
+                  <div className="owner-place-preview-card__badges">
+                    <span className={`owner-status-pill ${itemStatus.className}`}>{itemStatus.label}</span>
+                    <span className="owner-meta-pill">Порядок {item.sortOrder ?? 100}</span>
+                    {item.top ? <span className="owner-meta-pill owner-meta-pill--accent">Топ</span> : null}
+                    <span className="owner-meta-pill">Фото {imageCount}</span>
+                    <span className={`owner-meta-pill ${hasMapLink ? 'owner-meta-pill--success' : 'owner-meta-pill--muted'}`}>
+                      {hasMapLink ? 'Карта добавлена' : 'Нет карты'}
+                    </span>
+                  </div>
+
+                  <div className="owner-place-preview-card__actions">
+                    <button className="button button--ghost" type="button" onClick={() => onEdit(item)} disabled={isBusy}>
+                      Редактировать
+                    </button>
+                    <button className="button button--ghost" type="button" onClick={() => onDelete(item.id)} disabled={isBusy}>
+                      Удалить
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })
+        ) : (
+          <article className="owner-place-preview-card owner-place-preview-card--empty">
+            <strong>Пока пусто</strong>
+            <p>Когда появится первая карточка, справа сразу будет видно, как она выглядит в приложении.</p>
+          </article>
+        )}
+      </div>
+    </div>
+  );
+});
+
 export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProps) {
   const [draft, setDraft] = useState<PlaceDraft>(initialDraft);
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState('');
   const [activeTab, setActiveTab] = useState<GuideCategoryId>('restaurants');
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const visibleCategories = useMemo(
     () => categories.filter((category) => category.visible || items.some((item) => item.categoryId === category.id)),
     [categories, items]
   );
 
-  const activeCategory = categories.find((category) => category.id === activeTab);
+  const itemsCountByCategory = useMemo(() => {
+    return items.reduce(
+      (accumulator, item) => {
+        accumulator[item.categoryId] = (accumulator[item.categoryId] ?? 0) + 1;
+        return accumulator;
+      },
+      {} as Partial<Record<GuideCategoryId, number>>
+    );
+  }, [items]);
+
+  const activeCategory = useMemo(
+    () => categories.find((category) => category.id === activeTab),
+    [activeTab, categories]
+  );
 
   const visibleItems = useMemo(() => {
     return [...items].filter((item) => item.categoryId === activeTab).sort(sortPlaces);
   }, [activeTab, items]);
 
   const draftStatusMeta = statusMeta[draft.status];
+  const isBusy = isUploading || isSaving;
 
-  const resetForm = () => {
+  const getSuggestedSortOrder = useCallback(
+    (categoryId: GuideCategoryId, additionalItems = 0) =>
+      String(Math.max(((itemsCountByCategory[categoryId] ?? 0) + additionalItems) * 10 + 10, 10)),
+    [itemsCountByCategory]
+  );
+
+  const resetForm = useCallback(() => {
     setDraft({
       ...initialDraft,
       categoryId: activeTab,
-      sortOrder: String(Math.max(visibleItems.length * 10 + 10, 10))
+      sortOrder: getSuggestedSortOrder(activeTab)
     });
     setIsEditing(false);
-  };
+    setStatus('');
+  }, [activeTab, getSuggestedSortOrder]);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const syncSavedPlace = useCallback((savedPlace: GuidePlace) => {
+    updateGuideContent(
+      (current) => ({
+        ...current,
+        places: current.places.some((item) => item.id === savedPlace.id)
+          ? current.places.map((item) => (item.id === savedPlace.id ? savedPlace : item))
+          : [...current.places, savedPlace]
+      }),
+      { persist: false }
+    );
+  }, []);
+
+  const syncDeletedPlace = useCallback((id: string) => {
+    updateGuideContent(
+      (current) => ({
+        ...current,
+        places: current.places.filter((item) => item.id !== id),
+        home: {
+          ...current.home,
+          popularPlaceIds: current.home.popularPlaceIds.filter((itemId) => itemId !== id)
+        },
+        collections: current.collections.map((collection) => ({
+          ...collection,
+          itemIds: collection.itemIds.filter((itemId) => itemId !== id)
+        }))
+      }),
+      { persist: false }
+    );
+  }, []);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const normalizedGallery = draft.imageGallery.filter(Boolean);
-    const generatedSlug = normalizeSlug(draft.slug || draft.title || `${draft.categoryId}-${draft.id || createId()}`);
-    const nextItem: GuidePlace = {
-      id: draft.id || createId(),
-      categoryId: draft.categoryId,
-      title: draft.title.trim(),
-      slug: generatedSlug,
-      description: draft.description.trim(),
-      address: draft.address.trim(),
-      district: draft.district.trim(),
-      mapQuery: draft.mapQuery.trim() || draft.address.trim(),
-      phone: draft.phone.trim(),
-      website: draft.website.trim(),
-      hours: draft.hours.trim(),
-      avgCheck: draft.avgCheck ? Number(draft.avgCheck) : undefined,
-      hotelStars: draft.categoryId === 'hotels' && draft.hotelStars ? Number(draft.hotelStars) : null,
-      hotelPool: draft.categoryId === 'hotels' ? draft.hotelPool : false,
-      hotelSpa: draft.categoryId === 'hotels' ? draft.hotelSpa : false,
-      kind: draft.kind.trim(),
-      cuisine: draft.cuisine.trim(),
-      services: parseMultiValue(draft.services),
-      tags: parseMultiValue(draft.tags),
-      breakfast: draft.breakfast,
-      vegan: draft.vegan,
-      pets: draft.pets,
-      childPrograms: draft.childPrograms,
-      top: draft.top,
-      status: draft.status,
-      sortOrder: Number(draft.sortOrder || 100) || 100,
-      rating: Number(draft.rating || 0),
-      lat: parseNullableNumber(draft.lat),
-      lng: parseNullableNumber(draft.lng),
-      imageLabel: draft.imageLabel.trim() || 'Карточка места',
-      imageSrc: normalizedGallery[0] ?? '',
-      imageGallery: normalizedGallery
-    };
+    const nextItem = createPlacePayload(draft);
 
     if (!nextItem.title || !nextItem.address || !nextItem.description) {
       setStatus('Заполни название, адрес и описание карточки.');
@@ -291,51 +426,63 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
       return;
     }
 
-    updateGuideContent((current) => ({
-      ...current,
-      places: draft.id
-        ? current.places.map((item) => (item.id === draft.id ? nextItem : item))
-        : [...current.places, nextItem]
-    }));
+    setIsSaving(true);
+    setStatus(draft.id ? 'Сохраняю изменения...' : 'Добавляю карточку...');
 
-    setActiveTab(nextItem.categoryId);
-    setStatus(draft.id ? 'Карточка обновлена.' : 'Новая карточка добавлена.');
-    setDraft({
-      ...initialDraft,
-      categoryId: nextItem.categoryId,
-      sortOrder: String(Math.max((visibleItems.length + (draft.id ? 0 : 1)) * 10 + 10, 10))
-    });
-    setIsEditing(false);
+    try {
+      const response = await api.saveListing(nextItem as Partial<Listing> & Pick<Listing, 'categorySlug' | 'title'>);
+      const savedPlace = response.listing as GuidePlace;
+
+      syncSavedPlace(savedPlace);
+      setActiveTab(savedPlace.categoryId);
+      setStatus(draft.id ? 'Карточка обновлена и сохранена на сервере.' : 'Новая карточка добавлена и сохранена на сервере.');
+      setDraft({
+        ...initialDraft,
+        categoryId: savedPlace.categoryId,
+        sortOrder: getSuggestedSortOrder(savedPlace.categoryId, draft.id ? 0 : 1)
+      });
+      setIsEditing(false);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Не удалось сохранить карточку. Попробуй ещё раз.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const startEdit = (item: GuidePlace) => {
+  const startEdit = useCallback((item: GuidePlace) => {
     setDraft(toDraft(item));
     setActiveTab(item.categoryId);
     setIsEditing(true);
     setStatus('');
-  };
+  }, []);
 
-  const deleteItem = (id: string) => {
-    updateGuideContent((current) => ({
-      ...current,
-      places: current.places.filter((item) => item.id !== id),
-      home: {
-        ...current.home,
-        popularPlaceIds: current.home.popularPlaceIds.filter((itemId) => itemId !== id)
-      },
-      collections: current.collections.map((collection) => ({
-        ...collection,
-        itemIds: collection.itemIds.filter((itemId) => itemId !== id)
-      }))
-    }));
+  const deleteItem = useCallback(
+    async (id: string) => {
+      setIsSaving(true);
+      setStatus('Удаляю карточку...');
 
-    if (draft.id === id) {
-      setDraft({ ...initialDraft, categoryId: activeTab, sortOrder: String(Math.max((visibleItems.length - 1) * 10 + 10, 10)) });
-      setIsEditing(false);
-    }
+      try {
+        await api.deleteListing(id);
+        syncDeletedPlace(id);
 
-    setStatus('Карточка удалена.');
-  };
+        if (draft.id === id) {
+          setDraft({
+            ...initialDraft,
+            categoryId: activeTab,
+            sortOrder: getSuggestedSortOrder(activeTab, -1)
+          });
+          setIsEditing(false);
+        }
+
+        setStatus('Карточка удалена с сервера.');
+      } catch (error) {
+        setStatus(error instanceof Error ? error.message : 'Не удалось удалить карточку.');
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [activeTab, draft.id, getSuggestedSortOrder, syncDeletedPlace]
+  );
 
   const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
@@ -397,18 +544,17 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
           <span className="eyebrow">CMS / карточки</span>
           <h2>Карточки мест по категориям</h2>
           <p>
-            Владелец теперь управляет не только текстами и фото, но и статусом карточки, порядком
-            показа и ссылкой на Google Maps для каждой карточки.
+            Карточка сохраняется сразу на сервер, а справа видно, как она выглядит в приложении.
           </p>
         </div>
-        <button className="button button--ghost" type="button" onClick={resetForm} disabled={isUploading}>
+        <button className="button button--ghost" type="button" onClick={resetForm} disabled={isBusy}>
           Новая карточка
         </button>
       </div>
 
       <div className="owner-inline-tabs owner-inline-tabs--categories">
         {visibleCategories.map((category) => {
-          const count = items.filter((item) => item.categoryId === category.id).length;
+          const count = itemsCountByCategory[category.id] ?? 0;
           return (
             <button
               key={category.id}
@@ -417,7 +563,11 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               onClick={() => {
                 setActiveTab(category.id);
                 if (!isEditing) {
-                  setDraft((current) => ({ ...current, categoryId: category.id }));
+                  setDraft((current) => ({
+                    ...current,
+                    categoryId: category.id,
+                    sortOrder: getSuggestedSortOrder(category.id)
+                  }));
                 }
               }}
             >
@@ -634,7 +784,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
 
           <label className="field field--file">
             <span>{isUploading ? 'Загрузка фото...' : 'Фото карточки'}</span>
-            <input type="file" accept="image/*" multiple onChange={handleImageChange} disabled={isUploading} />
+            <input type="file" accept="image/*" multiple onChange={handleImageChange} disabled={isBusy} />
           </label>
 
           {draft.imageGallery.length > 0 ? (
@@ -725,82 +875,23 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
           {status ? <div className="owner-editor-status">{status}</div> : null}
 
           <div className="owner-editor-form__actions">
-            <button className="button button--primary" type="submit" disabled={isUploading}>
-              {isEditing ? 'Сохранить изменения' : 'Добавить карточку'}
+            <button className="button button--primary" type="submit" disabled={isBusy}>
+              {isSaving ? 'Сохраняю...' : isEditing ? 'Сохранить изменения' : 'Добавить карточку'}
             </button>
-            <button className="button button--ghost" type="button" onClick={resetForm} disabled={isUploading}>
+            <button className="button button--ghost" type="button" onClick={resetForm} disabled={isBusy}>
               Очистить форму
             </button>
           </div>
         </form>
 
-        <div className="owner-editor-card owner-editor-list">
-          <div className="owner-editor-list__head owner-editor-list__head--stack">
-            <div>
-              <strong>{activeCategory?.title ?? 'Карточки категории'}</strong>
-              <span>{visibleItems.length} шт.</span>
-            </div>
-            <span>
-              Здесь видно статус карточки, порядок показа и заполнена ли ссылка на карту.
-            </span>
-          </div>
-
-          <div className="owner-item-list">
-            {visibleItems.length > 0 ? (
-              visibleItems.map((item) => {
-                const itemStatus = statusMeta[item.status || 'published'];
-                const imageCount = getPlaceImages(item).length;
-                const hasMapLink = Boolean((item.mapQuery || item.address || '').trim());
-
-                return (
-                  <article key={item.id} className="owner-item-card">
-                    <div className="owner-item-card__top">
-                      <div>
-                        <div className="owner-item-card__badges">
-                          <span className={`owner-status-pill ${itemStatus.className}`}>{itemStatus.label}</span>
-                          <span className="owner-meta-pill">Порядок {item.sortOrder ?? 100}</span>
-                          {item.top ? <span className="owner-meta-pill owner-meta-pill--accent">Топ</span> : null}
-                        </div>
-                        <h3>{item.title}</h3>
-                        <p>
-                          {activeCategory?.title ?? item.categoryId} · {item.kind || 'Без типа'}
-                        </p>
-                      </div>
-                      <span className="owner-item-card__rating">★ {item.rating.toFixed(1)}</span>
-                    </div>
-
-                    <p className="owner-item-card__address">{item.address}</p>
-                    <p className="owner-item-card__description">{item.description}</p>
-                    <p className="owner-item-card__meta-row">
-                      {[typeof item.hotelStars === 'number' ? `${item.hotelStars}★` : '', item.hotelPool ? 'Бассейн' : '', item.hotelSpa ? 'СПА' : '', item.cuisine, ...(item.services ?? []), ...(item.tags ?? [])].filter(Boolean).join(' · ')}
-                    </p>
-                    <div className="owner-item-card__stats">
-                      <span>Фото: {imageCount}</span>
-                      <span>Карта: {hasMapLink ? 'ссылка добавлена' : 'ссылка не задана'}</span>
-                    </div>
-
-                    <div className="owner-item-card__actions">
-                      <button className="button button--ghost" type="button" onClick={() => startEdit(item)}>
-                        Редактировать
-                      </button>
-                      <button className="button button--ghost" type="button" onClick={() => deleteItem(item.id)}>
-                        Удалить
-                      </button>
-                    </div>
-                  </article>
-                );
-              })
-            ) : (
-              <article className="owner-item-card">
-                <h3>Пока пусто</h3>
-                <p>
-                  В категории “{activeCategory?.title ?? 'Раздел'}” ещё нет карточек. Добавь первую карточку
-                  через форму слева — она сразу появится в этой вкладке.
-                </p>
-              </article>
-            )}
-          </div>
-        </div>
+        <OwnerPlacesListPanel
+          accent={activeCategory?.accent}
+          categoryTitle={activeCategory?.title ?? 'Карточки категории'}
+          items={visibleItems}
+          isBusy={isBusy}
+          onDelete={deleteItem}
+          onEdit={startEdit}
+        />
       </div>
     </section>
   );

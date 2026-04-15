@@ -7185,3 +7185,84 @@ body:not(.secret-theme-active) .boot-progress__bar {
     width: 100%;
   }
 }
+
+.owner-item-list--app-preview {
+  display: grid;
+  gap: 18px;
+}
+
+.owner-place-preview-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 34px rgba(148, 163, 184, 0.12);
+}
+
+.owner-place-preview-card__listing {
+  pointer-events: none;
+}
+
+.owner-place-preview-card__listing .travel-list-card {
+  box-shadow: none;
+  border-radius: 22px;
+}
+
+.owner-place-preview-card__listing .travel-list-card__main {
+  min-height: 0;
+}
+
+.owner-place-preview-card__admin {
+  display: grid;
+  gap: 10px;
+}
+
+.owner-place-preview-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owner-place-preview-card__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.owner-place-preview-card__actions .button {
+  min-width: 0;
+}
+
+.owner-meta-pill--success {
+  background: rgba(34, 197, 94, 0.14);
+  border-color: rgba(34, 197, 94, 0.22);
+  color: #166534;
+}
+
+.owner-meta-pill--muted {
+  background: rgba(148, 163, 184, 0.14);
+  border-color: rgba(148, 163, 184, 0.22);
+  color: #475569;
+}
+
+.owner-place-preview-card--empty {
+  padding: 20px;
+}
+
+.owner-place-preview-card--empty strong {
+  font-size: 1.02rem;
+  color: #0f172a;
+}
+
+.owner-place-preview-card--empty p {
+  margin: 0;
+  color: #475569;
+}
+
+@media (max-width: 960px) {
+  .owner-place-preview-card__actions {
+    grid-template-columns: 1fr;
+  }
+}

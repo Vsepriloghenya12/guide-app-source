@@ -7,3 +7,6 @@ webapp/dist
 .env
 .env.*
 npm-debug.log*
+/*.log
+/*.out.log
+/*.err.log
