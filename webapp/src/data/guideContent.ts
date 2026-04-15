@@ -288,7 +288,8 @@ function emitGuideContentUpdate() {
 async function fetchContentFromServer(scope: GuideContentScope = 'public'): Promise<GuideContentStore> {
   const endpoint = scope === 'owner' ? GUIDE_CONTENT_OWNER_ENDPOINT : GUIDE_CONTENT_PUBLIC_ENDPOINT;
   const response = await fetch(endpoint, {
-    credentials: 'include'
+    credentials: 'include',
+    cache: 'no-store'
   });
 
   const payload = (await response.json().catch(() => ({}))) as { ok?: boolean; content?: GuideContentStore; message?: string };
@@ -298,6 +299,13 @@ async function fetchContentFromServer(scope: GuideContentScope = 'public'): Prom
   }
 
   return normalizeStore(payload.content);
+}
+
+function mergePublicClientState(remoteStore: GuideContentStore, localStore: GuideContentStore) {
+  return normalizeStore({
+    ...remoteStore,
+    analytics: localStore.analytics
+  });
 }
 
 async function pushContentToServer(store: GuideContentStore) {
@@ -460,6 +468,12 @@ export async function syncGuideContentFromServer(scope: GuideContentScope = 'pub
     const syncStartedVersion = lastLocalWriteVersion;
     serverSyncPromises[scope] = fetchContentFromServer(scope)
       .then((remoteStore) => {
+        if (scope === 'public') {
+          const localStore = readGuideContent();
+          const mergedStore = mergePublicClientState(remoteStore, localStore);
+          return writeGuideContent(mergedStore, { persist: false, emit: true, source: 'remote' });
+        }
+
         if (hasPendingPersist() || lastLocalWriteVersion > syncStartedVersion || lastLocalWriteAt > syncStartedAt) {
           return readGuideContent();
         }
