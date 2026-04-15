@@ -60,6 +60,47 @@ body {
   padding-bottom: 24px;
 }
 
+.utility-page--contacts .utility-simple-section {
+  margin: 0 16px;
+  padding: 0;
+  text-align: center;
+}
+
+.utility-page--contacts .utility-simple-section h2,
+.utility-page--contacts .utility-simple-section h3 {
+  margin: 0 0 8px;
+  color: #1a2942;
+}
+
+.utility-page--contacts .utility-simple-section p {
+  margin: 0 0 8px;
+  color: #4a5f7b;
+  line-height: 1.45;
+}
+
+.utility-page--contacts .utility-simple-list {
+  margin: 0;
+  padding-left: 0;
+  list-style-position: inside;
+  display: grid;
+  gap: 8px;
+}
+
+.utility-page--contacts .utility-simple-list li {
+  color: #334862;
+  line-height: 1.45;
+}
+
+.utility-page--contacts .utility-simple-link {
+  color: var(--travel-tone-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.utility-page--contacts .utility-simple-note {
+  color: var(--travel-muted);
+}
+
 @media (min-width: 920px) {
   .app-shell.reference-shell {
     padding: 24px 0 120px;
@@ -814,6 +855,27 @@ body {
   position: relative;
 }
 
+.travel-detail-card__back {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: inline-grid;
+  place-items: center;
+  text-decoration: none;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: #ffffff;
+  background: rgba(12, 22, 40, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow: 0 10px 24px rgba(8, 16, 28, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 .travel-detail-card__media img {
   width: 100%;
   aspect-ratio: 1.45;
@@ -922,29 +984,38 @@ body {
 }
 
 .travel-detail-info-list {
+  margin: 0;
+  padding-left: 20px;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
-.travel-detail-info-item {
-  display: grid;
-  gap: 4px;
-  padding: 14px;
-  border-radius: 14px;
-  border: 1px solid #e4eaf3;
-  background: #fafcff;
-  color: inherit;
-  text-align: left;
+.travel-detail-info-row {
+  color: #334862;
+  line-height: 1.45;
 }
 
-.travel-detail-info-item strong {
+.travel-detail-info-row strong {
   color: #1a2942;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
 }
 
-.travel-detail-info-item span {
+.travel-detail-info-row span {
   color: var(--travel-muted);
-  font-size: 0.88rem;
+}
+
+.travel-detail-info-link {
+  color: var(--travel-tone-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.travel-detail-info-link--button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
 }
 
 .filter-panel-shell {
@@ -2340,8 +2411,8 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-home-banner-st
   justify-content: center;
   width: calc(100% + 18px);
   margin-inline: -9px;
-  height: 126px;
-  min-height: 126px;
+  height: 158px;
+  min-height: 158px;
   overflow: visible;
   --travel-home-banner-visible-peek: 24px;
   --travel-home-banner-gap: 18px;
@@ -2386,8 +2457,8 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-home-hero-bann
   z-index: 1;
   width: calc(100% - ((var(--travel-home-banner-visible-peek) + var(--travel-home-banner-gap)) * 2));
   margin-inline: auto;
-  height: 126px;
-  min-height: 126px;
+  height: 158px;
+  min-height: 158px;
   padding: 16px;
   border-radius: 28px;
   display: grid;
@@ -3461,13 +3532,7 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-tag-pill {
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-detail-info-list {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-body:not(.secret-theme-active) .app-shell.reference-shell .travel-detail-info-item {
-  min-height: 94px;
-  align-content: start;
-  background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+  grid-template-columns: 1fr;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .filter-launcher,
@@ -4052,12 +4117,15 @@ body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-but
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-modal {
-  width: min(calc(100vw - 10px), 388px) !important;
-  max-height: min(68vh, 520px) !important;
+  width: min(100%, 388px) !important;
+  max-width: calc(100% - 10px);
+  max-height: min(68dvh, 520px) !important;
   border-radius: 24px !important;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
+  justify-self: center;
+  margin-inline: auto;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-modal .modal-window__header--compact {
@@ -4320,14 +4388,21 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__res
 }
 
 @media (max-width: 420px) {
+  body:not(.secret-theme-active) .app-shell.reference-shell .modal-backdrop {
+    padding-left: max(4px, env(safe-area-inset-left, 0px));
+    padding-right: max(4px, env(safe-area-inset-right, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
   body:not(.secret-theme-active) .app-shell.reference-shell .category-page-back-wrap {
     padding: 8px 0 0;
     margin-bottom: -50px;
   }
 
   body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-modal {
-    width: min(calc(100vw - 8px), 376px) !important;
-    max-height: min(66vh, 500px) !important;
+    width: min(100%, 376px) !important;
+    max-width: 100%;
+    max-height: min(72dvh, 500px) !important;
   }
 
   body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-filter-modal .modal-window__body {

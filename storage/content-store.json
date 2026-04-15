@@ -1865,6 +1865,113 @@
         "label": "Карточка места",
         "path": "/place/restaurants-madame-ln",
         "createdAt": "2026-04-15T20:13:22.735Z"
+      },
+      {
+        "id": "272d2d6a-304d-4458-a1df-1802db8051ea",
+        "kind": "page-view",
+        "label": "Контакты",
+        "path": "/contacts",
+        "createdAt": "2026-04-15T20:20:34.719Z"
+      },
+      {
+        "id": "141a1171-f502-4b20-8847-8ce29ecf2227",
+        "kind": "page-view",
+        "label": "Помощь",
+        "path": "/help",
+        "createdAt": "2026-04-15T20:21:08.796Z"
+      },
+      {
+        "id": "83b04a76-a1a6-4eeb-8a25-1f11f11ccd2e",
+        "kind": "page-view",
+        "label": "Контакты",
+        "path": "/contacts",
+        "createdAt": "2026-04-15T20:21:12.360Z"
+      },
+      {
+        "id": "97c7c828-d348-4d08-862f-25019a8869c1",
+        "kind": "page-view",
+        "label": "Помощь",
+        "path": "/help",
+        "createdAt": "2026-04-15T20:21:14.046Z"
+      },
+      {
+        "id": "a08d10d3-420f-4753-a881-cec137b56616",
+        "kind": "page-view",
+        "label": "Контакты",
+        "path": "/contacts",
+        "createdAt": "2026-04-15T20:21:18.323Z"
+      },
+      {
+        "id": "4e1e96e2-e0b3-4694-a9d8-36908f7a80aa",
+        "kind": "page-view",
+        "label": "Помощь",
+        "path": "/help",
+        "createdAt": "2026-04-15T20:21:19.830Z"
+      },
+      {
+        "id": "0fb445d7-4934-4ea3-8ec7-f7337761160b",
+        "kind": "page-view",
+        "label": "Контакты",
+        "path": "/contacts",
+        "createdAt": "2026-04-15T20:21:23.368Z"
+      },
+      {
+        "id": "ce5f3406-ca04-47b7-b74c-1c0ed1ea6408",
+        "kind": "page-view",
+        "label": "Помощь",
+        "path": "/help",
+        "createdAt": "2026-04-15T20:23:08.042Z"
+      },
+      {
+        "id": "e003e7ce-5cb8-430d-a6d3-e7412c7d36eb",
+        "kind": "page-view",
+        "label": "Контакты",
+        "path": "/contacts",
+        "createdAt": "2026-04-15T20:23:09.835Z"
+      },
+      {
+        "id": "c2fed56d-c2ce-46c6-a6e1-a30ff7440fc7",
+        "kind": "page-view",
+        "label": "Рядом",
+        "path": "/nearby",
+        "createdAt": "2026-04-15T20:24:43.983Z"
+      },
+      {
+        "id": "2baa8a42-707b-4f5f-8b60-65cb5764aebc",
+        "kind": "page-view",
+        "label": "Контакты",
+        "path": "/contacts",
+        "createdAt": "2026-04-15T20:24:56.153Z"
+      },
+      {
+        "id": "ec04f761-4a89-46f7-a0c9-b5bd236da2da",
+        "kind": "page-view",
+        "label": "Избранное",
+        "path": "/favorites",
+        "createdAt": "2026-04-15T20:24:58.035Z"
+      },
+      {
+        "id": "32641fa5-c43c-48f6-b636-41e5570c9e49",
+        "kind": "page-view",
+        "label": "Главная",
+        "path": "/",
+        "createdAt": "2026-04-15T20:25:00.526Z"
+      },
+      {
+        "id": "26821617-eb87-4b4c-a906-27ef69d489e0",
+        "kind": "category-click",
+        "label": "Досуг",
+        "path": "/section/events",
+        "entityId": "events",
+        "categoryId": "events",
+        "createdAt": "2026-04-15T20:28:51.468Z"
+      },
+      {
+        "id": "daccc361-f5e8-4c88-9588-e4a68b7465e0",
+        "kind": "page-view",
+        "label": "Раздел events",
+        "path": "/section/events",
+        "createdAt": "2026-04-15T20:28:51.483Z"
       }
     ]
   },

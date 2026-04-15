@@ -152,10 +152,11 @@ export function ListingDetailPage() {
 
   return (
     <div className="page-stack travel-page travel-page--detail">
-      <PageHeader title={listing.title} subtitle={category.shortTitle || category.title} showBack actionLabel="К списку" actionPath={detailPath} />
-
       <section className="travel-detail-card" data-tone={category.accent || 'coast'}>
         <div className="travel-detail-card__media">
+          <Link className="travel-detail-card__back" to={detailPath} aria-label="Назад к списку">
+            ‹
+          </Link>
           <img src={activeImage} alt={listing.title} loading="lazy" decoding="async" />
           <span className="travel-detail-card__category">{category.shortTitle || category.title}</span>
           {listing.rating > 0 ? (
@@ -226,60 +227,67 @@ export function ListingDetailPage() {
 
         <div className="travel-detail-section">
           <h3>Полезно знать</h3>
-          <div className="travel-detail-info-list">
+          <ul className="travel-detail-info-list">
             {listing.priceLabel ? (
-              <div className="travel-detail-info-item">
-                <strong>Цена</strong>
-                <span>{listing.priceLabel}</span>
-              </div>
+              <li className="travel-detail-info-row">
+                <strong>Цена:</strong> <span>{listing.priceLabel}</span>
+              </li>
             ) : null}
             {phoneLink ? (
-              <a
-                className="travel-detail-info-item"
-                href={`tel:${phoneLink}`}
-                onClick={() =>
-                  recordGuideAnalytics({
-                    kind: 'phone-click',
-                    label: `${listing.title} · call`,
-                    path: `tel:${phoneLink}`,
-                    entityId: listing.id,
-                    categoryId: listing.categoryId
-                  })
-                }
-              >
-                <strong>Телефон</strong>
-                <span>{phoneLink}</span>
-              </a>
+              <li className="travel-detail-info-row">
+                <strong>Телефон:</strong>{' '}
+                <a
+                  className="travel-detail-info-link"
+                  href={`tel:${phoneLink}`}
+                  onClick={() =>
+                    recordGuideAnalytics({
+                      kind: 'phone-click',
+                      label: `${listing.title} · call`,
+                      path: `tel:${phoneLink}`,
+                      entityId: listing.id,
+                      categoryId: listing.categoryId
+                    })
+                  }
+                >
+                  {phoneLink}
+                </a>
+              </li>
             ) : null}
             {websiteLink ? (
-              <a
-                className="travel-detail-info-item"
-                href={websiteLink}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() =>
-                  recordGuideAnalytics({
-                    kind: 'website-click',
-                    label: `${listing.title} · website`,
-                    path: websiteLink,
-                    entityId: listing.id,
-                    categoryId: listing.categoryId
-                  })
-                }
-              >
-                <strong>Сайт</strong>
-                <span>Открыть сайт</span>
-              </a>
+              <li className="travel-detail-info-row">
+                <strong>Сайт:</strong>{' '}
+                <a
+                  className="travel-detail-info-link"
+                  href={websiteLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() =>
+                    recordGuideAnalytics({
+                      kind: 'website-click',
+                      label: `${listing.title} · website`,
+                      path: websiteLink,
+                      entityId: listing.id,
+                      categoryId: listing.categoryId
+                    })
+                  }
+                >
+                  Открыть сайт
+                </a>
+              </li>
             ) : null}
-            <a className="travel-detail-info-item" href={mapUrl} target="_blank" rel="noreferrer">
-              <strong>Карта</strong>
-              <span>Открыть в Google Maps</span>
-            </a>
-            <button className="travel-detail-info-item" type="button" onClick={shareListing}>
-              <strong>Поделиться</strong>
-              <span>Скопировать или отправить ссылку</span>
-            </button>
-          </div>
+            <li className="travel-detail-info-row">
+              <strong>Карта:</strong>{' '}
+              <a className="travel-detail-info-link" href={mapUrl} target="_blank" rel="noreferrer">
+                Открыть в Google Maps
+              </a>
+            </li>
+            <li className="travel-detail-info-row">
+              <strong>Поделиться:</strong>{' '}
+              <button className="travel-detail-info-link travel-detail-info-link--button" type="button" onClick={shareListing}>
+                Скопировать или отправить ссылку
+              </button>
+            </li>
+          </ul>
         </div>
       </section>
 
