@@ -1,0 +1,13 @@
+Database init failed: Error: EPERM: operation not permitted, mkdir 'D:\data\uploads'
+    at Object.mkdirSync (node:fs:1372:26)
+    at ensureUploadsDirectory (D:\guide-app-source\server\src\index.js:52:6)
+    at Server.<anonymous> (D:\guide-app-source\server\src\index.js:920:5)
+    at Object.onceWrapper (node:events:638:28)
+    at Server.emit (node:events:536:35)
+    at emitListeningNT (node:net:1951:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:81:21) {
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'mkdir',
+  path: 'D:\\data\\uploads'
+}

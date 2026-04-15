@@ -287,7 +287,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
     }
 
     if (!nextItem.slug) {
-      setStatus('Не удалось сформировать slug. Добавь латинское название или укажи slug вручную.');
+      setStatus('Не удалось подготовить адрес карточки. Проверь название места.');
       return;
     }
 
@@ -398,7 +398,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
           <h2>Карточки мест по категориям</h2>
           <p>
             Владелец теперь управляет не только текстами и фото, но и статусом карточки, порядком
-            показа, slug и ссылкой на Google Maps для каждой карточки.
+            показа и ссылкой на Google Maps для каждой карточки.
           </p>
         </div>
         <button className="button button--ghost" type="button" onClick={resetForm} disabled={isUploading}>
@@ -457,15 +457,6 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
                 value={draft.title}
                 onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
                 placeholder="Например, Panorama Terrace"
-              />
-            </label>
-
-            <label className="field">
-              <span>Slug / URL</span>
-              <input
-                value={draft.slug}
-                onChange={(event) => setDraft((current) => ({ ...current, slug: normalizeSlug(event.target.value) }))}
-                placeholder="panorama-terrace"
               />
             </label>
 
@@ -563,15 +554,6 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
           </label>
 
           <div className="owner-editor-form__grid owner-editor-form__grid--double">
-            <label className="field">
-              <span>Район / ориентир</span>
-              <input
-                value={draft.district}
-                onChange={(event) => setDraft((current) => ({ ...current, district: event.target.value }))}
-                placeholder="Например, My An / Han River"
-              />
-            </label>
-
             <label className="field">
               <span>Ссылка Google Maps</span>
               <input
@@ -782,7 +764,6 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
                         <h3>{item.title}</h3>
                         <p>
                           {activeCategory?.title ?? item.categoryId} · {item.kind || 'Без типа'}
-                          {item.slug ? ` · /place/${item.slug}` : ''}
                         </p>
                       </div>
                       <span className="owner-item-card__rating">★ {item.rating.toFixed(1)}</span>
@@ -791,7 +772,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
                     <p className="owner-item-card__address">{item.address}</p>
                     <p className="owner-item-card__description">{item.description}</p>
                     <p className="owner-item-card__meta-row">
-                      {[typeof item.hotelStars === 'number' ? `${item.hotelStars}★` : '', item.hotelPool ? 'Бассейн' : '', item.hotelSpa ? 'СПА' : '', item.cuisine, item.district, ...(item.services ?? []), ...(item.tags ?? [])].filter(Boolean).join(' · ')}
+                      {[typeof item.hotelStars === 'number' ? `${item.hotelStars}★` : '', item.hotelPool ? 'Бассейн' : '', item.hotelSpa ? 'СПА' : '', item.cuisine, ...(item.services ?? []), ...(item.tags ?? [])].filter(Boolean).join(' · ')}
                     </p>
                     <div className="owner-item-card__stats">
                       <span>Фото: {imageCount}</span>

@@ -1,18 +1,33 @@
 
 > guide-app-webapp@0.1.0 dev
-> vite --host 0.0.0.0 --port 5180
+> vite --host 127.0.0.1 --port 5180
 
 
-  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m1879[22m[2m[0m ms[22m
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m663[22m[2m[0m ms[22m
 
-  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5180[22m/[39m
-  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.12.228:[1m5180[22m/[39m
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5180[22m/[39m
 [2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
-[2m17:52:01[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SearchPage.tsx, /src/pages/FavoritesPage.tsx, /src/pages/NearbyPage.tsx, /src/pages/ListingDetailPage.tsx, /src/components/listing/CategoryExplorer.tsx[22m
-[2m17:52:26[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/owner/OwnerPlacesManager.tsx[22m
-[2m17:53:41[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/listing/CategoryExplorer.tsx[22m
-[2m17:54:39[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m18:12:42[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/listing/CategoryExplorer.tsx[22m
-[2m18:13:23[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
-[2m18:16:20[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/listing/CategoryExplorer.tsx[22m
-[2m18:16:34[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/reference-rebuild.css[22m
+[2m15:31:19[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/OwnerPage.tsx[22m
+[2m15:32:04[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m15:40:59[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/OwnerPage.tsx[22m
+[2m15:41:18[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m15:44:20[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m15:52:52[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/OwnerPage.tsx[22m
+[2m15:52:52[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m15:54:53[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/PageHeader.tsx[22m
+[2m15:54:53[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/OwnerPage.tsx[22m
+[2m15:56:19[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/OwnerPage.tsx[22m
+[2m16:01:10[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/OwnerPage.tsx[22m
+[2m16:01:10[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:05:44[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:06:20[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:07:41[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:07:55[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:08:20[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:12:18[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:12:27[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:13:05[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:13:17[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:15:46[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:15:57[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles/app.css[22m
+[2m16:24:27[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/owner/OwnerPlacesManager.tsx[22m

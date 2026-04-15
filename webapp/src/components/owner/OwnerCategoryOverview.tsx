@@ -9,6 +9,13 @@ type OwnerCategoryOverviewProps = {
   categories: GuideCategory[];
 };
 
+const accentOptions = [
+  { value: 'coast', label: 'Морской' },
+  { value: 'bridge', label: 'Городской' },
+  { value: 'sunset', label: 'Тёплый' },
+  { value: 'emerald', label: 'Зелёный' }
+];
+
 function parseCsv(value: string) {
   return value
     .split(',')
@@ -149,15 +156,16 @@ export function OwnerCategoryOverview({ categories }: OwnerCategoryOverviewProps
                   value={category.accent}
                   onChange={(event) => handleCategoryField(category.id, 'accent', event.target.value)}
                 >
-                  <option value="coast">Coast</option>
-                  <option value="bridge">Bridge</option>
-                  <option value="sunset">Sunset</option>
-                  <option value="emerald">Emerald</option>
+                  {accentOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
               </label>
 
               <label className="field">
-                <span>Ссылка</span>
+                <span>URL раздела</span>
                 <input
                   value={category.path}
                   onChange={(event) => handleCategoryField(category.id, 'path', event.target.value)}
@@ -165,7 +173,7 @@ export function OwnerCategoryOverview({ categories }: OwnerCategoryOverviewProps
               </label>
 
               <label className="field">
-                <span>Slug</span>
+                <span>Внутренний slug</span>
                 <input
                   value={category.slug}
                   onChange={(event) => handleCategoryField(category.id, 'slug', event.target.value)}

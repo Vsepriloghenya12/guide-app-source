@@ -21,6 +21,10 @@ const initialDraft: TipDraft = {
   active: true
 };
 
+function countActiveTips(tips: GuideTip[]) {
+  return tips.filter((tip) => tip.active).length;
+}
+
 function createId() {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
@@ -126,6 +130,7 @@ export function OwnerTipsManager({ tips }: OwnerTipsManagerProps) {
               <input
                 value={draft.linkPath}
                 onChange={(event) => setDraft((current) => ({ ...current, linkPath: event.target.value }))}
+                placeholder="/restaurants"
               />
             </label>
 
@@ -150,8 +155,10 @@ export function OwnerTipsManager({ tips }: OwnerTipsManagerProps) {
 
         <div className="owner-editor-card owner-editor-list">
           <div className="owner-editor-list__head">
-            <strong>Советы</strong>
-            <span>{tips.length} шт.</span>
+            <div>
+              <strong>Советы</strong>
+              <span>{countActiveTips(tips)} активны, {tips.length - countActiveTips(tips)} скрыты</span>
+            </div>
           </div>
 
           <div className="owner-item-list">
@@ -162,7 +169,9 @@ export function OwnerTipsManager({ tips }: OwnerTipsManagerProps) {
                     <h3>{tip.title}</h3>
                     <p>{tip.linkPath}</p>
                   </div>
-                  <span className="owner-item-card__rating">{tip.active ? 'ON' : 'OFF'}</span>
+                  <span className={`owner-status-pill ${tip.active ? 'is-published' : 'is-hidden'}`}>
+                    {tip.active ? 'Активен' : 'Скрыт'}
+                  </span>
                 </div>
                 <p className="owner-item-card__description">{tip.text}</p>
                 <div className="owner-item-card__actions">

@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { UserAuthTrigger } from '../auth/UserAuthTrigger';
 
 type PageHeaderProps = {
-  title: string;
+  title?: string;
   subtitle?: string;
   showBack?: boolean;
   actionLabel?: string;
@@ -44,7 +44,7 @@ export function PageHeader({
         )}
 
         <div className="travel-topbar__titles">
-          <h1>{title}</h1>
+          {title ? <h1>{title}</h1> : null}
           {subtitle ? <p>{subtitle}</p> : null}
         </div>
 
