@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { GuideCategory } from '../../types';
 import { recordGuideAnalytics } from '../../utils/analytics';
-import { getCategoryListImage, getCategoryTone } from './homeVisuals';
+import { getCategoryListFallbackImage, getCategoryListImage, getCategoryTone } from './homeVisuals';
 
 type CategoryListProps = {
   categories: GuideCategory[];
@@ -39,7 +39,20 @@ export function CategoryList({ categories, title }: CategoryListProps) {
               {category.description ? <span className="travel-directory-row__text">{category.description}</span> : null}
             </span>
             <span className="travel-directory-row__media" aria-hidden="true">
-              <img src={getCategoryListImage(category, index)} alt="" loading="lazy" decoding="async" />
+              <img
+                src={getCategoryListImage(category, index)}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                onError={(event) => {
+                  const fallbackSrc = getCategoryListFallbackImage(category, index);
+                  if (event.currentTarget.src.endsWith(fallbackSrc)) {
+                    return;
+                  }
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.src = fallbackSrc;
+                }}
+              />
             </span>
           </Link>
         ))}

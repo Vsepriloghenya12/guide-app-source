@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { stayPrograms } from '../../data/programs';
 import type { GuideCategory, GuideCollection, GuideTip, HomeSectionTitles } from '../../types';
 import { recordGuideAnalytics } from '../../utils/analytics';
-import { getCategoryTone, getQuickMenuImage } from './homeVisuals';
+import { getCategoryTone, getQuickMenuFallbackImage, getQuickMenuImage } from './homeVisuals';
 
 type FeatureGridProps = {
   featuredCategories: GuideCategory[];
@@ -178,7 +178,20 @@ export function FeatureGrid({
                 }
               >
                 <span className="travel-quick-photo__disc" aria-hidden="true">
-                  <img src={getQuickMenuImage(category, index)} alt="" loading="lazy" decoding="async" />
+                  <img
+                    src={getQuickMenuImage(category, index)}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    onError={(event) => {
+                      const fallbackSrc = getQuickMenuFallbackImage(index);
+                      if (event.currentTarget.src.endsWith(fallbackSrc)) {
+                        return;
+                      }
+                      event.currentTarget.onerror = null;
+                      event.currentTarget.src = fallbackSrc;
+                    }}
+                  />
                 </span>
                 <span className="travel-quick-photo__label">{category.shortTitle || category.title}</span>
               </Link>

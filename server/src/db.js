@@ -10,6 +10,8 @@ try {
 }
 
 const seedPath = path.resolve(__dirname, '../../shared/default-guide-content.json');
+const contentStorePath = path.resolve(__dirname, '../../storage/content-store.json');
+const supportContentPath = path.resolve(__dirname, '../../storage/support-content.json');
 const defaultContent = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
 const categoryLabelOverrides = {
   restaurants: { title: 'Еда', shortTitle: 'Еда' },
@@ -44,6 +46,23 @@ let sql = null;
 let dbReadyPromise = null;
 let memoryStore = null;
 let memorySupportContent = null;
+
+function readJsonFile(filePath, fallbackFactory) {
+  try {
+    if (fs.existsSync(filePath)) {
+      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    }
+  } catch (error) {
+    console.warn(`Could not read JSON file ${filePath}:`, error);
+  }
+
+  return fallbackFactory();
+}
+
+function writeJsonFile(filePath, value) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, JSON.stringify(value, null, 2), 'utf8');
+}
 
 function getSslConfig() {
   const mode = String(process.env.PGSSLMODE || '').toLowerCase();
@@ -117,25 +136,27 @@ function normalizeSupportContent(input) {
 
 function getMemorySupportContent() {
   if (!memorySupportContent) {
-    memorySupportContent = normalizeSupportContent(cloneDefaultSupportContent());
+    memorySupportContent = normalizeSupportContent(readJsonFile(supportContentPath, cloneDefaultSupportContent));
   }
   return JSON.parse(JSON.stringify(memorySupportContent));
 }
 
 function setMemorySupportContent(content) {
   memorySupportContent = normalizeSupportContent(content);
+  writeJsonFile(supportContentPath, memorySupportContent);
   return getMemorySupportContent();
 }
 
 function getMemoryStore() {
   if (!memoryStore) {
-    memoryStore = normalizeContentStore(cloneDefaultContent());
+    memoryStore = normalizeContentStore(readJsonFile(contentStorePath, cloneDefaultContent));
   }
   return JSON.parse(JSON.stringify(memoryStore));
 }
 
 function setMemoryStore(store) {
   memoryStore = normalizeContentStore(store);
+  writeJsonFile(contentStorePath, memoryStore);
   return getMemoryStore();
 }
 

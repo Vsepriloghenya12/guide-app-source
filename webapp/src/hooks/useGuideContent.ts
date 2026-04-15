@@ -21,33 +21,77 @@ export function useGuideContent(options: UseGuideContentOptions = {}) {
       setContent(readGuideContent());
     };
 
-    const load = async () => {
-      if (!isBootReady()) {
+    let lastSilentRefreshAt = 0;
+
+    const load = async (background = false) => {
+      if (!background && !isBootReady()) {
         setLoading(true);
       }
-      setError(null);
+      if (!background) {
+        setError(null);
+      }
       try {
         const nextContent = await syncGuideContentFromServer(scope);
         if (!active) return;
         setContent(nextContent);
+        if (!background) {
+          setError(null);
+        }
       } catch (nextError) {
         if (!active) return;
-        setError(nextError instanceof Error ? nextError.message : 'Не удалось загрузить контент.');
+        if (!background) {
+          setError(nextError instanceof Error ? nextError.message : 'Не удалось загрузить контент.');
+        }
       } finally {
-        if (active) {
+        if (active && !background) {
           setLoading(false);
         }
       }
     };
 
+    const refreshSilently = () => {
+      if (!active) {
+        return;
+      }
+
+      if (document.visibilityState === 'hidden') {
+        return;
+      }
+
+      const now = Date.now();
+      if (now - lastSilentRefreshAt < 15000) {
+        return;
+      }
+
+      lastSilentRefreshAt = now;
+      void load(true);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshSilently();
+      }
+    };
+
     window.addEventListener(GUIDE_CONTENT_EVENT, syncLocal);
     window.addEventListener('storage', syncLocal);
+    window.addEventListener('focus', refreshSilently);
+    window.addEventListener('pageshow', refreshSilently);
+    window.addEventListener('online', refreshSilently);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    const refreshInterval = window.setInterval(refreshSilently, scope === 'public' ? 60000 : 120000);
     void load();
 
     return () => {
       active = false;
       window.removeEventListener(GUIDE_CONTENT_EVENT, syncLocal);
       window.removeEventListener('storage', syncLocal);
+      window.removeEventListener('focus', refreshSilently);
+      window.removeEventListener('pageshow', refreshSilently);
+      window.removeEventListener('online', refreshSilently);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.clearInterval(refreshInterval);
     };
   }, [scope]);
 

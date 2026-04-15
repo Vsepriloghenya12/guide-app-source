@@ -1,4 +1,4 @@
-const VERSION = '2026-03-25-category-nav-r4';
+const VERSION = '2026-04-15-live-content-r1';
 const STATIC_CACHE = `dg-static-${VERSION}`;
 const PAGES_CACHE = `dg-pages-${VERSION}`;
 const RUNTIME_CACHE = `dg-runtime-${VERSION}`;
@@ -11,7 +11,8 @@ const PRECACHE_URLS = [
   '/icons/icon-512.png',
   '/icons/maskable-192.png',
   '/icons/maskable-512.png',
-  '/danang-guide-logo.png'
+  '/home-hero-logo-custom.png',
+  '/logo-placeholder.svg'
 ];
 
 self.addEventListener('install', (event) => {

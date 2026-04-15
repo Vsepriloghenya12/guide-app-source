@@ -53,12 +53,20 @@ export function getQuickMenuImage(category: GuideCategory, index: number): strin
   return quickIconsById[category.id] || orderedQuickIcons[index % orderedQuickIcons.length];
 }
 
+export function getQuickMenuFallbackImage(index: number): string {
+  return orderedQuickIcons[(index + 1) % orderedQuickIcons.length] || '/logo-placeholder.svg';
+}
+
 export function getCategoryListImage(category: GuideCategory, index: number): string {
   if (category.imageSrc) {
     return category.imageSrc;
   }
 
   return quickIconsById[category.id] || accentFallback[category.accent] || orderedQuickIcons[index % orderedQuickIcons.length];
+}
+
+export function getCategoryListFallbackImage(category: GuideCategory, index: number): string {
+  return quickIconsById[category.id] || accentFallback[category.accent] || getQuickMenuFallbackImage(index);
 }
 
 export function getCategoryTone(category: Pick<GuideCategory, 'id' | 'accent'>): string {
