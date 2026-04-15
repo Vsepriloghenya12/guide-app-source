@@ -7266,3 +7266,28 @@ body:not(.secret-theme-active) .boot-progress__bar {
     grid-template-columns: 1fr;
   }
 }
+
+.owner-shell .field.field--invalid > span {
+  color: #b42318;
+}
+
+.owner-shell .field.field--invalid input,
+.owner-shell .field.field--invalid select,
+.owner-shell .field.field--invalid textarea,
+.owner-shell .field input[aria-invalid='true'],
+.owner-shell .field select[aria-invalid='true'],
+.owner-shell .field textarea[aria-invalid='true'] {
+  border-color: rgba(220, 38, 38, 0.34);
+  background: #fff7f7;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.12);
+}
+
+.owner-shell .field.field--invalid input:focus,
+.owner-shell .field.field--invalid select:focus,
+.owner-shell .field.field--invalid textarea:focus,
+.owner-shell .field input[aria-invalid='true']:focus,
+.owner-shell .field select[aria-invalid='true']:focus,
+.owner-shell .field textarea[aria-invalid='true']:focus {
+  border-color: rgba(220, 38, 38, 0.46);
+  box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.14);
+}

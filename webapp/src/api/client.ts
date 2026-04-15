@@ -65,14 +65,20 @@ export const api = {
     apiFetch<{ ok: true; categories: Category[]; listings: Listing[]; collections: Collection[] }>(
       '/api/owner/bootstrap'
     ),
-  saveListing: (listing: Partial<Listing> & Pick<Listing, 'categorySlug' | 'title'>) =>
-    apiFetch<{ ok: true; listing: Listing }>(
-      listing.id ? `/api/owner/listings/${listing.id}` : '/api/owner/listings',
+  saveListing: (
+    listing: Partial<Listing> & Pick<Listing, 'categorySlug' | 'title'>,
+    options?: { isNew?: boolean }
+  ) => {
+    const isNew = options?.isNew ?? !listing.id;
+
+    return apiFetch<{ ok: true; listing: Listing }>(
+      isNew ? '/api/owner/listings' : `/api/owner/listings/${listing.id}`,
       {
-        method: listing.id ? 'PUT' : 'POST',
+        method: isNew ? 'POST' : 'PUT',
         body: JSON.stringify(listing)
       }
-    ),
+    );
+  },
   deleteListing: (id: string) =>
     apiFetch<{ ok: true }>(`/api/owner/listings/${id}`, { method: 'DELETE' }),
   saveCollectionItems: (slug: string, items: unknown[]) =>

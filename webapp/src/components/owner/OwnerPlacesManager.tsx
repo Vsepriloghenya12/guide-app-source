@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, memo, useCallback, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, memo, useCallback, useMemo, useRef, useState } from 'react';
 import { api } from '../../api/client';
 import { updateGuideContent } from '../../data/guideContent';
 import type { GuideCategory, GuideCategoryId, GuidePlace, Listing } from '../../types';
@@ -80,6 +80,26 @@ const initialDraft: PlaceDraft = {
   imageSrc: '',
   imageGallery: []
 };
+
+type RequiredPlaceField = 'title' | 'address' | 'mapQuery' | 'description';
+
+const requiredPlaceFieldLabels: Record<RequiredPlaceField, string> = {
+  title: 'название',
+  address: 'адрес',
+  mapQuery: 'ссылка Google Maps',
+  description: 'описание'
+};
+
+function getMissingRequiredFields(draft: PlaceDraft): RequiredPlaceField[] {
+  const requiredFields: Array<[RequiredPlaceField, string]> = [
+    ['title', draft.title],
+    ['address', draft.address],
+    ['mapQuery', draft.mapQuery],
+    ['description', draft.description]
+  ];
+
+  return requiredFields.filter(([, value]) => !value.trim()).map(([field]) => field);
+}
 
 const statusMeta: Record<NonNullable<GuidePlace['status']>, { label: string; className: string; helper: string }> = {
   published: {
@@ -337,6 +357,8 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
   const [activeTab, setActiveTab] = useState<GuideCategoryId>('restaurants');
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [invalidFields, setInvalidFields] = useState<RequiredPlaceField[]>([]);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const visibleCategories = useMemo(
     () => categories.filter((category) => category.visible || items.some((item) => item.categoryId === category.id)),
@@ -365,6 +387,22 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
   const draftStatusMeta = statusMeta[draft.status];
   const isBusy = isUploading || isSaving;
 
+  const clearFieldValidation = useCallback((field: keyof PlaceDraft) => {
+    setInvalidFields((current) => current.filter((item) => item !== field));
+    setStatus((current) => (current ? '' : current));
+  }, []);
+
+  const updateDraftField = useCallback(
+    <Key extends keyof PlaceDraft,>(field: Key, value: PlaceDraft[Key]) => {
+      setDraft((current) => ({
+        ...current,
+        [field]: value
+      }));
+      clearFieldValidation(field);
+    },
+    [clearFieldValidation]
+  );
+
   const getSuggestedSortOrder = useCallback(
     (categoryId: GuideCategoryId, additionalItems = 0) =>
       String(Math.max(((itemsCountByCategory[categoryId] ?? 0) + additionalItems) * 10 + 10, 10)),
@@ -377,6 +415,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
       categoryId: activeTab,
       sortOrder: getSuggestedSortOrder(activeTab)
     });
+    setInvalidFields([]);
     setIsEditing(false);
     setStatus('');
   }, [activeTab, getSuggestedSortOrder]);
@@ -414,23 +453,31 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const nextItem = createPlacePayload(draft);
-
-    if (!nextItem.title || !nextItem.address || !nextItem.description) {
-      setStatus('Заполни название, адрес и описание карточки.');
+    const missingFields = getMissingRequiredFields(draft);
+    if (missingFields.length > 0) {
+      setInvalidFields(missingFields);
+      setStatus(`Заполни обязательные поля: ${missingFields.map((field) => requiredPlaceFieldLabels[field]).join(', ')}.`);
+      requestAnimationFrame(() => {
+        formRef.current?.querySelector<HTMLElement>(`[name="${missingFields[0]}"]`)?.focus();
+      });
       return;
     }
+
+    const nextItem = createPlacePayload(draft);
 
     if (!nextItem.slug) {
       setStatus('Не удалось подготовить адрес карточки. Проверь название места.');
       return;
     }
 
+    setInvalidFields([]);
     setIsSaving(true);
     setStatus(draft.id ? 'Сохраняю изменения...' : 'Добавляю карточку...');
 
     try {
-      const response = await api.saveListing(nextItem as Partial<Listing> & Pick<Listing, 'categorySlug' | 'title'>);
+      const response = await api.saveListing(nextItem as Partial<Listing> & Pick<Listing, 'categorySlug' | 'title'>, {
+        isNew: !draft.id
+      });
       const savedPlace = response.listing as GuidePlace;
 
       syncSavedPlace(savedPlace);
@@ -441,6 +488,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
         categoryId: savedPlace.categoryId,
         sortOrder: getSuggestedSortOrder(savedPlace.categoryId, draft.id ? 0 : 1)
       });
+      setInvalidFields([]);
       setIsEditing(false);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Не удалось сохранить карточку. Попробуй ещё раз.');
@@ -452,6 +500,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
   const startEdit = useCallback((item: GuidePlace) => {
     setDraft(toDraft(item));
     setActiveTab(item.categoryId);
+    setInvalidFields([]);
     setIsEditing(true);
     setStatus('');
   }, []);
@@ -580,17 +629,14 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
       </div>
 
       <div className="owner-cms-layout">
-        <form className="owner-editor-card owner-editor-form" onSubmit={handleSubmit}>
+        <form ref={formRef} className="owner-editor-card owner-editor-form" onSubmit={handleSubmit} noValidate>
           <div className="owner-editor-form__grid owner-editor-form__grid--double">
             <label className="field">
               <span>Категория</span>
               <select
                 value={draft.categoryId}
                 onChange={(event) =>
-                  setDraft((current) => ({
-                    ...current,
-                    categoryId: event.target.value as GuidePlace['categoryId']
-                  }))
+                  updateDraftField('categoryId', event.target.value as GuidePlace['categoryId'])
                 }
               >
                 {categories.map((category) => (
@@ -601,12 +647,13 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               </select>
             </label>
 
-            <label className="field">
+            <label className={invalidFields.includes('title') ? 'field field--invalid' : 'field'}>
               <span>Название</span>
               <input
+                name="title"
                 value={draft.title}
-                onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
-                placeholder="Например, Panorama Terrace"
+                onChange={(event) => updateDraftField('title', event.target.value)}
+                aria-invalid={invalidFields.includes('title')}
               />
             </label>
 
@@ -615,7 +662,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <select
                 value={draft.status}
                 onChange={(event) =>
-                  setDraft((current) => ({ ...current, status: event.target.value as NonNullable<GuidePlace['status']> }))
+                  updateDraftField('status', event.target.value as NonNullable<GuidePlace['status']>)
                 }
               >
                 <option value="published">Опубликовано</option>
@@ -628,8 +675,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <span>Тип</span>
               <input
                 value={draft.kind}
-                onChange={(event) => setDraft((current) => ({ ...current, kind: event.target.value }))}
-                placeholder="Например, Ресторан / Кофейня / Хамам"
+                onChange={(event) => updateDraftField('kind', event.target.value)}
               />
             </label>
 
@@ -637,8 +683,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <span>Кухня / направление</span>
               <input
                 value={draft.cuisine}
-                onChange={(event) => setDraft((current) => ({ ...current, cuisine: event.target.value }))}
-                placeholder="Например, Европейская"
+                onChange={(event) => updateDraftField('cuisine', event.target.value)}
               />
             </label>
 
@@ -647,15 +692,14 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <input
                 type="number"
                 value={draft.avgCheck}
-                onChange={(event) => setDraft((current) => ({ ...current, avgCheck: event.target.value }))}
-                placeholder="650"
+                onChange={(event) => updateDraftField('avgCheck', event.target.value)}
               />
             </label>
 
             {draft.categoryId === 'hotels' ? (
               <label className="field">
                 <span>Звёзды</span>
-                <select value={draft.hotelStars} onChange={(event) => setDraft((current) => ({ ...current, hotelStars: event.target.value }))}>
+                <select value={draft.hotelStars} onChange={(event) => updateDraftField('hotelStars', event.target.value)}>
                   <option value="">Не указано</option>
                   <option value="5">5★</option>
                   <option value="4">4★</option>
@@ -674,7 +718,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
                 min="0"
                 max="5"
                 value={draft.rating}
-                onChange={(event) => setDraft((current) => ({ ...current, rating: event.target.value }))}
+                onChange={(event) => updateDraftField('rating', event.target.value)}
               />
             </label>
 
@@ -683,8 +727,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <input
                 type="number"
                 value={draft.sortOrder}
-                onChange={(event) => setDraft((current) => ({ ...current, sortOrder: event.target.value }))}
-                placeholder="10"
+                onChange={(event) => updateDraftField('sortOrder', event.target.value)}
               />
             </label>
 
@@ -694,22 +737,24 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
             </div>
           </div>
 
-          <label className="field">
+          <label className={invalidFields.includes('address') ? 'field field--invalid' : 'field'}>
             <span>Адрес</span>
             <input
+              name="address"
               value={draft.address}
-              onChange={(event) => setDraft((current) => ({ ...current, address: event.target.value }))}
-              placeholder="Например, Набережная, 14"
+              onChange={(event) => updateDraftField('address', event.target.value)}
+              aria-invalid={invalidFields.includes('address')}
             />
           </label>
 
           <div className="owner-editor-form__grid owner-editor-form__grid--double">
-            <label className="field">
+            <label className={invalidFields.includes('mapQuery') ? 'field field--invalid' : 'field'}>
               <span>Ссылка Google Maps</span>
               <input
+                name="mapQuery"
                 value={draft.mapQuery}
-                onChange={(event) => setDraft((current) => ({ ...current, mapQuery: event.target.value }))}
-                placeholder="Вставь ссылку на точку из Google Maps"
+                onChange={(event) => updateDraftField('mapQuery', event.target.value)}
+                aria-invalid={invalidFields.includes('mapQuery')}
               />
             </label>
           </div>
@@ -719,8 +764,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <span>Телефон</span>
               <input
                 value={draft.phone}
-                onChange={(event) => setDraft((current) => ({ ...current, phone: event.target.value }))}
-                placeholder="+84 ..."
+                onChange={(event) => updateDraftField('phone', event.target.value)}
               />
             </label>
 
@@ -728,8 +772,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <span>Сайт</span>
               <input
                 value={draft.website}
-                onChange={(event) => setDraft((current) => ({ ...current, website: event.target.value }))}
-                placeholder="https://..."
+                onChange={(event) => updateDraftField('website', event.target.value)}
               />
             </label>
 
@@ -737,8 +780,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <span>Часы работы</span>
               <input
                 value={draft.hours}
-                onChange={(event) => setDraft((current) => ({ ...current, hours: event.target.value }))}
-                placeholder="08:00–23:00"
+                onChange={(event) => updateDraftField('hours', event.target.value)}
               />
             </label>
 
@@ -746,19 +788,19 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <span>Подпись на фото</span>
               <input
                 value={draft.imageLabel}
-                onChange={(event) => setDraft((current) => ({ ...current, imageLabel: event.target.value }))}
-                placeholder="Короткая подпись"
+                onChange={(event) => updateDraftField('imageLabel', event.target.value)}
               />
             </label>
           </div>
 
-          <label className="field field--textarea">
+          <label className={invalidFields.includes('description') ? 'field field--invalid field--textarea' : 'field field--textarea'}>
             <span>Описание</span>
             <textarea
+              name="description"
               value={draft.description}
-              onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
+              onChange={(event) => updateDraftField('description', event.target.value)}
               rows={5}
-              placeholder="Опиши место, атмосферу и ключевые особенности"
+              aria-invalid={invalidFields.includes('description')}
             />
           </label>
 
@@ -767,8 +809,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <span>Услуги / особенности</span>
               <input
                 value={draft.services}
-                onChange={(event) => setDraft((current) => ({ ...current, services: event.target.value }))}
-                placeholder="Через запятую: Завтраки, Терраса, Массаж"
+                onChange={(event) => updateDraftField('services', event.target.value)}
               />
             </label>
 
@@ -776,8 +817,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
               <span>Теги и фильтры</span>
               <input
                 value={draft.tags}
-                onChange={(event) => setDraft((current) => ({ ...current, tags: event.target.value }))}
-                placeholder="Через запятую: романтика, вид, бюджетно"
+                onChange={(event) => updateDraftField('tags', event.target.value)}
               />
             </label>
           </div>
