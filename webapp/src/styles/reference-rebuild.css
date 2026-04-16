@@ -3303,12 +3303,23 @@ body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card {
   background: linear-gradient(180deg, #fff 0%, #fbfdff 100%) !important;
 }
 
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-list .travel-list-card {
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card::before {
   content: '';
   position: absolute;
   inset: 0 0 auto;
   height: 4px;
   background: linear-gradient(90deg, var(--travel-tone), rgba(255, 255, 255, 0));
+}
+
+body:not(.secret-theme-active) .app-shell.reference-shell .restaurant-list .travel-list-card::before {
+  display: none;
 }
 
 body:not(.secret-theme-active) .app-shell.reference-shell .travel-list-card__main {

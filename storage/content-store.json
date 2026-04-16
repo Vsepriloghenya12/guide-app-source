@@ -1972,6 +1972,87 @@
         "label": "Раздел events",
         "path": "/section/events",
         "createdAt": "2026-04-15T20:28:51.483Z"
+      },
+      {
+        "id": "analytics-1776284969018-28d76d34530f7",
+        "kind": "page-view",
+        "label": "Карточка места",
+        "path": "/place/restaurants-madame-ln",
+        "createdAt": "2026-04-15T20:29:29.018Z"
+      },
+      {
+        "id": "analytics-1776284969036-7b8381ded3f8e",
+        "kind": "page-view",
+        "label": "Карточка места",
+        "path": "/place/restaurants-madame-ln",
+        "createdAt": "2026-04-15T20:29:29.036Z"
+      },
+      {
+        "id": "f6667c27-cf97-4639-8dca-08d2910cb184",
+        "kind": "place-click",
+        "label": "Dragon Bridge Fire & Water Show",
+        "path": "/place/events-dragon-bridge-fire-water-show",
+        "entityId": "event-dragon-bridge-show",
+        "categoryId": "events",
+        "createdAt": "2026-04-15T20:29:52.356Z"
+      },
+      {
+        "id": "0c7fa7d7-4d43-4c9a-88a7-378051a0f733",
+        "kind": "page-view",
+        "label": "Карточка места",
+        "path": "/place/events-dragon-bridge-fire-water-show",
+        "createdAt": "2026-04-15T20:29:52.372Z"
+      },
+      {
+        "id": "bf30b0ab-8dab-4d9d-9d8a-4aa6f5fb9170",
+        "kind": "page-view",
+        "label": "Карточка места",
+        "path": "/place/events-dragon-bridge-fire-water-show",
+        "createdAt": "2026-04-15T20:31:34.061Z"
+      },
+      {
+        "id": "b8888bb4-2d25-4c31-98de-0a571d2c0f13",
+        "kind": "page-view",
+        "label": "Карточка места",
+        "path": "/place/events-dragon-bridge-fire-water-show",
+        "createdAt": "2026-04-15T20:31:34.068Z"
+      },
+      {
+        "id": "46e510ca-1fad-4257-9b68-b5dc627f44cc",
+        "kind": "page-view",
+        "label": "Раздел events",
+        "path": "/section/events",
+        "createdAt": "2026-04-15T20:31:46.883Z"
+      },
+      {
+        "id": "e13698de-0c47-415f-9ddd-a58df04e23f8",
+        "kind": "place-click",
+        "label": "Dragon Bridge Fire & Water Show",
+        "path": "/place/events-dragon-bridge-fire-water-show",
+        "entityId": "event-dragon-bridge-show",
+        "categoryId": "events",
+        "createdAt": "2026-04-15T20:31:49.317Z"
+      },
+      {
+        "id": "cae8971c-0f4d-4064-86a9-2554158f107f",
+        "kind": "page-view",
+        "label": "Карточка места",
+        "path": "/place/events-dragon-bridge-fire-water-show",
+        "createdAt": "2026-04-15T20:31:49.332Z"
+      },
+      {
+        "id": "ed8226b9-5c55-4eab-94af-2e4d180e1f6d",
+        "kind": "page-view",
+        "label": "Карточка места",
+        "path": "/place/events-dragon-bridge-fire-water-show",
+        "createdAt": "2026-04-16T12:45:04.621Z"
+      },
+      {
+        "id": "9b01ed2e-d530-443a-94f7-d4f625accb8e",
+        "kind": "page-view",
+        "label": "Карточка места",
+        "path": "/place/events-dragon-bridge-fire-water-show",
+        "createdAt": "2026-04-16T12:45:04.643Z"
       }
     ]
   },
