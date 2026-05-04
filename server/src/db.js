@@ -46,6 +46,7 @@ let sql = null;
 let dbReadyPromise = null;
 let memoryStore = null;
 let memorySupportContent = null;
+let databaseFallbackReason = '';
 
 function readJsonFile(filePath, fallbackFactory) {
   try {
@@ -76,7 +77,7 @@ function getSslConfig() {
 }
 
 function getSql() {
-  if (!process.env.DATABASE_URL || !postgres) {
+  if (!process.env.DATABASE_URL || !postgres || databaseFallbackReason) {
     return null;
   }
 
@@ -92,7 +93,32 @@ function getSql() {
 }
 
 function hasDatabase() {
-  return Boolean(process.env.DATABASE_URL);
+  return Boolean(process.env.DATABASE_URL && postgres && !databaseFallbackReason);
+}
+
+function disableDatabaseFallback(error) {
+  if (!databaseFallbackReason) {
+    databaseFallbackReason = error instanceof Error ? error.message : 'Database unavailable';
+    console.warn(`PostgreSQL is unavailable, falling back to file storage: ${databaseFallbackReason}`);
+  }
+
+  dbReadyPromise = null;
+
+  if (sql && typeof sql.end === 'function') {
+    Promise.resolve(sql.end({ timeout: 0 })).catch(() => undefined);
+  }
+
+  sql = null;
+}
+
+async function getReadyDb() {
+  const db = getSql();
+  if (!db) {
+    return null;
+  }
+
+  const ready = await ensureDatabase();
+  return ready ? getSql() : null;
 }
 
 function cloneDefaultContent() {
@@ -553,8 +579,8 @@ async function ensureDatabase() {
 
       return true;
     })().catch((error) => {
-      dbReadyPromise = null;
-      throw error;
+      disableDatabaseFallback(error);
+      return false;
     });
   }
 
@@ -797,12 +823,10 @@ async function replaceStoreContents(store) {
 }
 
 async function readCategories() {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return getMemoryStore().categories;
   }
-
-  await ensureDatabase();
   const rows = await db.unsafe(`
     select id, title, path, badge, description, visible, show_on_home as "showOnHome", slug,
            short_title as "shortTitle", accent, image_src as "imageSrc", filter_schema as "filterSchema", sort_order as "sortOrder"
@@ -815,12 +839,10 @@ async function readCategories() {
 }
 
 async function readPlaces() {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return getMemoryStore().places;
   }
-
-  await ensureDatabase();
   const [placeRows, imageRows] = await Promise.all([
     db.unsafe(`
       select id, category_id as "categoryId", slug, title, description, address, phone, website, hours,
@@ -877,12 +899,10 @@ async function readPlaces() {
 }
 
 async function readTips() {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return getMemoryStore().tips;
   }
-
-  await ensureDatabase();
   const rows = await db.unsafe(`
     select id, title, text, link_path as "linkPath", active, sort_order as "sortOrder"
     from tips
@@ -892,12 +912,10 @@ async function readTips() {
 }
 
 async function readCollections() {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return getMemoryStore().collections;
   }
-
-  await ensureDatabase();
   const [collectionRows, itemRows] = await Promise.all([
     db.unsafe(`
       select id, title, description, link_path as "linkPath", image_src as "imageSrc", active, sort_order as "sortOrder"
@@ -922,23 +940,19 @@ async function readCollections() {
 }
 
 async function readHomeContent() {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return getMemoryStore().home;
   }
-
-  await ensureDatabase();
   const rows = await db.unsafe('select payload from home_content where id = $1 limit 1', ['main']);
   return normalizeContentStore({ home: rows[0]?.payload || cloneDefaultContent().home }).home;
 }
 
 async function getAnalyticsEvents(limit = 400) {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return getMemoryStore().analytics.events.slice(-limit);
   }
-
-  await ensureDatabase();
 
   const rows = await db.unsafe(
     `
@@ -961,24 +975,20 @@ async function getAnalyticsEvents(limit = 400) {
 }
 
 async function readSupportContent() {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return getMemorySupportContent();
   }
-
-  await ensureDatabase();
   const rows = await db.unsafe('select payload from support_content where id = $1 limit 1', ['contacts']);
   return normalizeSupportContent(rows[0]?.payload || cloneDefaultSupportContent());
 }
 
 async function saveSupportContent(contentInput) {
   const normalized = normalizeSupportContent(contentInput);
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return setMemorySupportContent(normalized);
   }
-
-  await ensureDatabase();
   await db.unsafe(
     `
       insert into support_content (id, payload, updated_at)
@@ -992,12 +1002,10 @@ async function saveSupportContent(contentInput) {
 }
 
 async function getContentStore() {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return getMemoryStore();
   }
-
-  await ensureDatabase();
 
   const [categories, places, tips, collections, home, analyticsEvents] = await Promise.all([
     readCategories(),
@@ -1021,11 +1029,10 @@ async function getContentStore() {
 }
 
 async function saveContentStore(store) {
-  if (!getSql()) {
+  const db = await getReadyDb();
+  if (!db) {
     return setMemoryStore(store);
   }
-
-  await ensureDatabase();
   return replaceStoreContents(store);
 }
 
@@ -1033,26 +1040,22 @@ async function resetContentStore() {
   const seed = normalizeContentStore(cloneDefaultContent());
   seed.analytics = { events: [] };
 
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return setMemoryStore(seed);
   }
-
-  await ensureDatabase();
   await db.unsafe('delete from analytics_events');
   return replaceStoreContents(seed);
 }
 
 async function appendAnalyticsEvent(event) {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     const store = getMemoryStore();
     store.analytics.events = [...store.analytics.events, event].slice(-400);
     setMemoryStore(store);
     return event;
   }
-
-  await ensureDatabase();
 
   await db.unsafe(
     `
@@ -1131,13 +1134,11 @@ async function getPlaceBySlug(slug) {
 
 async function saveHomeContent(homeInput) {
   const normalizedHome = normalizeContentStore({ home: homeInput }).home;
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     const store = getMemoryStore();
     return setMemoryStore({ ...store, home: normalizedHome }).home;
   }
-
-  await ensureDatabase();
   await db.unsafe(
     `
       insert into home_content (id, payload, updated_at)
@@ -1172,7 +1173,7 @@ async function upsertCategory(incomingCategory) {
     fallbackMap
   );
 
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     const store = getMemoryStore();
     const nextStore = setMemoryStore({
@@ -1182,7 +1183,6 @@ async function upsertCategory(incomingCategory) {
     return nextStore.categories.find((item) => item.id === normalizedCategory.id) || normalizedCategory;
   }
 
-  await ensureDatabase();
   await db.unsafe(
     `
       insert into categories (
@@ -1226,7 +1226,7 @@ async function upsertCategory(incomingCategory) {
 }
 
 async function deleteCategory(categoryId) {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     const store = getMemoryStore();
     const removedPlaceIds = store.places.filter((place) => place.categoryId === categoryId).map((place) => place.id);
@@ -1246,7 +1246,6 @@ async function deleteCategory(categoryId) {
     });
   }
 
-  await ensureDatabase();
   const placeRows = await db.unsafe('select id from places where category_id = $1', [categoryId]);
   const removedPlaceIds = placeRows.map((row) => row.id);
   await db.begin(async (tx) => {
@@ -1274,13 +1273,12 @@ async function deleteCategory(categoryId) {
 
 async function saveTips(items) {
   const normalizedItems = (Array.isArray(items) ? items : []).map((item, index) => normalizeTip(item, index));
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     const store = getMemoryStore();
     return setMemoryStore({ ...store, tips: normalizedItems }).tips;
   }
 
-  await ensureDatabase();
   await db.begin(async (tx) => {
     if (normalizedItems.length === 0) {
       await tx.unsafe('delete from tips');
@@ -1312,13 +1310,12 @@ async function saveTips(items) {
 
 async function saveCollections(items) {
   const normalizedItems = (Array.isArray(items) ? items : []).map((item, index) => normalizeCollection(item, index));
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     const store = getMemoryStore();
     return setMemoryStore({ ...store, collections: normalizedItems }).collections;
   }
 
-  await ensureDatabase();
   await db.begin(async (tx) => {
     if (normalizedItems.length === 0) {
       await tx.unsafe('delete from collection_items');
@@ -1382,7 +1379,7 @@ async function updateCollectionItems(collectionIdOrSlug, itemIds) {
 async function upsertPlace(incomingPlace) {
   const current = incomingPlace?.id ? await getPlaceById(incomingPlace.id) : null;
   const normalizedPlace = normalizePlace(incomingPlace, 0, current || undefined);
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     const store = getMemoryStore();
     const nextStore = setMemoryStore({
@@ -1392,7 +1389,6 @@ async function upsertPlace(incomingPlace) {
     return nextStore.places.find((place) => place.id === normalizedPlace.id) || normalizedPlace;
   }
 
-  await ensureDatabase();
   await db.begin(async (tx) => {
     await tx.unsafe(
       `
@@ -1497,7 +1493,7 @@ async function upsertPlace(incomingPlace) {
 }
 
 async function deletePlace(id) {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     const store = getMemoryStore();
     return setMemoryStore({
@@ -1514,7 +1510,6 @@ async function deletePlace(id) {
     });
   }
 
-  await ensureDatabase();
   await db.begin(async (tx) => {
     await tx.unsafe('delete from places where id = $1', [id]);
     await tx.unsafe('delete from collection_items where place_id = $1', [id]);
@@ -1541,12 +1536,10 @@ async function deletePlace(id) {
 
 
 async function getMediaFiles(limit = 120) {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return [];
   }
-
-  await ensureDatabase();
   return db.unsafe(
     `
       select id, kind, file_name as "fileName", mime_type as "mimeType", size_bytes as "sizeBytes",
@@ -1560,12 +1553,10 @@ async function getMediaFiles(limit = 120) {
 }
 
 async function deleteMediaFileRecord(id) {
-  const db = getSql();
+  const db = await getReadyDb();
   if (!db) {
     return null;
   }
-
-  await ensureDatabase();
   const rows = await db.unsafe(
     `delete from media_files where id = $1 returning id, kind, file_name as "fileName", mime_type as "mimeType", size_bytes as "sizeBytes", storage_path as "storagePath", public_url as "publicUrl", created_at as "createdAt"`,
     [id]
@@ -1574,7 +1565,6 @@ async function deleteMediaFileRecord(id) {
 }
 
 async function saveMediaFileRecord(input) {
-  const db = getSql();
   const record = {
     id: String(input?.id || crypto.randomUUID()),
     kind: String(input?.kind || 'general'),
@@ -1584,12 +1574,11 @@ async function saveMediaFileRecord(input) {
     storagePath: String(input?.storagePath || ''),
     publicUrl: String(input?.publicUrl || '')
   };
+  const db = await getReadyDb();
 
   if (!db) {
     return record;
   }
-
-  await ensureDatabase();
   await db.unsafe(
     `
       insert into media_files (id, kind, file_name, mime_type, size_bytes, storage_path, public_url)

@@ -2,6 +2,9 @@ const crypto = require('crypto');
 const fs = require('fs');
 const express = require('express');
 const path = require('path');
+
+loadEnvFile(path.resolve(__dirname, '../../.env'));
+
 const {
   appendAnalyticsEvent,
   deleteCategory,
@@ -32,10 +35,45 @@ const {
 } = require('./db');
 const { registerPublicAuthRoutes } = require('./publicAuth');
 
+function loadEnvFile(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return;
+  }
+
+  const raw = fs.readFileSync(filePath, 'utf8');
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) {
+      continue;
+    }
+
+    const separatorIndex = trimmed.indexOf('=');
+    if (separatorIndex === -1) {
+      continue;
+    }
+
+    const key = trimmed.slice(0, separatorIndex).trim();
+    if (!key || Object.prototype.hasOwnProperty.call(process.env, key)) {
+      continue;
+    }
+
+    let value = trimmed.slice(separatorIndex + 1);
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    process.env[key] = value.replace(/\\n/g, '\n');
+  }
+}
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 const webDistPath = path.resolve(__dirname, '../../webapp/dist');
-const uploadsRoot = process.env.UPLOADS_DIR ? path.resolve(process.env.UPLOADS_DIR) : path.resolve(__dirname, '../../storage/uploads');
+const defaultUploadsRoot = path.resolve(__dirname, '../../storage/uploads');
+const uploadsRoot = resolveUploadsRoot();
 const uploadsPublicBasePath = '/uploads';
 const OWNER_PASSWORD = process.env.OWNER_PASSWORD || 'guide2026';
 const OWNER_SESSION_SECRET = process.env.OWNER_SESSION_SECRET || 'guide-owner-secret-change-me';
@@ -52,6 +90,28 @@ app.use('/api', (_req, res, next) => {
 });
 
 registerPublicAuthRoutes(app);
+
+function resolveUploadsRoot() {
+  const configuredPath = process.env.UPLOADS_DIR ? path.resolve(process.env.UPLOADS_DIR) : '';
+  const candidates = [configuredPath, defaultUploadsRoot].filter(Boolean);
+  const tried = new Set();
+
+  for (const candidate of candidates) {
+    if (tried.has(candidate)) {
+      continue;
+    }
+    tried.add(candidate);
+
+    try {
+      fs.mkdirSync(candidate, { recursive: true });
+      return candidate;
+    } catch (error) {
+      console.warn(`Could not use uploads directory "${candidate}":`, error instanceof Error ? error.message : error);
+    }
+  }
+
+  throw new Error('Unable to initialize uploads directory.');
+}
 
 
 function ensureUploadsDirectory() {
@@ -925,8 +985,13 @@ app.listen(PORT, async () => {
   try {
     ensureUploadsDirectory();
     if (hasDatabase()) {
-      await ensureDatabase();
-      console.log('Guide app server started on port %s with PostgreSQL', PORT);
+      const databaseReady = await ensureDatabase();
+      if (databaseReady) {
+        console.log('Guide app server started on port %s with PostgreSQL', PORT);
+        return;
+      }
+
+      console.log('Guide app server started on port %s with file storage fallback', PORT);
       return;
     }
 
