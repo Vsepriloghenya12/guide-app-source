@@ -153,6 +153,34 @@ function parseNullableNumber(value: string) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function parseAverageCheckNumber(value: string) {
+  const digitsOnly = value.replace(/[^\d]/g, '');
+  if (!digitsOnly) {
+    return null;
+  }
+
+  const parsed = Number(digitsOnly);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function normalizeAverageCheckLabel(value: string) {
+  const trimmed = value.trim().replace(/\s+/g, ' ');
+  if (!trimmed) {
+    return '';
+  }
+
+  const normalizedCurrencyText = trimmed.replace(/\s*vnd\b/gi, ' VND').replace(/\s+/g, ' ').trim();
+  const numericValue = parseAverageCheckNumber(normalizedCurrencyText);
+  const rawWithoutCurrency = normalizedCurrencyText.replace(/\s*VND\b/gi, '').trim();
+  const isNumericLike = /^[\d\s,._-]+$/.test(rawWithoutCurrency);
+
+  if (numericValue !== null && (isNumericLike || /\bVND\b/i.test(normalizedCurrencyText))) {
+    return `${numericValue.toLocaleString('en-US')} VND`;
+  }
+
+  return normalizedCurrencyText;
+}
+
 function toEditableGoogleMapsLink(item: Pick<GuidePlace, 'mapQuery' | 'address' | 'title'>) {
   if (item.mapQuery?.trim()) {
     return createGoogleMapsUrl({
@@ -195,7 +223,7 @@ function toDraft(item: GuidePlace): PlaceDraft {
     phone: item.phone,
     website: item.website,
     hours: item.hours,
-    avgCheck: item.avgCheck ? String(item.avgCheck) : '',
+    avgCheck: item.priceLabel?.trim() || (typeof item.avgCheck === 'number' && Number.isFinite(item.avgCheck) ? String(item.avgCheck) : ''),
     hotelStars: typeof item.hotelStars === 'number' ? String(item.hotelStars) : '',
     kind: item.kind,
     cuisine: item.cuisine,
@@ -237,6 +265,8 @@ function sortPlaces(left: GuidePlace, right: GuidePlace) {
 function createPlacePayload(draft: PlaceDraft) {
   const normalizedGallery = draft.imageGallery.filter(Boolean);
   const generatedSlug = normalizeSlug(draft.slug || draft.title || `${draft.categoryId}-${draft.id || createId()}`);
+  const averageCheckNumber = parseAverageCheckNumber(draft.avgCheck);
+  const averageCheckLabel = normalizeAverageCheckLabel(draft.avgCheck);
 
   return {
     id: draft.id || createId(),
@@ -251,7 +281,8 @@ function createPlacePayload(draft: PlaceDraft) {
     phone: draft.phone.trim(),
     website: draft.website.trim(),
     hours: draft.hours.trim(),
-    avgCheck: draft.avgCheck ? Number(draft.avgCheck) : undefined,
+    avgCheck: averageCheckNumber ?? undefined,
+    priceLabel: averageCheckLabel,
     hotelStars: draft.categoryId === 'hotels' && draft.hotelStars ? Number(draft.hotelStars) : null,
     hotelPool: draft.categoryId === 'hotels' ? draft.hotelPool : false,
     hotelSpa: draft.categoryId === 'hotels' ? draft.hotelSpa : false,
@@ -690,7 +721,7 @@ export function OwnerPlacesManager({ items, categories }: OwnerPlacesManagerProp
             <label className="field">
               <span>Средний чек</span>
               <input
-                type="number"
+                type="text"
                 value={draft.avgCheck}
                 onChange={(event) => updateDraftField('avgCheck', event.target.value)}
               />

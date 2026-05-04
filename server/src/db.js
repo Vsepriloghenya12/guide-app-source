@@ -428,6 +428,7 @@ async function ensureDatabase() {
           website text not null default '',
           hours text not null default '',
           avg_check numeric,
+          price_label text not null default '',
           kind text not null default '',
           cuisine text not null default '',
           services jsonb not null default '[]'::jsonb,
@@ -457,6 +458,7 @@ async function ensureDatabase() {
       await db.unsafe(`alter table places add column if not exists hotel_stars integer`);
       await db.unsafe(`alter table places add column if not exists hotel_pool boolean not null default false`);
       await db.unsafe(`alter table places add column if not exists hotel_spa boolean not null default false`);
+      await db.unsafe(`alter table places add column if not exists price_label text not null default ''`);
 
       await db.unsafe(`
         update categories
@@ -655,13 +657,13 @@ async function replaceStoreContents(store) {
       await tx.unsafe(
         `
           insert into places (
-            id, category_id, slug, title, description, address, phone, website, hours, avg_check, kind, cuisine,
+            id, category_id, slug, title, description, address, phone, website, hours, avg_check, price_label, kind, cuisine,
             services, tags, breakfast, vegan, pets, child_programs, top, rating, image_label, image_src,
             status, sort_order, lat, lng, map_query, district, hotel_stars, hotel_pool, hotel_spa, updated_at
           ) values (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-            $13::jsonb, $14::jsonb, $15, $16, $17, $18, $19, $20, $21, $22,
-            $23, $24, $25, $26, $27, $28, $29, $30, $31, now()
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
+            $14::jsonb, $15::jsonb, $16, $17, $18, $19, $20, $21, $22, $23,
+            $24, $25, $26, $27, $28, $29, $30, $31, $32, now()
           )
           on conflict (id) do update set
             category_id = excluded.category_id,
@@ -673,6 +675,7 @@ async function replaceStoreContents(store) {
             website = excluded.website,
             hours = excluded.hours,
             avg_check = excluded.avg_check,
+            price_label = excluded.price_label,
             kind = excluded.kind,
             cuisine = excluded.cuisine,
             services = excluded.services,
@@ -707,6 +710,7 @@ async function replaceStoreContents(store) {
           place.website,
           place.hours,
           place.avgCheck,
+          place.priceLabel || '',
           place.kind,
           place.cuisine,
           JSON.stringify(place.services || []),
@@ -846,7 +850,7 @@ async function readPlaces() {
   const [placeRows, imageRows] = await Promise.all([
     db.unsafe(`
       select id, category_id as "categoryId", slug, title, description, address, phone, website, hours,
-             avg_check as "avgCheck", kind, cuisine, services, tags, breakfast, vegan, pets,
+             avg_check as "avgCheck", price_label as "priceLabel", kind, cuisine, services, tags, breakfast, vegan, pets,
              child_programs as "childPrograms", top, rating, image_label as "imageLabel", image_src as "imageSrc",
              status, sort_order as "sortOrder", lat, lng, map_query as "mapQuery", district,
              hotel_stars as "hotelStars", hotel_pool as "hotelPool", hotel_spa as "hotelSpa"
@@ -882,7 +886,7 @@ async function readPlaces() {
         childFriendly: row.childPrograms,
         petFriendly: row.pets,
         shortDescription: row.description,
-        priceLabel: typeof row.avgCheck === 'number' ? `от ${row.avgCheck}` : '',
+        priceLabel: row.priceLabel || (typeof row.avgCheck === 'number' ? `от ${row.avgCheck}` : ''),
         listingType: row.kind,
         location: row.address,
         phoneNumber: row.phone,
@@ -1393,13 +1397,13 @@ async function upsertPlace(incomingPlace) {
     await tx.unsafe(
       `
         insert into places (
-          id, category_id, slug, title, description, address, phone, website, hours, avg_check, kind, cuisine,
+          id, category_id, slug, title, description, address, phone, website, hours, avg_check, price_label, kind, cuisine,
           services, tags, breakfast, vegan, pets, child_programs, top, rating, image_label, image_src,
           status, sort_order, lat, lng, map_query, district, hotel_stars, hotel_pool, hotel_spa, updated_at
         ) values (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-          $13::jsonb, $14::jsonb, $15, $16, $17, $18, $19, $20, $21, $22,
-          $23, $24, $25, $26, $27, $28, $29, $30, $31, now()
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
+          $14::jsonb, $15::jsonb, $16, $17, $18, $19, $20, $21, $22, $23,
+          $24, $25, $26, $27, $28, $29, $30, $31, $32, now()
         )
         on conflict (id) do update set
           category_id = excluded.category_id,
@@ -1411,6 +1415,7 @@ async function upsertPlace(incomingPlace) {
           website = excluded.website,
           hours = excluded.hours,
           avg_check = excluded.avg_check,
+          price_label = excluded.price_label,
           kind = excluded.kind,
           cuisine = excluded.cuisine,
           services = excluded.services,
@@ -1445,6 +1450,7 @@ async function upsertPlace(incomingPlace) {
         normalizedPlace.website,
         normalizedPlace.hours,
         normalizedPlace.avgCheck,
+        normalizedPlace.priceLabel || '',
         normalizedPlace.kind,
         normalizedPlace.cuisine,
         JSON.stringify(normalizedPlace.services || []),
