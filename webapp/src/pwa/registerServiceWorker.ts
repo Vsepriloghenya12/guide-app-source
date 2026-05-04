@@ -1,5 +1,6 @@
 const SW_URL = '/sw.js';
 export const PWA_UPDATE_READY_EVENT = 'dg:pwa-update-ready';
+const DEV_SW_CLEANUP_KEY = 'dg-dev-sw-cleanup';
 
 let pendingRegistration: ServiceWorkerRegistration | null = null;
 
@@ -15,6 +16,40 @@ export function applyStandaloneModeClass() {
   document.documentElement.classList.toggle('display-mode-standalone', standalone);
 }
 
+function isLocalDevelopment() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return import.meta.env.DEV || ['localhost', '127.0.0.1'].includes(window.location.hostname);
+}
+
+async function cleanupDevelopmentServiceWorkers() {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    return;
+  }
+
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(registrations.map((registration) => registration.unregister().catch(() => false)));
+
+  if ('caches' in window) {
+    const cacheKeys = await caches.keys();
+    await Promise.all(
+      cacheKeys
+        .filter((key) => key.startsWith('dg-'))
+        .map((key) => caches.delete(key).catch(() => false))
+    );
+  }
+
+  if ((registrations.length > 0 || navigator.serviceWorker.controller) && !window.sessionStorage.getItem(DEV_SW_CLEANUP_KEY)) {
+    window.sessionStorage.setItem(DEV_SW_CLEANUP_KEY, '1');
+    window.location.reload();
+    return;
+  }
+
+  window.sessionStorage.removeItem(DEV_SW_CLEANUP_KEY);
+}
+
 export function activatePendingUpdate() {
   pendingRegistration?.waiting?.postMessage({ type: 'SKIP_WAITING' });
 }
@@ -26,6 +61,13 @@ function dispatchUpdateReady(registration: ServiceWorkerRegistration) {
 
 export function registerServiceWorker() {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    return;
+  }
+
+  if (isLocalDevelopment()) {
+    window.addEventListener('load', () => {
+      void cleanupDevelopmentServiceWorkers();
+    });
     return;
   }
 

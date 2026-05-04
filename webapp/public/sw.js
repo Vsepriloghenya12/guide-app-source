@@ -1,8 +1,9 @@
-const VERSION = '2026-04-15-live-content-r1';
+const VERSION = '2026-05-04-dev-bypass-r1';
 const STATIC_CACHE = `dg-static-${VERSION}`;
 const PAGES_CACHE = `dg-pages-${VERSION}`;
 const RUNTIME_CACHE = `dg-runtime-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
+const IS_LOCAL_DEV = ['localhost', '127.0.0.1'].includes(self.location.hostname);
 const PRECACHE_URLS = [
   OFFLINE_URL,
   '/manifest.webmanifest',
@@ -16,6 +17,11 @@ const PRECACHE_URLS = [
 ];
 
 self.addEventListener('install', (event) => {
+  if (IS_LOCAL_DEV) {
+    self.skipWaiting();
+    return;
+  }
+
   event.waitUntil(caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_URLS)));
   self.skipWaiting();
 });
@@ -23,6 +29,15 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
+      if (IS_LOCAL_DEV) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+        await self.registration.unregister();
+        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        await Promise.all(clients.map((client) => client.navigate(client.url)));
+        return;
+      }
+
       if (self.registration.navigationPreload) {
         await self.registration.navigationPreload.enable().catch(() => undefined);
       }
@@ -47,6 +62,10 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+
+  if (IS_LOCAL_DEV) {
+    return;
+  }
 
   if (request.method !== 'GET') {
     return;
